@@ -1,0 +1,88 @@
+.sidebar-dark-primary {
+    background-color:  #FFDB58 !important;
+}
+
+.navbar-white {
+    background-color: #005EB8 !important;
+    color: #fff;
+}
+
+.brand-link {
+    background-color: #005EB8 !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+.main-footer {
+    background-color: #002855 !important;
+    color: white;
+}
+
+/* Link activo del menú */
+.nav-sidebar .nav-link.active {
+    background-color: #00B5E2 !important;
+    color: #fff !important;
+}
+
+/* Iconos y enlaces del menú */
+.nav-sidebar .nav-link {
+    color: #F4B400;
+}
+
+.nav-sidebar .nav-link:hover {
+    background-color: #005EB8 !important;
+    color: #fff !important;
+}
+
+/* Títulos de encabezado */
+.content-header h1, .content-header h2 {
+    color: #002855 !important;
+}
+
+/* Estilos para la barra de desplazamiento del sidebar */
+.sidebar .os-theme-light > .os-scrollbar-vertical {
+    bottom: 0;
+    width: 6px;
+    padding: 0;
+}
+
+.sidebar .os-theme-light > .os-scrollbar-vertical > .os-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar .os-theme-light > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    min-height: 20px;
+}
+
+.sidebar .os-theme-light > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.sidebar .os-theme-light > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle.active {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* Asegurar que el sidebar tenga altura completa y scroll */
+.sidebar {
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Hacer el scroll más suave */
+.sidebar .nav-sidebar {
+    scroll-behavior: smooth;
+}
+
+/* Ocultar scrollbar nativo del navegador en el sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+
+.sidebar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}

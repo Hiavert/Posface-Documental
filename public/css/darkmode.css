@@ -1,0 +1,71 @@
+.dark-theme {
+    background: #121212 !important;
+    color: #e5e5e5 !important;
+}
+
+.dark-theme .main-header.navbar {
+    background: #1f1f1f !important;
+    color: #fff !important;
+}
+.dark-theme .main-header.navbar a {
+    color: #ddd !important;
+}
+
+.dark-theme .main-sidebar {
+    background: #181818 !important;
+    color: #ccc !important;
+}
+.dark-theme .nav-sidebar .nav-link {
+    color: #bbb !important;
+}
+.dark-theme .nav-sidebar .nav-link.active {
+    background: #333 !important;
+    color: #fff !important;
+}
+
+.dark-theme .card,
+.dark-theme .module-card,
+.dark-theme .welcome-card {
+    background: #1e1e1e !important;
+    color: #eee !important;
+    border: 1px solid #333;
+}
+
+.dark-theme .dropdown-menu {
+    background: #2a2a2a !important;
+    color: #fff !important;
+    border: 1px solid #333;
+}
+
+.dark-theme .btn {
+    background: #333 !important;
+    color: #fff !important;
+    border: 1px solid #444;
+}
+.dark-theme .btn:hover {
+    background: #444 !important;
+}
+
+.dark-theme .badge {
+    opacity: 0.9;
+}
+
+.dark-theme input,
+.dark-theme select,
+.dark-theme textarea {
+    background: #222 !important;
+    color: #fff !important;
+    border: 1px solid #444;
+}
+
+#darkModeToggle {
+    font-size: 1.2rem;
+    color: #555;
+    transition: color 0.3s;
+}
+#darkModeToggle:hover {
+    color: #ffb400;
+}
+.dark-theme #darkModeToggle i {
+    color: #ffd43b;
+}
