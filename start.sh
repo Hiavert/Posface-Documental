@@ -1,21 +1,21 @@
 #!/bin/bash
 
+# Esperar a que la base de datos esté lista
 sleep 10
 
-echo "Puerto detectado: $PORT"
+# Crear enlace de storage
+php artisan storage:link
 
-# Crear enlace de storage (ignorar si ya existe)
-php artisan storage:link || echo "El enlace de storage ya existe"
-
-# Optimizar la aplicación
+# Optimizar la aplicación para producción
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Ejecutar migraciones (ignorar errores si ya están aplicadas)
-php artisan migrate --force || echo "Migraciones ya aplicadas o error ignorado"
+# Ejecutar migraciones
+php artisan migrate --force
 
-# Iniciar FrankenPHP en Railway
-exec frankenphp php-server 0.0.0.0:$PORT public/
+# Iniciar FrankenPHP en el puerto correcto
+echo "Iniciando FrankenPHP en el puerto: $PORT"
+frankenphp run --listen "0.0.0.0:$PORT" public/
 
 
