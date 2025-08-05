@@ -1,19 +1,20 @@
 #!/bin/bash
-set -e
+
+sleep 10
 
 echo "Puerto detectado: $PORT"
 
-# Esperar un poco a que la DB esté disponible
-sleep 10
+# Crear enlace de storage (ignorar si ya existe)
+php artisan storage:link || echo "El enlace de storage ya existe"
 
-# Enlaces y optimizaciones de Laravel
-php artisan storage:link || true
-php artisan config:cache || true
-php artisan route:cache || true
-php artisan view:cache || true
+# Optimizar la aplicación
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 
-# Ejecutar migraciones sin detener el arranque si ya existen
+# Ejecutar migraciones (ignorar errores si ya están aplicadas)
 php artisan migrate --force || echo "Migraciones ya aplicadas o error ignorado"
 
-# Iniciar FrankenPHP en el puerto que Railway espera
-exec SERVER_ADDR="0.0.0.0:$PORT" frankenphp php-server public/
+# Iniciar FrankenPHP correctamente
+exec frankenphp php-server --address=0.0.0.0:$PORT public/
+
