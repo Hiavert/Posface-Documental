@@ -1,1 +1,1 @@
-web: PORT=${PORT:-8080} frankenphp php-server public
+web: php artisan serve --host=0.0.0.0 --port=${PORT}
