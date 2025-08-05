@@ -1,20 +1,25 @@
 #!/bin/bash
 
+# Esperar BD
 sleep 10
-echo "Puerto detectado: $PORT"
 
-# Crear enlace de storage
-php artisan storage:link || echo "El enlace de storage ya existe"
+# 🔹 Limpiar cachés antes de optimizar
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
 
-# Cachear configuración
+# 🔹 Volver a optimizar
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Ejecutar migraciones
-php artisan migrate --force || echo "Migraciones ya aplicadas o error ignorado"
+# 🔹 Storage link
+php artisan storage:link || true
 
-# 🚀 Iniciar servidor PHP nativo (sin FrankenPHP)
-exec php -S 0.0.0.0:$PORT -t public
+# 🔹 Migraciones
+php artisan migrate --force || echo "Migraciones ya aplicadas"
 
+# 🔹 Iniciar servidor
+php -S 0.0.0.0:$PORT -t public
 
