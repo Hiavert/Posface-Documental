@@ -1,45 +1,43 @@
 #!/bin/bash
-set -x  # Muestra cada comando que ejecuta
+set -x
 
-# Esperar un poco por dependencias de Railway
-sleep 10  
+# Esperar por dependencias
+sleep 10
 
-# Verificar PHP
-php -v
-which php
-
-# Limpiar caches previos
+# Limpiar cachés
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 php artisan cache:clear
 
-# Recompilar caches
+# Recompilar cachés
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Ajustar permisos (incluyendo volumen)
-chmod -R 775 storage bootstrap/cache
-
-# Forzar recreación del symlink aunque exista
-rm -f public/storage
-
-# Crear directorio si no existe (para Railway)
+# Permisos y estructura de directorios
 mkdir -p storage/app/public/tesis
+chmod -R 775 storage bootstrap/cache
+chmod -R 775 storage/app/public
 
-# Crear enlace simbólico (con reintento)
-php artisan storage:link || {
-    echo "Fallo al crear storage link - reintentando con método manual"
-    rm -f public/storage
+# Manejo de enlace simbólico (robusto)
+rm -rf public/storage
+php artisan storage:link
+
+# Si falla el comando oficial, crear manualmente
+if [ ! -L "public/storage" ]; then
+    echo "Creando enlace simbólico manualmente..."
     ln -s $PWD/storage/app/public public/storage
-}
+fi
 
-# Verificar que el enlace existe
-ls -la public
+# Verificar estructura de archivos
+echo "=== CONTENIDO DE STORAGE ==="
+ls -l storage/app/public/tesis
+echo "=== ENLACE SIMBÓLICO ==="
+ls -l public/storage
 
-# Migraciones de BD
-php artisan migrate --force || echo "Migraciones ya aplicadas o error ignorado"
+# Migraciones
+php artisan migrate --force
 
-# Iniciar servidor
+# Iniciar servidor con configuración mejorada
 php -S 0.0.0.0:$PORT -t public

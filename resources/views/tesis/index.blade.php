@@ -551,8 +551,8 @@ $(document).ready(function() {
 
             // Documento y acciones
             if (tesis.ruta_archivo) {
-                const previewUrl = `{{ route('tesis.preview', ['filename' => '__filename__']) }}`.replace('__filename__', tesis.ruta_archivo);
-                const downloadUrl = `{{ route('tesis.download', ['filename' => '__filename__']) }}`.replace('__filename__', tesis.ruta_archivo);
+                const previewUrl = "{{ url('storage/tesis') }}/" + tesis.ruta_archivo;
+                const downloadUrl = "{{ url('storage/tesis') }}/" + tesis.ruta_archivo;
                 
                 tr.append(`<td>
                     <div class="btn-group btn-group-sm">
