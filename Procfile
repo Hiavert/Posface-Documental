@@ -1,1 +1,1 @@
-web: SERVER_ADDR="0.0.0.0:$PORT" frankenphp php-server public/
+web: bash start.sh
