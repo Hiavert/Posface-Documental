@@ -204,21 +204,25 @@ class TesisController extends Controller
 
     public function download($filename)
     {
-        if (!Storage::disk('public')->exists('tesis/'.$filename)) {
+        // Ruta corregida para producción
+        $path = storage_path('app/public/tesis/'.$filename);
+        
+        if (!file_exists($path)) {
             abort(404, "El archivo no existe: $filename");
         }
         
-        $path = Storage::disk('public')->path('tesis/'.$filename);
         return response()->download($path);
     }
 
     public function preview($filename)
     {
-        if (!Storage::disk('public')->exists('tesis/'.$filename)) {
+        // Ruta corregida para producción
+        $path = storage_path('app/public/tesis/'.$filename);
+        
+        if (!file_exists($path)) {
             abort(404, "El archivo no existe: $filename");
         }
         
-        $path = Storage::disk('public')->path('tesis/'.$filename);
         return response()->file($path, [
             'Content-Type' => 'application/pdf'
         ]);

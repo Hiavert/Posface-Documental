@@ -24,11 +24,22 @@ chmod -R 775 storage bootstrap/cache
 
 # Forzar recreación del symlink aunque exista
 rm -f public/storage
-php artisan storage:link || echo "No se pudo crear el symlink, pero continuamos"
+
+# Crear directorio si no existe (para Railway)
+mkdir -p storage/app/public/tesis
+
+# Crear enlace simbólico (con reintento)
+php artisan storage:link || {
+    echo "Fallo al crear storage link - reintentando con método manual"
+    rm -f public/storage
+    ln -s $PWD/storage/app/public public/storage
+}
+
+# Verificar que el enlace existe
+ls -la public
 
 # Migraciones de BD
 php artisan migrate --force || echo "Migraciones ya aplicadas o error ignorado"
 
 # Iniciar servidor
 php -S 0.0.0.0:$PORT -t public
-
