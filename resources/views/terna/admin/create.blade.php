@@ -29,7 +29,9 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Descripción</label>
-                            <input type="text" class="form-control" name="descripcion" required>
+                            <input type="text" class="form-control" name="descripcion" 
+                            pattern="[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,;:¿?¡!()\-]+"
+                            title="Solo letras, números y signos de puntuación" required>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -44,7 +46,9 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Responsable</label>
-                            <input type="text" class="form-control" name="responsable" required>
+                            <input type="text" class="form-control" name="responsable"
+                            pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+"
+                            title="Solo letras y espacios" required>
                         </div>
                     </div>
                     <div class="col-md-6">
