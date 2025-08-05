@@ -1,1 +1,1 @@
-web: frankenphp php-server public/
+web: SERVER_ADDR="0.0.0.0:$PORT" frankenphp php-server public/
