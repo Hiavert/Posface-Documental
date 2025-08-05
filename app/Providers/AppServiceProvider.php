@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
                     ->where('fk_id_usuario_asignado', auth()->id())
                     ->count();
             }
+            if (config('app.env') === 'production') {
+                URL::forceScheme('https');
+            }
             $view->with('contadorPendientes', $contadorPendientes);
         });
     }
