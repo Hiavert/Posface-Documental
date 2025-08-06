@@ -4,21 +4,17 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\View\View;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 use App\Mail\BienvenidaUsuario;
 
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Mostrar vista de registro.
      */
     public function create(): View
     {
@@ -27,71 +23,63 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Manejar el registro de un nuevo usuario.
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nombres' => 'required|string|max:100',
+            'nombres'   => 'required|string|max:100',
             'apellidos' => 'required|string|max:100',
-            'email' => 'required|string|email|max:255|unique:usuario',
+            'email'     => 'required|string|email|max:255|unique:usuario',
             'identidad' => 'required|string|max:20|unique:usuario',
-            'rol' => 'required|exists:roles,id_rol',
+            'rol'       => 'required|exists:roles,id_rol',
         ]);
 
+        // Generar contraseña temporal
         $password = Str::random(10);
 
-        // Obtener primer nombre
+        // Generar nombre de usuario basado en nombre + iniciales
         $primerNombre = explode(' ', trim($request->nombres))[0];
-
-        // Obtener apellidos y sus iniciales
         $apellidos = explode(' ', trim($request->apellidos));
-        $iniciales = '';
-        if (count($apellidos) > 0) {
-            $iniciales .= strtoupper(substr($apellidos[0], 0, 1));
-        }
-        if (count($apellidos) > 1) {
-            $iniciales .= strtoupper(substr($apellidos[1], 0, 1));
-        }
-
-        // Generar el usuario
+        $iniciales = strtoupper(substr($apellidos[0] ?? '', 0, 1)) . strtoupper(substr($apellidos[1] ?? '', 0, 1));
         $usuario = $primerNombre . '-' . $iniciales;
 
+        // Crear usuario
         $user = User::create([
-            'usuario' => $usuario,
-            'nombres' => $request->nombres,
+            'usuario'   => $usuario,
+            'nombres'   => $request->nombres,
             'apellidos' => $request->apellidos,
-            'email' => $request->email,
-            'password' => bcrypt($password), // <-- CORREGIDO
+            'email'     => $request->email,
+            'password'  => bcrypt($password),
             'identidad' => $request->identidad,
-            'estado' => 0, 
+            'estado'    => 0,
         ]);
 
         // Asignar rol
         $user->roles()->attach($request->rol);
 
-        // Crear token de restablecimiento
+        // Generar token para restablecimiento (sin bcrypt)
         $token = Str::random(60);
-        \DB::table('password_resets')->insert([
-            'email' => $user->email, 
-            'token' => bcrypt($token),
-            'created_at' => now(),
-        ]);
+        \DB::table('password_resets')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => $token, 'created_at' => now()]
+        );
 
-        // Enviar email
+        // Enviar correo de bienvenida con el enlace correcto
         Mail::to($user->email)->send(new BienvenidaUsuario($user, $token));
 
-        return redirect()->route('register')->with('success', 'Usuario registrado. Se ha enviado un email para establecer la contraseña.');
+        return redirect()->route('register')
+            ->with('success', 'Usuario registrado. Se ha enviado un email para establecer la contraseña.');
     }
 
+    /**
+     * Mostrar el formulario para establecer la nueva contraseña.
+     */
     public function showResetForm(Request $request, $token)
     {
-        $email = $request->query('email');
         return view('auth.set_password', [
             'token' => $token,
-            'email' => $email,
+            'email' => $request->query('email'),
         ]);
     }
 }
