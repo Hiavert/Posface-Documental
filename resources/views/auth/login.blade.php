@@ -37,7 +37,7 @@
                     <!-- Campo de email con icono de usuario a la izquierda -->
                     <div class="input-container" id="email-container">
                         <i class="bi bi-person"></i>
-                        <input type="email" name="email" id="email" placeholder="usuario@unah.edu.hn" required />
+                        <input type="email" name="email" id="email" placeholder="usuario@unah.hn" required />
                         <i class="bi bi-x-circle toggle-icon email-clear" id="email-clear" title="Limpiar campo"></i>
                         <div class="error-message" id="email-error"></div>
                     </div>
@@ -137,7 +137,7 @@
             function validateEmail() {
                 const email = emailInput.value.trim();
                 const errorElement = document.getElementById('email-error');
-                const emailRegex = /^[a-zA-Z0-9._-]+@(unah\.edu\.hn)$/;
+                const emailRegex = /^[a-zA-Z0-9._-]$/;
                 
                 emailInput.parentElement.classList.remove('error', 'success');
                 errorElement.style.display = 'none';
@@ -148,7 +148,7 @@
                 }
                 
                 if (!emailRegex.test(email)) {
-                    showError(emailInput, errorElement, 'Debe ser un correo institucional (@unah.edu.hn)');
+                    showError(emailInput, errorElement, 'Debe ser un correo valido');
                     return false;
                 }
                 
