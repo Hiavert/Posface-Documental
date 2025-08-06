@@ -39,11 +39,11 @@
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Autor</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-responsable" placeholder="Nombre del autor">
+                    <input type="text" class="form-control form-control-elegant" id="filtro-responsable" placeholder="Nombre del autor" maxlength="255">
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Número de Cuenta</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" placeholder="Número de cuenta">
+                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" placeholder="Número de cuenta" maxlength="20">
                 </div>
             </div>
             <div class="d-flex justify-content-end">
@@ -72,7 +72,7 @@
                 <div class="col-md-6">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control form-control-elegant" id="busqueda" placeholder="Buscar por título, autor o cuenta...">
+                        <input type="text" class="form-control form-control-elegant" id="busqueda" placeholder="Buscar por título, autor o cuenta..." maxlength="255">
                     </div>
                 </div>
                 <div class="col-md-6 text-right">
@@ -139,7 +139,8 @@
                     <input type="hidden" id="id-tesis">
                     <div class="form-group">
                         <label for="titulo" class="form-label">Título *</label>
-                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required>
+                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="255">
+                        <small class="form-text text-muted">Máximo 255 caracteres</small>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -168,14 +169,16 @@
                             <div class="form-group">
                                 <label for="autor" class="form-label">Autor *</label>
                                 <input type="text" class="form-control form-control-elegant" id="autor" name="autor" 
-                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required>
+                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required maxlength="255">
+                                <small class="form-text text-muted">Solo letras y espacios, máximo 255 caracteres</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="numero_cuenta" class="form-label">Número de Cuenta *</label>
                                 <input type="text" class="form-control form-control-elegant" id="numero_cuenta" name="numero_cuenta" 
-                                       pattern="[0-9]+" title="Solo números" required>
+                                       pattern="[0-9]+" title="Solo números" required maxlength="20">
+                                <small class="form-text text-muted">Solo números, máximo 20 dígitos</small>
                             </div>
                         </div>
                     </div>
@@ -189,6 +192,7 @@
                             <input type="file" class="custom-file-input" id="documento" name="documento" accept=".pdf">
                             <label class="custom-file-label" for="documento">Seleccionar archivo</label>
                         </div>
+                        <small class="form-text text-muted">Solo archivos PDF, tamaño máximo 30MB</small>
                     </div>
                 </form>
             </div>
@@ -711,16 +715,62 @@ $(document).ready(function() {
         // Guardar tesis
         $('#btn-guardar').click(function() {
             // Validación de campos
-            const titulo = $('#titulo').val();
-            const autor = $('#autor').val();
-            const numeroCuenta = $('#numero_cuenta').val();
+            const titulo = $('#titulo').val().trim();
+            const autor = $('#autor').val().trim();
+            const numeroCuenta = $('#numero_cuenta').val().trim();
             const fechaDefensa = $('#fecha_defensa').val();
             
+            // Validar campos requeridos
             if (!titulo || !autor || !numeroCuenta || !fechaDefensa) {
                 showToast('Por favor complete todos los campos requeridos', 'danger');
                 return;
             }
             
+            // Validar longitudes máximas
+            if (titulo.length > 255) {
+                showToast('El título no puede exceder los 255 caracteres', 'danger');
+                return;
+            }
+            if (autor.length > 255) {
+                showToast('El autor no puede exceder los 255 caracteres', 'danger');
+                return;
+            }
+            if (numeroCuenta.length > 20) {
+                showToast('El número de cuenta no puede exceder los 20 caracteres', 'danger');
+                return;
+            }
+            
+            // Validar formato del autor (solo letras y espacios)
+            const autorRegex = /^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/;
+            if (!autorRegex.test(autor)) {
+                showToast('El nombre del autor solo puede contener letras y espacios', 'danger');
+                return;
+            }
+            
+            // Validar formato del número de cuenta (solo números)
+            const cuentaRegex = /^[0-9]+$/;
+            if (!cuentaRegex.test(numeroCuenta)) {
+                showToast('El número de cuenta solo puede contener números', 'danger');
+                return;
+            }
+            
+            // Validar fecha de defensa (no mayor a hoy)
+            const today = new Date().toISOString().split('T')[0];
+            if (fechaDefensa > today) {
+                showToast('La fecha de defensa no puede ser mayor a la fecha actual', 'danger');
+                return;
+            }
+            
+            // Validar archivo en creación
+            const id = $('#id-tesis').val();
+            if (!id) {
+                const fileInput = $('#documento')[0];
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showToast('Debe seleccionar un archivo PDF', 'danger');
+                    return;
+                }
+            }
+
             // Crear FormData manualmente para asegurar todos los campos
             const formData = new FormData();
             
@@ -739,7 +789,6 @@ $(document).ready(function() {
             }
             
             // Agregar el ID si estamos editando
-            const id = $('#id-tesis').val();
             if (id) {
                 formData.append('_method', 'PUT');
             }
@@ -794,7 +843,7 @@ $(document).ready(function() {
                 $('#region').val(tesis.fk_id_region);
                 $('#autor').val(tesis.autor);
                 $('#numero_cuenta').val(tesis.numero_cuenta);
-                $('#fecha_defensa').val(tesis.fecha_defensa);
+                $('#fecha_defensa').val(tesis.fecha_defensa.split(' ')[0]); // Formatear fecha para input[type=date]
                 $('.custom-file-label').text(tesis.ruta_archivo ? 'Documento actual' : 'Seleccionar archivo');
                 $('#modal-tesis').modal('show');
             }

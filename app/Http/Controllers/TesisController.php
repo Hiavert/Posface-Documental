@@ -8,7 +8,8 @@ use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use ZipArchive;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class TesisController extends Controller
 {
@@ -61,13 +62,19 @@ class TesisController extends Controller
     {
         try {
             $request->validate([
-                'titulo' => 'required|max:255',
+                'titulo' => 'required|max:255|string',
                 'tipo_tesis' => 'required|exists:tipos_tesis,id_tipo_tesis',
                 'region' => 'required|exists:regiones,id_region',
-                'autor' => 'required|max:255|regex:/^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/',
+                'autor' => 'required|max:255|regex:/^[\pL\s\-]+$/u',
                 'numero_cuenta' => 'required|max:20|regex:/^[0-9]+$/',
-                'fecha_defensa' => 'required|date',
+                'fecha_defensa' => 'required|date|before_or_equal:today',
                 'documento' => 'required|file|mimes:pdf|max:30720',
+            ], [
+                'autor.regex' => 'El campo autor solo puede contener letras y espacios',
+                'numero_cuenta.regex' => 'El campo número de cuenta solo puede contener números',
+                'fecha_defensa.before_or_equal' => 'La fecha de defensa no puede ser mayor a la fecha actual',
+                'documento.mimes' => 'El documento debe ser un archivo PDF',
+                'documento.max' => 'El tamaño máximo del documento es 30MB',
             ]);
 
             $file = $request->file('documento');
@@ -75,11 +82,11 @@ class TesisController extends Controller
             $path = $file->storeAs('tesis', $filename, 'public');
 
             Tesis::create([
-                'titulo' => $request->titulo,
+                'titulo' => strip_tags($request->titulo),
                 'fk_id_tipo_tesis' => $request->tipo_tesis,
                 'fk_id_region' => $request->region,
-                'autor' => $request->autor,
-                'numero_cuenta' => $request->numero_cuenta,
+                'autor' => strip_tags($request->autor),
+                'numero_cuenta' => strip_tags($request->numero_cuenta),
                 'ruta_archivo' => $filename,
                 'fk_id_usuario' => auth()->id() ?: 15,
                 'carrera' => 'No especificado',
@@ -118,27 +125,63 @@ class TesisController extends Controller
                 return response()->json(['error' => 'No se encontraron tesis para exportar'], 404);
             }
 
+            // Crear directorio temporal
+            $tempDir = storage_path('app/public/temp_export_' . time());
+            File::makeDirectory($tempDir, 0755, true, true);
+            
+            // Copiar archivos al directorio temporal
+            foreach ($tesis as $tesisItem) {
+                $filePath = storage_path('app/public/tesis/'.$tesisItem->ruta_archivo);
+                if (file_exists($filePath)) {
+                    // Crear nombre seguro para el archivo
+                    $safeTitle = Str::slug($tesisItem->titulo, '_');
+                    $newFileName = $safeTitle . '.pdf';
+                    $newFilePath = $tempDir . '/' . $newFileName;
+                    
+                    // Copiar archivo con nuevo nombre
+                    copy($filePath, $newFilePath);
+                }
+            }
+
+            // Crear archivo ZIP manualmente
             $zipFileName = 'tesis_seleccionadas_'.time().'.zip';
             $zipPath = storage_path('app/public/'.$zipFileName);
             
-            $zip = new ZipArchive;
-            if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
-                foreach ($tesis as $tesisItem) {
-                    $filePath = storage_path('app/public/tesis/'.$tesisItem->ruta_archivo);
-                    if (file_exists($filePath)) {
-                        $zip->addFile($filePath, $tesisItem->titulo.'.pdf');
-                    }
-                }
-                $zip->close();
-                
-                return response()->download($zipPath)->deleteFileAfterSend(true);
-            } else {
-                return response()->json(['error' => 'No se pudo crear el archivo ZIP'], 500);
-            }
+            // Comprimir directorio manualmente
+            $this->zipFolder($tempDir, $zipPath);
+            
+            // Eliminar directorio temporal
+            File::deleteDirectory($tempDir);
+            
+            return response()->download($zipPath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             Log::error('Error en exportar: '.$e->getMessage());
             return response()->json(['error' => 'Error interno: '.$e->getMessage()], 500);
         }
+    }
+
+    // Método para comprimir directorio sin ZipArchive
+    private function zipFolder($sourcePath, $zipPath)
+    {
+        // Crear archivo ZIP
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($sourcePath),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+
+            foreach ($files as $name => $file) {
+                if (!$file->isDir()) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($sourcePath) + 1;
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+            $zip->close();
+            return true;
+        }
+        return false;
     }
 
     public function update(Request $request, $id)
@@ -147,21 +190,27 @@ class TesisController extends Controller
             $tesis = Tesis::findOrFail($id);
             
             $request->validate([
-                'titulo' => 'required|max:255',
+                'titulo' => 'required|max:255|string',
                 'tipo_tesis' => 'required|exists:tipos_tesis,id_tipo_tesis',
                 'region' => 'required|exists:regiones,id_region',
-                'autor' => 'required|max:255|regex:/^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/',
+                'autor' => 'required|max:255|regex:/^[\pL\s\-]+$/u',
                 'numero_cuenta' => 'required|max:20|regex:/^[0-9]+$/',
-                'fecha_defensa' => 'required|date',
+                'fecha_defensa' => 'required|date|before_or_equal:today',
                 'documento' => 'nullable|file|mimes:pdf|max:30720',
+            ], [
+                'autor.regex' => 'El campo autor solo puede contener letras y espacios',
+                'numero_cuenta.regex' => 'El campo número de cuenta solo puede contener números',
+                'fecha_defensa.before_or_equal' => 'La fecha de defensa no puede ser mayor a la fecha actual',
+                'documento.mimes' => 'El documento debe ser un archivo PDF',
+                'documento.max' => 'El tamaño máximo del documento es 30MB',
             ]);
 
             $data = [
-                'titulo' => $request->titulo,
+                'titulo' => strip_tags($request->titulo),
                 'fk_id_tipo_tesis' => $request->tipo_tesis,
                 'fk_id_region' => $request->region,
-                'autor' => $request->autor,
-                'numero_cuenta' => $request->numero_cuenta,
+                'autor' => strip_tags($request->autor),
+                'numero_cuenta' => strip_tags($request->numero_cuenta),
                 'fecha_defensa' => $request->fecha_defensa,
             ];
 
