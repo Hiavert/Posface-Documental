@@ -43,7 +43,7 @@
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Número de Cuenta</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" placeholder="Número de cuenta" maxlength="11">
+                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" placeholder="Número de cuenta" maxlength="20">
                 </div>
             </div>
             <div class="d-flex justify-content-end">
@@ -177,8 +177,8 @@
                             <div class="form-group">
                                 <label for="numero_cuenta" class="form-label">Número de Cuenta *</label>
                                 <input type="text" class="form-control form-control-elegant" id="numero_cuenta" name="numero_cuenta" 
-                                       pattern="[0-9]+" title="Solo números" required maxlength="11">
-                                <small class="form-text text-muted">Solo números, máximo 11 dígitos</small>
+                                       pattern="[0-9]+" title="Solo números" required maxlength="20">
+                                <small class="form-text text-muted">Solo números, máximo 20 dígitos</small>
                             </div>
                         </div>
                     </div>
@@ -715,68 +715,16 @@ $(document).ready(function() {
         // Guardar tesis
         $('#btn-guardar').click(function() {
             // Validación de campos
-            const titulo = $('#titulo').val().trim();
-            const autor = $('#autor').val().trim();
-            const numeroCuenta = $('#numero_cuenta').val().trim();
+            const titulo = $('#titulo').val();
+            const autor = $('#autor').val();
+            const numeroCuenta = $('#numero_cuenta').val();
             const fechaDefensa = $('#fecha_defensa').val();
             
-            // Validar campos requeridos
             if (!titulo || !autor || !numeroCuenta || !fechaDefensa) {
                 showToast('Por favor complete todos los campos requeridos', 'danger');
                 return;
             }
             
-            // Validar longitudes máximas
-            if (titulo.length > 25) {
-                showToast('El título no puede exceder los 255 caracteres', 'danger');
-                return;
-            }
-            if (autor.length > 25) {
-                showToast('El autor no puede exceder los 255 caracteres', 'danger');
-                return;
-            }
-            if (numeroCuenta.length > 11) {
-                showToast('El número de cuenta no puede exceder los 11 caracteres', 'danger');
-                return;
-            }
-            
-            // Validar formato del TITULO (solo letras y espacios)
-            const autorRegex = /^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/;
-            if (!autorRegex.test(titulo)) {
-                showToast('El nombre del titulo solo puede contener letras y espacios', 'danger');
-                return;
-            }
-            // Validar formato del autor (solo letras y espacios)
-            const autorRegex = /^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/;
-            if (!autorRegex.test(autor)) {
-                showToast('El nombre del autor solo puede contener letras y espacios', 'danger');
-                return;
-            }
-            
-            // Validar formato del número de cuenta (solo números)
-            const cuentaRegex = /^[0-9]+$/;
-            if (!cuentaRegex.test(numeroCuenta)) {
-                showToast('El número de cuenta solo puede contener números', 'danger');
-                return;
-            }
-            
-            // Validar fecha de defensa (no mayor a hoy)
-            const today = new Date().toISOString().split('T')[0];
-            if (fechaDefensa > today) {
-                showToast('La fecha de defensa no puede ser mayor a la fecha actual', 'danger');
-                return;
-            }
-            
-            // Validar archivo en creación
-            const id = $('#id-tesis').val();
-            if (!id) {
-                const fileInput = $('#documento')[0];
-                if (!fileInput.files || fileInput.files.length === 0) {
-                    showToast('Debe seleccionar un archivo PDF', 'danger');
-                    return;
-                }
-            }
-
             // Crear FormData manualmente para asegurar todos los campos
             const formData = new FormData();
             
@@ -795,6 +743,7 @@ $(document).ready(function() {
             }
             
             // Agregar el ID si estamos editando
+            const id = $('#id-tesis').val();
             if (id) {
                 formData.append('_method', 'PUT');
             }
@@ -849,7 +798,7 @@ $(document).ready(function() {
                 $('#region').val(tesis.fk_id_region);
                 $('#autor').val(tesis.autor);
                 $('#numero_cuenta').val(tesis.numero_cuenta);
-                $('#fecha_defensa').val(tesis.fecha_defensa.split(' ')[0]); // Formatear fecha para input[type=date]
+                $('#fecha_defensa').val(tesis.fecha_defensa);
                 $('.custom-file-label').text(tesis.ruta_archivo ? 'Documento actual' : 'Seleccionar archivo');
                 $('#modal-tesis').modal('show');
             }
@@ -942,9 +891,6 @@ $(document).ready(function() {
         });
         
         // Validación en tiempo real
-        $('#titulo').on('input', function() {
-            this.value = this.value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ]/g, '');
-        });
         $('#autor').on('input', function() {
             this.value = this.value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ]/g, '');
         });
