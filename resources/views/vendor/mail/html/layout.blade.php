@@ -1,58 +1,146 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-<title>{{ config('app.name') }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
-<style>
-@media only screen and (max-width: 600px) {
-.inner-body {
-width: 100% !important;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config('app.name') }}</title>
+    <style>
+        :root {
+            --primary: #0b2e59;
+            --secondary: #1a5a8d;
+            --accent: #ffb300;
+            --bg: #f4f6f9;
+            --text: #333333;
+            --muted: #718096;
+        }
 
-.footer {
-width: 100% !important;
-}
-}
+        body {
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+            color: var(--text);
+        }
 
-@media only screen and (max-width: 500px) {
-.button {
-width: 100% !important;
-}
-}
-</style>
-{!! $head ?? '' !!}
+        .email-wrapper {
+            width: 100%;
+            padding: 20px;
+            background: var(--bg);
+        }
+
+        .email-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            text-align: center;
+            padding: 40px 20px 25px 20px;
+            color: white;
+        }
+
+        .header img {
+            max-width: 150px;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .banner {
+            background: var(--accent);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .content {
+            padding: 30px;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .content h2 {
+            color: var(--secondary);
+            margin-top: 0;
+        }
+
+        .button {
+            display: inline-block;
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            color: white !important;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(26, 90, 141, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: var(--bg);
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        .signature {
+            border-top: 1px solid #eee;
+            margin-top: 25px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+    </style>
 </head>
 <body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <!-- ENCABEZADO -->
+            <div class="header">
+                <img src="{{ asset('Imagen/Posface_logo.jpeg') }}" alt="POSFACE Logo">
+                <h1>Sistema de Gestión Académica</h1>
+            </div>
 
-<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-<tr>
-<td align="center">
-<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-{!! $header ?? '' !!}
+            <!-- BANNER -->
+            <div class="banner">
+                🔔 NOTIFICACIÓN AUTOMÁTICA - POSFACE
+            </div>
 
-<!-- Email Body -->
-<tr>
-<td class="body" width="100%" cellpadding="0" cellspacing="0" style="border: hidden !important;">
-<table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
-<!-- Body content -->
-<tr>
-<td class="content-cell">
-{!! Illuminate\Mail\Markdown::parse($slot) !!}
+            <!-- CONTENIDO DINÁMICO -->
+            <div class="content">
+                {!! $slot !!}
+            </div>
 
-{!! $subcopy ?? '' !!}
-</td>
-</tr>
-</table>
-</td>
-</tr>
-
-{!! $footer ?? '' !!}
-</table>
-</td>
-</tr>
-</table>
+            <!-- FOOTER -->
+            <div class="footer">
+                <p>&copy; {{ date('Y') }} POSFACE - Universidad Nacional Autónoma de Honduras</p>
+                <p>Formamos profesionales con valores y visión gerencial para el desarrollo económico del país.</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
