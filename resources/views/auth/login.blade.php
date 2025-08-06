@@ -34,15 +34,15 @@
 
                 <form id="loginForm" method="POST" action="{{ route('login') }}">
                     @csrf
-                    <!-- Campo de email con icono de usuario a la izquierda -->
+                    <!-- Campo de email -->
                     <div class="input-container" id="email-container">
                         <i class="bi bi-person"></i>
-                        <input type="email" name="email" id="email" placeholder="usuario@unah.hn" required />
+                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required />
                         <i class="bi bi-x-circle toggle-icon email-clear" id="email-clear" title="Limpiar campo"></i>
                         <div class="error-message" id="email-error"></div>
                     </div>
 
-                    <!-- Campo de contraseña con candado a la izquierda y ojo a la derecha -->
+                    <!-- Campo de contraseña -->
                     <div class="input-container" id="password-container">
                         <i class="bi bi-lock"></i>
                         <input type="password" name="password" id="password" placeholder="Contraseña" required />
@@ -79,7 +79,7 @@
             emailInput.addEventListener('input', validateEmail);
             passwordInput.addEventListener('input', validatePassword);
             
-            // Toggle para mostrar/ocultar contraseña
+            // Toggle mostrar/ocultar contraseña
             togglePassword.addEventListener('click', function() {
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
@@ -87,7 +87,7 @@
                 this.classList.toggle('bi-eye-slash');
             });
             
-            // Limpiar campo de email
+            // Limpiar campo email
             emailClear.addEventListener('click', function() {
                 emailInput.value = '';
                 validateEmail();
@@ -102,42 +102,23 @@
                 const passwordValid = validatePassword();
                 
                 if (emailValid && passwordValid) {
-                    // Ocultar errores
                     errorAlert.style.display = 'none';
-                    
-                    // Mostrar éxito
                     successAlert.style.display = 'block';
-                    
-                    // Simular envío
-                    setTimeout(() => {
-                        form.submit();
-                    }, 1500);
+                    setTimeout(() => form.submit(), 1500);
                 } else {
-                    // Mostrar resumen de errores
                     errorList.innerHTML = '';
-                    
-                    if (!emailValid) {
-                        const li = document.createElement('li');
-                        li.textContent = 'Correo electrónico inválido';
-                        errorList.appendChild(li);
-                    }
-                    
-                    if (!passwordValid) {
-                        const li = document.createElement('li');
-                        li.textContent = 'Contraseña inválida';
-                        errorList.appendChild(li);
-                    }
-                    
+                    if (!emailValid) errorList.innerHTML += '<li>Correo electrónico inválido</li>';
+                    if (!passwordValid) errorList.innerHTML += '<li>Contraseña inválida</li>';
                     errorAlert.style.display = 'block';
                     successAlert.style.display = 'none';
                 }
             });
             
-            // Funciones de validación
+            // Validar email (ahora acepta cualquier dominio válido)
             function validateEmail() {
                 const email = emailInput.value.trim();
                 const errorElement = document.getElementById('email-error');
-                const emailRegex = /^[a-zA-Z0-9._-]$/;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 
                 emailInput.parentElement.classList.remove('error', 'success');
                 errorElement.style.display = 'none';
@@ -148,7 +129,7 @@
                 }
                 
                 if (!emailRegex.test(email)) {
-                    showError(emailInput, errorElement, 'Debe ser un correo valido');
+                    showError(emailInput, errorElement, 'Debe ser un correo válido');
                     return false;
                 }
                 

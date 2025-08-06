@@ -7,52 +7,132 @@
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <style>
-@media only screen and (max-width: 600px) {
-.inner-body {
-width: 100% !important;
+:root {
+  --primary-color: #1a5a8d;
+  --secondary-color: #0b2e59;
+  --accent-color: #ffb300;
+  --light-color: #f4f6f9;
+  --text-color: #333333;
+  --text-light: #718096;
 }
 
-.footer {
-width: 100% !important;
-}
+body {
+  background-color: #f4f6f9;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  color: var(--text-color);
+  line-height: 1.5;
 }
 
-@media only screen and (max-width: 500px) {
+.email-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.email-header {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.email-header img {
+  max-width: 200px;
+  height: auto;
+}
+
+.email-body {
+  padding: 30px;
+}
+
+.email-footer {
+  background: var(--light-color);
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+h1, h2, h3 {
+  color: var(--primary-color);
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+p {
+  margin-bottom: 15px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
 .button {
-width: 100% !important;
+  display: inline-block;
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  color: white;
+  text-decoration: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-weight: 600;
+  margin: 20px 0;
+  text-align: center;
+  transition: all 0.3s;
+  box-shadow: 0 4px 10px rgba(26, 90, 141, 0.2);
 }
+
+.button:hover {
+  background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+  box-shadow: 0 6px 15px rgba(26, 90, 141, 0.3);
+  transform: translateY(-2px);
+}
+
+.signature {
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+  color: var(--text-light);
+}
+
+@media only screen and (max-width: 600px) {
+  .email-container {
+    border-radius: 0;
+    box-shadow: none;
+  }
+  
+  .email-body {
+    padding: 20px;
+  }
+  
+  h1 {
+    font-size: 22px;
+  }
 }
 </style>
 {!! $head ?? '' !!}
 </head>
 <body>
-
-<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-<tr>
-<td align="center">
-<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-{!! $header ?? '' !!}
-
-<!-- Email Body -->
-<tr>
-<td class="body" width="100%" cellpadding="0" cellspacing="0" style="border: hidden !important;">
-<table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
-<!-- Body content -->
-<tr>
-<td class="content-cell">
-{!! Illuminate\Mail\Markdown::parse($slot) !!}
-
-{!! $subcopy ?? '' !!}
-</td>
-</tr>
-</table>
-</td>
-</tr>
-
-{!! $footer ?? '' !!}
-</table>
-</td>
-</tr>
-</table>
+  <div class="email-container">
+    <div class="email-header">
+      <img src="{{ asset('Imagen/Posface_logo.jpeg') }}" alt="POSFACE Logo">
+      <h1>Sistema de Gestión Académica</h1>
+    </div>
+    
+    <div class="email-body">
+      {!! $slot !!}
+    </div>
+    
+    <div class="email-footer">
+      <p>&copy; {{ date('Y') }} POSFACE - Universidad Nacional Autónoma de Honduras</p>
+      <p>Formamos profesionales con valores y visión gerencial para el desarrollo económico del país.</p>
+    </div>
+  </div>
 </body>
 </html>
