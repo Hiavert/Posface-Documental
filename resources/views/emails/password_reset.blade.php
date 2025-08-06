@@ -1,6 +1,6 @@
 @extends('vendor.mail.html.layout')
 
-@section('slot')
+@section('content')
 <h2>Restablecé tu contraseña 🔐</h2>
 
 <p>Hola {{ $user->nombres ?? 'Usuario' }}, recibimos una solicitud para restablecer tu contraseña.</p>

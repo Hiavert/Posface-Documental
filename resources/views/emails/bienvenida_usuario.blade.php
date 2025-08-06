@@ -1,6 +1,6 @@
 @extends('vendor.mail.html.layout')
 
-@section('slot')
+@section('content')
 <h2>¡Hola {{ $user->nombres }}! 👋</h2>
 
 <p>Nos alegra darte la bienvenida a <strong>POSFACE</strong>. Tu cuenta ha sido creada exitosamente y ya casi estás listo para comenzar.</p>

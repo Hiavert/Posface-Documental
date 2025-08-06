@@ -132,7 +132,7 @@
 
             <!-- CONTENIDO DINÁMICO -->
             <div class="content">
-                {!! $slot !!}
+                 @yield('content')
             </div>
 
             <!-- FOOTER -->
