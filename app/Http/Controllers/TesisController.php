@@ -174,7 +174,7 @@ class TesisController extends Controller
             foreach ($files as $name => $file) {
                 if (!$file->isDir()) {
                     $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($sourcePath) + 1;
+                    $relativePath = substr($filePath, strlen($sourcePath) + 1);
                     $zip->addFile($filePath, $relativePath);
                 }
             }
