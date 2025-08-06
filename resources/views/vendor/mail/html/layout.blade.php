@@ -126,7 +126,7 @@ p {
     </div>
     
     <div class="email-body">
-      {!! $slot !!}
+      @yield('content')
     </div>
     
     <div class="email-footer">
