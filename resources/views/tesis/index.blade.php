@@ -43,7 +43,7 @@
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Número de Cuenta</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" placeholder="Número de cuenta" maxlength="20">
+                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" placeholder="Número de cuenta" maxlength="11">
                 </div>
             </div>
             <div class="d-flex justify-content-end">
@@ -177,8 +177,8 @@
                             <div class="form-group">
                                 <label for="numero_cuenta" class="form-label">Número de Cuenta *</label>
                                 <input type="text" class="form-control form-control-elegant" id="numero_cuenta" name="numero_cuenta" 
-                                       pattern="[0-9]+" title="Solo números" required maxlength="20">
-                                <small class="form-text text-muted">Solo números, máximo 20 dígitos</small>
+                                       pattern="[0-9]+" title="Solo números" required maxlength="11">
+                                <small class="form-text text-muted">Solo números, máximo 11 dígitos</small>
                             </div>
                         </div>
                     </div>
@@ -727,19 +727,25 @@ $(document).ready(function() {
             }
             
             // Validar longitudes máximas
-            if (titulo.length > 255) {
+            if (titulo.length > 25) {
                 showToast('El título no puede exceder los 255 caracteres', 'danger');
                 return;
             }
-            if (autor.length > 255) {
+            if (autor.length > 25) {
                 showToast('El autor no puede exceder los 255 caracteres', 'danger');
                 return;
             }
-            if (numeroCuenta.length > 20) {
-                showToast('El número de cuenta no puede exceder los 20 caracteres', 'danger');
+            if (numeroCuenta.length > 11) {
+                showToast('El número de cuenta no puede exceder los 11 caracteres', 'danger');
                 return;
             }
             
+            // Validar formato del TITULO (solo letras y espacios)
+            const autorRegex = /^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/;
+            if (!autorRegex.test(titulo)) {
+                showToast('El nombre del titulo solo puede contener letras y espacios', 'danger');
+                return;
+            }
             // Validar formato del autor (solo letras y espacios)
             const autorRegex = /^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/;
             if (!autorRegex.test(autor)) {
@@ -936,6 +942,9 @@ $(document).ready(function() {
         });
         
         // Validación en tiempo real
+        $('#titulo').on('input', function() {
+            this.value = this.value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ]/g, '');
+        });
         $('#autor').on('input', function() {
             this.value = this.value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ]/g, '');
         });
