@@ -1,19 +1,21 @@
-<p>Hola {{ $user->nombres }},</p>
+@extends('vendor.mail.html.layout')
 
-<p>Hemos recibido una solicitud para restablecer tu contraseña. Haz clic en el siguiente botón para establecer una nueva contraseña:</p>
+@section('slot')
+<h2>Restablecé tu contraseña 🔐</h2>
 
-<p style="text-align: center;">
-  <a href="{{ $url }}" class="button">Restablecer contraseña</a>
+<p>Hola {{ $user->nombres ?? 'Usuario' }}, recibimos una solicitud para restablecer tu contraseña.</p>
+<p>Si fuiste vos, hacé clic en el botón para establecer una nueva contraseña:</p>
+
+<p style="text-align:center;">
+    <a href="{{ $url }}" class="button">Restablecer Contraseña</a>
 </p>
 
-<p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
-
-<p style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 6px; font-size: 14px;">
-  {{ $url }}
+<p>Si el botón no funciona, copiá y pegá este enlace en tu navegador:</p>
+<p style="background:#f9f9f9; padding:10px; border-radius:5px; font-size:13px; word-break:break-word;">
+    {{ $url }}
 </p>
 
-<div class="signature">
-  <p>Atentamente,</p>
-  <p><strong>Equipo de POSFACE</strong></p>
-  <p>Universidad Nacional Autónoma de Honduras</p>
-</div>
+<p class="signature">
+    ⚠️ Este enlace expirará en 24 horas. Si no solicitaste este cambio, ignorá este mensaje.
+</p>
+@endsection
