@@ -21,7 +21,9 @@ class AcuseController extends Controller
     {
         $user = auth()->user();
         
-        $query = Acuse::with(['remitente', 'destinatario', 'elementos']);
+        $query = Acuse::with(['remitente', 'destinatario', 'elementos'])
+            ->whereHas('remitente')
+            ->whereHas('destinatario');
             
         // Filtro para usuarios no SuperAdmin
         if (!$user->tieneRol('SuperAdmin')) {
@@ -69,7 +71,12 @@ class AcuseController extends Controller
 
     public function reenviarForm($id)
     {
-        $acuse = Acuse::findOrFail($id);
+        $acuse = Acuse::with(['remitente', 'destinatario'])->find($id);
+        
+        if (!$acuse) {
+            abort(404, 'Acuse no encontrado');
+        }
+        
         $usuarios = User::where('id_usuario', '!=', auth()->id())->get();
         
         // Verificar permisos
@@ -87,7 +94,12 @@ class AcuseController extends Controller
         DB::beginTransaction();
         
         try {
-            $acuse = Acuse::findOrFail($id);
+            $acuse = Acuse::find($id);
+            
+            if (!$acuse) {
+                throw new \Exception('Acuse no encontrado');
+            }
+            
             $user = auth()->user();
             
             // Verificar permisos
@@ -96,7 +108,12 @@ class AcuseController extends Controller
                 throw new \Exception('No tienes permiso para reenviar este acuse');
             }
             
-            // Actualizar el acuse existente en lugar de crear uno nuevo
+            // Validar destinatario
+            $request->validate([
+                'nuevo_destinatario' => 'required|exists:usuario,id_usuario'
+            ]);
+            
+            // Actualizar el acuse existente
             $acuse->fk_id_usuario_remitente = $user->id_usuario;
             $acuse->fk_id_usuario_destinatario = $request->nuevo_destinatario;
             $acuse->estado = 'pendiente';
@@ -134,7 +151,12 @@ class AcuseController extends Controller
 
     public function descargarAdjunto($id)
     {
-        $adjunto = AcuseAdjunto::findOrFail($id);
+        $adjunto = AcuseAdjunto::find($id);
+        
+        if (!$adjunto) {
+            abort(404, 'Adjunto no encontrado');
+        }
+        
         $rutaCompleta = storage_path('app/public/' . $adjunto->ruta);
         
         // Verificar que el archivo existe
@@ -159,9 +181,11 @@ class AcuseController extends Controller
             'adjuntos_documentos.*' => 'nullable|mimes:pdf,doc,docx,xls,xlsx|max:5120',
             'adjuntos_imagenes.*' => 'nullable|image|mimes:jpeg,png,gif|max:5120'
         ], [
-            'titulo.regex' => 'El título solo permite letras, números y signos de puntuación básicos',
-            'elementos.*.nombre.regex' => 'El nombre del elemento solo permite letras, números y signos de puntuación básicos',
-            'elementos.*.descripcion.regex' => 'La descripción del elemento solo permite letras, números y signos de puntuación básicos'
+            'titulo.regex' => 'Solo se permiten letras, números y signos de puntuación básicos',
+            'elementos.*.nombre.regex' => 'Solo se permiten letras, números y signos básicos',
+            'elementos.*.descripcion.regex' => 'Solo se permiten letras, números y signos básicos',
+            'adjuntos_documentos.*.max' => 'El archivo no debe exceder 5MB',
+            'adjuntos_imagenes.*.max' => 'La imagen no debe exceder 5MB'
         ]);
         
         DB::beginTransaction();
@@ -194,13 +218,14 @@ class AcuseController extends Controller
             $notificacion->fecha = now();
             $notificacion->save();
 
-           $user = User::find($request->destinatario);
+            $user = User::find($request->destinatario);
             $user->notify(new AcuseEnviadoNotification(
                 'Nuevo Acuse',
                 'Nuevo acuse de recibo.',
                 Auth::user()->nombres,
-                route('acuses.index') // Aquí apuntás directamente al index
+                route('acuses.index')
             ));
+            
             // Guardar archivos adjuntos
             if ($request->hasFile('adjuntos_documentos')) {
                 foreach ($request->file('adjuntos_documentos') as $archivo) {
@@ -240,7 +265,14 @@ class AcuseController extends Controller
 
     public function rastrear($id)
     {
-        $acuse = Acuse::with(['transferencias.origen', 'transferencias.destino'])->findOrFail($id);
+        $acuse = Acuse::with(['transferencias.origen', 'transferencias.destino'])
+            ->whereHas('remitente')
+            ->whereHas('destinatario')
+            ->find($id);
+        
+        if (!$acuse) {
+            abort(404, 'Acuse no encontrado');
+        }
         
         // Verificar permisos
         $user = auth()->user();
@@ -283,7 +315,14 @@ class AcuseController extends Controller
 
     public function show($id)
     {
-        $acuse = Acuse::with(['remitente', 'destinatario', 'elementos.tipo', 'adjuntos'])->findOrFail($id);
+        $acuse = Acuse::with(['remitente', 'destinatario', 'elementos.tipo', 'adjuntos'])
+            ->whereHas('remitente')
+            ->whereHas('destinatario')
+            ->find($id);
+        
+        if (!$acuse) {
+            abort(404, 'Acuse no encontrado');
+        }
         
         // Verificar permisos
         $user = auth()->user();
@@ -300,7 +339,11 @@ class AcuseController extends Controller
     {
         DB::beginTransaction();
         try {
-            $acuse = Acuse::findOrFail($id);
+            $acuse = Acuse::find($id);
+            
+            if (!$acuse) {
+                throw new \Exception('Acuse no encontrado');
+            }
             
             // Verificar permisos
             $user = auth()->user();
@@ -346,7 +389,11 @@ class AcuseController extends Controller
 
     public function aceptar($id)
     {
-        $acuse = Acuse::findOrFail($id);
+        $acuse = Acuse::find($id);
+        
+        if (!$acuse) {
+            abort(404, 'Acuse no encontrado');
+        }
 
         // Verificar permisos
         $user = auth()->user();

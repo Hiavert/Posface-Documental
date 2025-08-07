@@ -18,82 +18,88 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="card card-elegant">
-        <div class="card-header">
-            <h5 class="card-title mb-0">
-                <i class="fas fa-route mr-2 text-muted"></i> 
-                Historial de AR-{{ str_pad($acuse->id_acuse, 5, '0', STR_PAD_LEFT) }}
-            </h5>
+    @if(!$acuse)
+        <div class="alert alert-danger">
+            El acuse solicitado no existe o ha sido eliminado.
         </div>
-        <div class="card-body">
-            <div class="timeline">
-                @foreach($historial as $evento)
-                <div class="timeline-step mb-4">
-                    <div class="timeline-content card">
-                        <div class="card-header bg-white d-flex justify-content-between">
-                            <div>
-                                <span class="badge badge-state-{{ $evento['tipo'] == 'creacion' ? 'enviado' : 'recibido' }}">
-                                    {{ ucfirst($evento['accion']) }}
+    @else
+        <div class="card card-elegant">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-route mr-2 text-muted"></i> 
+                    Historial de AR-{{ str_pad($acuse->id_acuse, 5, '0', STR_PAD_LEFT) }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    @foreach($historial as $evento)
+                    <div class="timeline-step mb-4">
+                        <div class="timeline-content card">
+                            <div class="card-header bg-white d-flex justify-content-between">
+                                <div>
+                                    <span class="badge badge-state-{{ $evento['tipo'] == 'creacion' ? 'enviado' : 'recibido' }}">
+                                        {{ ucfirst($evento['accion']) }}
+                                    </span>
+                                </div>
+                                <span class="text-muted">
+                                    {{ $evento['fecha']->format('d/m/Y H:i') }}
                                 </span>
                             </div>
-                            <span class="text-muted">
-                                {{ $evento['fecha']->format('d/m/Y H:i') }}
+                            <div class="card-body">
+                                <div class="d-flex mb-3">
+                                    <div class="avatar-sm mr-3">
+                                        <div class="avatar-initials bg-primary text-white">
+                                            {{ substr($evento['remitente']->nombres, 0, 1) }}{{ substr($evento['remitente']->apellidos, 0, 1) }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <strong>De:</strong> 
+                                        {{ $evento['remitente']->nombres }} {{ $evento['remitente']->apellidos }}
+                                        <div class="small text-muted">Remitente</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex">
+                                    <div class="avatar-sm mr-3">
+                                        <div class="avatar-initials bg-info text-white">
+                                            {{ substr($evento['destinatario']->nombres, 0, 1) }}{{ substr($evento['destinatario']->apellidos, 0, 1) }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <strong>Para:</strong> 
+                                        {{ $evento['destinatario']->nombres }} {{ $evento['destinatario']->apellidos }}
+                                        <div class="small text-muted">Destinatario</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Estado actual:</strong> 
+                            <span class="badge badge-state-{{ $acuse->estado }}">
+                                {{ ucfirst($acuse->estado) }}
                             </span>
                         </div>
-                        <div class="card-body">
-                            <div class="d-flex mb-3">
-                                <div class="avatar-sm mr-3">
-                                    <div class="avatar-initials bg-primary text-white">
-                                        {{ substr($evento['remitente']->nombres, 0, 1) }}{{ substr($evento['remitente']->apellidos, 0, 1) }}
-                                    </div>
-                                </div>
-                                <div>
-                                    <strong>De:</strong> 
-                                    {{ $evento['remitente']->nombres }} {{ $evento['remitente']->apellidos }}
-                                    <div class="small text-muted">Remitente</div>
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex">
-                                <div class="avatar-sm mr-3">
-                                    <div class="avatar-initials bg-info text-white">
-                                        {{ substr($evento['destinatario']->nombres, 0, 1) }}{{ substr($evento['destinatario']->apellidos, 0, 1) }}
-                                    </div>
-                                </div>
-                                <div>
-                                    <strong>Para:</strong> 
-                                    {{ $evento['destinatario']->nombres }} {{ $evento['destinatario']->apellidos }}
-                                    <div class="small text-muted">Destinatario</div>
-                                </div>
-                            </div>
+                        <div>
+                            <strong>En posesión de:</strong> 
+                            {{ $poseedorActual->nombres }} {{ $poseedorActual->apellidos }}
                         </div>
                     </div>
                 </div>
-                @endforeach
-            </div>
-            
-            <div class="card-footer">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>Estado actual:</strong> 
-                        <span class="badge badge-state-{{ $acuse->estado }}">
-                            {{ ucfirst($acuse->estado) }}
-                        </span>
-                    </div>
-                    <div>
-                        <strong>En posesión de:</strong> 
-                        {{ $poseedorActual->nombres }} {{ $poseedorActual->apellidos }}
-                    </div>
+                
+                <div class="mt-4 text-right">
+                    <a href="{{ route('acuses.index') }}" class="btn btn-outline-secondary btn-elegant">
+                        <i class="fas fa-arrow-left mr-1"></i> Volver
+                    </a>
                 </div>
             </div>
-            
-            <div class="mt-4 text-right">
-                <a href="{{ route('acuses.index') }}" class="btn btn-outline-secondary btn-elegant">
-                    <i class="fas fa-arrow-left mr-1"></i> Volver
-                </a>
-            </div>
         </div>
-    </div>
+    @endif
 </div>
 
 <style>

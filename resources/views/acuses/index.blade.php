@@ -24,7 +24,7 @@
                                href="{{ route('notificaciones.show', $notificacion->id_notificacion) }}">
                                 <div>
                                     <div class="font-weight-bold">{{ $notificacion->titulo }}</div>
-                                    <small class="text-muted">De: {{ $notificacion->acuse->remitente->nombres }} {{ $notificacion->acuse->remitente->apellidos }}</small>
+                                    <small class="text-muted">De: {{ optional($notificacion->acuse->remitente)->nombres ?? 'N/A' }} {{ optional($notificacion->acuse->remitente)->apellidos ?? '' }}</small>
                                     <div class="small text-muted">{{ $notificacion->fecha ? $notificacion->fecha->format('d/m/Y H:i') : now()->format('d/m/Y H:i') }}</div>
                                 </div>
                                 @if($notificacion->estado == 'no_leida')
@@ -302,11 +302,17 @@
                         </div>
                         <div class="form-group">
                             <label>Título</label>
-                            <input type="text" class="form-control" name="titulo" required placeholder="Título del acuse">
+                            <input type="text" class="form-control" name="titulo" required 
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
+                                   title="Solo letras, números y signos básicos"
+                                   placeholder="Título del acuse">
                         </div>
                         <div class="form-group">
                             <label>Descripción</label>
-                            <textarea class="form-control" name="descripcion" rows="3" placeholder="Descripción del acuse"></textarea>
+                            <textarea class="form-control" name="descripcion" rows="3" 
+                                      pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
+                                      title="Solo letras, números y signos básicos"
+                                      placeholder="Descripción del acuse"></textarea>
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
@@ -339,7 +345,10 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>Nombre</label>
-                                        <input type="text" class="form-control" name="elementos[0][nombre]" required placeholder="Nombre del elemento">
+                                        <input type="text" class="form-control" name="elementos[0][nombre]" required 
+                                               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
+                                               title="Solo letras, números y signos básicos"
+                                               placeholder="Nombre del elemento">
                                     </div>
                                     <div class="col-md-2">
                                         <label>Cantidad</label>
@@ -354,7 +363,10 @@
                                 <div class="row mt-2">
                                     <div class="col-md-12">
                                         <label>Descripción</label>
-                                        <textarea class="form-control" name="elementos[0][descripcion]" rows="2" placeholder="Descripción del elemento"></textarea>
+                                        <textarea class="form-control" name="elementos[0][descripcion]" rows="2" 
+                                                  pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
+                                                  title="Solo letras, números y signos básicos"
+                                                  placeholder="Descripción del elemento"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -364,7 +376,9 @@
                         <div class="mt-4">
                             <h5><i class="fas fa-paperclip mr-2"></i> Documentos Adjuntos (PDF, Word, Excel)</h5>
                             <div class="form-group">
-                                <input type="file" class="form-control-file" name="adjuntos_documentos[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx">
+                                <input type="file" class="form-control-file" name="adjuntos_documentos[]" multiple 
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx"
+                                       onchange="validateFiles(this, 'documento')">
                                 <small class="form-text text-muted">Solo para elementos de tipo documento</small>
                             </div>
                         </div>
@@ -372,7 +386,9 @@
                         <div class="mt-3">
                             <h5><i class="fas fa-image mr-2"></i> Imágenes Adjuntas (JPG, PNG, GIF)</h5>
                             <div class="form-group">
-                                <input type="file" class="form-control-file" name="adjuntos_imagenes[]" multiple accept="image/*">
+                                <input type="file" class="form-control-file" name="adjuntos_imagenes[]" multiple 
+                                       accept="image/*"
+                                       onchange="validateFiles(this, 'imagen')">
                                 <small class="form-text text-muted">Solo para elementos de tipo objeto o kit</small>
                             </div>
                         </div>
@@ -403,7 +419,10 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Nombre</label>
-                            <input type="text" class="form-control" name="nombre" required placeholder="Nombre del tipo">
+                            <input type="text" class="form-control" name="nombre" required 
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                                   title="Solo letras y espacios"
+                                   placeholder="Nombre del tipo">
                         </div>
                         <div class="form-group">
                             <label>Categoría</label>
@@ -805,7 +824,10 @@
                         </div>
                         <div class="col-md-4">
                             <label>Nombre</label>
-                            <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" required placeholder="Nombre del elemento">
+                            <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" required 
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
+                                   title="Solo letras, números y signos básicos"
+                                   placeholder="Nombre del elemento">
                         </div>
                         <div class="col-md-2">
                             <label>Cantidad</label>
@@ -820,7 +842,10 @@
                     <div class="row mt-2">
                         <div class="col-md-12">
                             <label>Descripción</label>
-                            <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" rows="2" placeholder="Descripción del elemento"></textarea>
+                            <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" rows="2" 
+                                      pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
+                                      title="Solo letras, números y signos básicos"
+                                      placeholder="Descripción del elemento"></textarea>
                         </div>
                     </div>
                 </div>
@@ -833,6 +858,33 @@
         $(document).on('click', '.remove-element', function() {
             $(this).closest('.elemento-item').remove();
         });
+
+        // Validar archivos
+        window.validateFiles = function(input, type) {
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const files = input.files;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Validar tamaño
+                if (file.size > maxSize) {
+                    alert(`El archivo ${file.name} excede el tamaño máximo de 5MB`);
+                    input.value = '';
+                    return;
+                }
+                
+                // Validar tipo
+                if (type === 'documento') {
+                    const docExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
+                    if (!docExtensions.some(ext => file.name.toLowerCase().endsWith(ext))) {
+                        alert(`Tipo de archivo no permitido: ${file.name}`);
+                        input.value = '';
+                        return;
+                    }
+                }
+            }
+        };
     });
 </script>
 @stop
