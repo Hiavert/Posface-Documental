@@ -350,7 +350,7 @@ return [
             'icon' => 'fas fa-fw fa-book', // Icono más apropiado
             'can' => 'ver-GestionTesis',
         ],
-        [
+        /*[
             'text' => 'Documentos y Oficios',
             'icon' => 'fas fa-file-signature',
             'submenu' => [
@@ -367,7 +367,7 @@ return [
                     'can' => 'ver-Recepcion',
                 ],
             ],
-        ],
+        ],*/
         [
             'text' => 'Tareas documentales',
             'url' => '/tareas',
