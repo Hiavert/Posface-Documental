@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Notifications\NuevoProcesoTernaNotification;
 use App\Models\User;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class TernaAdminController extends Controller
 {
@@ -68,15 +69,22 @@ class TernaAdminController extends Controller
 
     public function store(Request $request)
     {
+        $today = Carbon::today()->toDateString();
+        
         $request->validate([
-            'descripcion' => 'required|string|max:255',
-            'fecha_defensa' => 'required|date',
+            'descripcion' => 'required|string|max:30|regex:/^[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,;:¿?¡!()\-]+$/',
+            'fecha_defensa' => 'required|date|after_or_equal:'.$today,
             'id_asistente' => 'required|exists:usuario,id_usuario',
-            'responsable' => 'required|string|max:255',
-            'fecha_limite' => 'required|date',
+            'responsable' => 'required|string|max:30|regex:/^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/',
+            'fecha_limite' => 'required|date|after_or_equal:'.$today,
             'documento_fisico' => 'required|file|mimes:pdf|max:2048',
             'solvencia_cobranza' => 'required|file|mimes:pdf|max:2048',
             'acta_graduacion' => 'required|file|mimes:pdf|max:2048',
+        ], [
+            'fecha_defensa.after_or_equal' => 'La fecha de defensa debe ser igual o posterior a hoy.',
+            'fecha_limite.after_or_equal' => 'La fecha límite debe ser igual o posterior a hoy.',
+            'descripcion.regex' => 'La descripción solo puede contener letras, números y signos de puntuación.',
+            'responsable.regex' => 'El responsable solo puede contener letras y espacios.',
         ]);
 
         // Obtener último ID para código secuencial
@@ -108,37 +116,34 @@ class TernaAdminController extends Controller
     }
 
     private function subirDocumentos($pagoTerna, $request)
-{
-    $documentos = [
-        ['tipo' => 'documento_fisico', 'file' => $request->file('documento_fisico')],
-        ['tipo' => 'solvencia_cobranza', 'file' => $request->file('solvencia_cobranza')],
-        ['tipo' => 'acta_graduacion', 'file' => $request->file('acta_graduacion')],
-    ];
+    {
+        $documentos = [
+            ['tipo' => 'documento_fisico', 'file' => $request->file('documento_fisico')],
+            ['tipo' => 'solvencia_cobranza', 'file' => $request->file('solvencia_cobranza')],
+            ['tipo' => 'acta_graduacion', 'file' => $request->file('acta_graduacion')],
+        ];
 
-    foreach ($documentos as $doc) {
-        if (!$doc['file']) continue; // Si no hay archivo, saltear
+        foreach ($documentos as $doc) {
+            if (!$doc['file']) continue; // Si no hay archivo, saltear
 
-        $nombreResponsable = Str::slug($pagoTerna->responsable);
-        $nombreOriginal = $doc['file']->getClientOriginalName();
-// En TernaAdminController y TernaAsistenteController:
-        $nombreArchivo = Str::slug(pathinfo($nombreOriginal, PATHINFO_FILENAME)) 
-                 . '.' . $doc['file']->getClientOriginalExtension();
-        // Guardar en disco 'documentos_terna' (configurado en filesystems.php)
-        $path = $doc['file']->storeAs(
-            '',           // carpeta dentro del disco (vacío porque disco ya apunta a documentos_terna)
-            $nombreArchivo,
-            'documentos_terna'
-        );
+            $nombreResponsable = Str::slug($pagoTerna->responsable);
+            $nombreOriginal = $doc['file']->getClientOriginalName();
+            $nombreArchivo = Str::slug(pathinfo($nombreOriginal, PATHINFO_FILENAME)) 
+                     . '.' . $doc['file']->getClientOriginalExtension();
+            // Guardar en disco 'documentos_terna' (configurado en filesystems.php)
+            $path = $doc['file']->storeAs(
+                '',           // carpeta dentro del disco (vacío porque disco ya apunta a documentos_terna)
+                $nombreArchivo,
+                'documentos_terna'
+            );
 
-        DocumentoTerna::create([
-            'pago_terna_id' => $pagoTerna->id,
-            'tipo' => $doc['tipo'],
-            'ruta_archivo' => $path,  // guardamos nombre o path relativo
-        ]);
+            DocumentoTerna::create([
+                'pago_terna_id' => $pagoTerna->id,
+                'tipo' => $doc['tipo'],
+                'ruta_archivo' => $path,  // guardamos nombre o path relativo
+            ]);
+        }
     }
-}
-
-
 
     public function show($id)
     {
@@ -158,12 +163,19 @@ class TernaAdminController extends Controller
 
     public function update(Request $request, $id)
     {
+        $today = Carbon::today()->toDateString();
+        
         $request->validate([
-            'descripcion' => 'required|string|max:255',
-            'fecha_defensa' => 'required|date',
+            'descripcion' => 'required|string|max:30|regex:/^[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,;:¿?¡!()\-]+$/',
+            'fecha_defensa' => 'required|date|after_or_equal:'.$today,
             'id_asistente' => 'required|exists:usuario,id_usuario',
-            'responsable' => 'required|string|max:255',
-            'fecha_limite' => 'required|date',
+            'responsable' => 'required|string|max:30|regex:/^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/',
+            'fecha_limite' => 'required|date|after_or_equal:'.$today,
+        ], [
+            'fecha_defensa.after_or_equal' => 'La fecha de defensa debe ser igual o posterior a hoy.',
+            'fecha_limite.after_or_equal' => 'La fecha límite debe ser igual o posterior a hoy.',
+            'descripcion.regex' => 'La descripción solo puede contener letras, números y signos de puntuación.',
+            'responsable.regex' => 'El responsable solo puede contener letras y espacios.',
         ]);
 
         $pagoTerna = PagoTerna::findOrFail($id);
