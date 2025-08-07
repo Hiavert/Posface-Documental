@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\ProcesoCompletadoNotification;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
+
 class TernaAsistenteController extends Controller
 {
     public function index()
@@ -65,35 +67,32 @@ class TernaAsistenteController extends Controller
     }
 
     private function subirDocumentos($pagoTerna, $request)
-{
-    $documentos = [
-        ['tipo' => 'constancia_participacion', 'file' => $request->file('constancia_participacion')],
-        ['tipo' => 'orden_pago', 'file' => $request->file('orden_pago')],
-        ['tipo' => 'propuesta_maestria', 'file' => $request->file('propuesta_maestria')],
-    ];
+    {
+        $documentos = [
+            ['tipo' => 'constancia_participacion', 'file' => $request->file('constancia_participacion')],
+            ['tipo' => 'orden_pago', 'file' => $request->file('orden_pago')],
+            ['tipo' => 'propuesta_maestria', 'file' => $request->file('propuesta_maestria')],
+        ];
 
-    foreach ($documentos as $doc) {
-        if (!$doc['file']) continue; // Validar que exista archivo
+        foreach ($documentos as $doc) {
+            if (!$doc['file']) continue; // Validar que exista archivo
 
-        $nombreResponsable = Str::slug($pagoTerna->responsable);
-        $nombreOriginal = $doc['file']->getClientOriginalName();
-        // En TernaAdminController y TernaAsistenteController:
-        $nombreArchivo = Str::slug(pathinfo($nombreOriginal, PATHINFO_FILENAME)) 
-                 . '.' . $doc['file']->getClientOriginalExtension();
-        // Guardar en disco personalizado 'documentos_terna'
-        $path = $doc['file']->storeAs(
-            '',             // carpeta dentro del disco (vacío porque disco apunta directo a documentos_terna)
-            $nombreArchivo,
-            'documentos_terna'
-        );
+            $nombreResponsable = Str::slug($pagoTerna->responsable);
+            $nombreOriginal = $doc['file']->getClientOriginalName();
+            $nombreArchivo = Str::slug(pathinfo($nombreOriginal, PATHINFO_FILENAME)) 
+                     . '.' . $doc['file']->getClientOriginalExtension();
+            // Guardar en disco personalizado 'documentos_terna'
+            $path = $doc['file']->storeAs(
+                '',             // carpeta dentro del disco (vacío porque disco apunta directo a documentos_terna)
+                $nombreArchivo,
+                'documentos_terna'
+            );
 
-        DocumentoTerna::create([
-            'pago_terna_id' => $pagoTerna->id,
-            'tipo' => $doc['tipo'],
-            'ruta_archivo' => $path,
-        ]);
+            DocumentoTerna::create([
+                'pago_terna_id' => $pagoTerna->id,
+                'tipo' => $doc['tipo'],
+                'ruta_archivo' => $path,
+            ]);
+        }
     }
-}
-
-
 }
