@@ -13,6 +13,8 @@ use App\Notifications\AcuseEnviadoNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
 class AcuseController extends Controller
@@ -33,32 +35,44 @@ class AcuseController extends Controller
             });
         }
 
+        // Sanitizar inputs
+        $filters = [
+            'estado' => strip_tags($request->estado),
+            'remitente' => strip_tags($request->remitente),
+            'destinatario' => strip_tags($request->destinatario),
+            'elemento' => strip_tags($request->elemento),
+        ];
+
         // Ordenamiento
-        $sort = $request->get('sort', 'fecha_envio');
-        $direction = $request->get('direction', 'desc');
+        $sort = in_array($request->sort, ['id_acuse', 'titulo', 'estado', 'fecha_envio']) ? 
+                $request->sort : 'fecha_envio';
+                
+        $direction = in_array($request->direction, ['asc', 'desc']) ? 
+                    $request->direction : 'desc';
+                    
         $query->orderBy($sort, $direction);
 
-        if ($request->filled('estado')) {
-            $query->where('estado', $request->estado);
+        if (!empty($filters['estado'])) {
+            $query->where('estado', $filters['estado']);
         }
 
-        if ($request->filled('remitente')) {
-            $query->whereHas('remitente', function($q) use ($request) {
-                $q->where('nombres', 'like', '%'.$request->remitente.'%')
-                  ->orWhere('apellidos', 'like', '%'.$request->remitente.'%');
+        if (!empty($filters['remitente'])) {
+            $query->whereHas('remitente', function($q) use ($filters) {
+                $q->where('nombres', 'like', '%'.$filters['remitente'].'%')
+                  ->orWhere('apellidos', 'like', '%'.$filters['remitente'].'%');
             });
         }
 
-        if ($request->filled('destinatario')) {
-            $query->whereHas('destinatario', function($q) use ($request) {
-                $q->where('nombres', 'like', '%'.$request->destinatario.'%')
-                  ->orWhere('apellidos', 'like', '%'.$request->destinatario.'%');
+        if (!empty($filters['destinatario'])) {
+            $query->whereHas('destinatario', function($q) use ($filters) {
+                $q->where('nombres', 'like', '%'.$filters['destinatario'].'%')
+                  ->orWhere('apellidos', 'like', '%'.$filters['destinatario'].'%');
             });
         }
 
-        if ($request->filled('elemento')) {
-            $query->whereHas('elementos', function($q) use ($request) {
-                $q->where('nombre', 'like', '%'.$request->elemento.'%');
+        if (!empty($filters['elemento'])) {
+            $query->whereHas('elementos', function($q) use ($filters) {
+                $q->where('nombre', 'like', '%'.$filters['elemento'].'%');
             });
         }
 
@@ -71,7 +85,7 @@ class AcuseController extends Controller
 
     public function reenviarForm($id)
     {
-        $acuse = Acuse::with(['remitente', 'destinatario'])->find($id);
+        $acuse = Acuse::with(['elementos.tipo'])->find($id);
         
         if (!$acuse) {
             abort(404, 'Acuse no encontrado');
@@ -109,9 +123,19 @@ class AcuseController extends Controller
             }
             
             // Validar destinatario
-            $request->validate([
-                'nuevo_destinatario' => 'required|exists:usuario,id_usuario'
+            $validator = Validator::make($request->all(), [
+                'nuevo_destinatario' => [
+                    'required',
+                    'exists:usuario,id_usuario',
+                    Rule::notIn([$user->id_usuario])
+                ]
+            ], [
+                'nuevo_destinatario.not_in' => 'No puedes reenviar el acuse a ti mismo'
             ]);
+            
+            if ($validator->fails()) {
+                return back()->withErrors($validator)->withInput();
+            }
             
             // Actualizar el acuse existente
             $acuse->fk_id_usuario_remitente = $user->id_usuario;
@@ -169,31 +193,61 @@ class AcuseController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'destinatario' => 'required|exists:usuario,id_usuario',
-            'titulo' => 'required|string|max:255|regex:/^[\pL\s\-\.,;:()0-9]+$/u',
-            'descripcion' => 'nullable|string|regex:/^[\pL\s\-\.,;:()0-9]+$/u',
+        // Validación robusta con sanitización
+        $validator = Validator::make($request->all(), [
+            'destinatario' => [
+                'required', 
+                'exists:usuario,id_usuario',
+                Rule::notIn([Auth::id()])
+            ],
+            'titulo' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+$/u'
+            ],
+            'descripcion' => [
+                'nullable', 
+                'string',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+$/u'
+            ],
             'elementos' => 'required|array|min:1',
             'elementos.*.fk_id_tipo' => 'required|exists:tipos_elemento,id_tipo',
-            'elementos.*.nombre' => 'required|string|max:255|regex:/^[\pL\s\-\.,;:()0-9]+$/u',
-            'elementos.*.descripcion' => 'nullable|string|regex:/^[\pL\s\-\.,;:()0-9]+$/u',
-            'elementos.*.cantidad' => 'nullable|integer|min:1',
+            'elementos.*.nombre' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+$/u'
+            ],
+            'elementos.*.descripcion' => [
+                'nullable', 
+                'string',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+$/u'
+            ],
+            'elementos.*.cantidad' => 'nullable|integer|min:1|max:1000',
             'adjuntos_documentos.*' => 'nullable|mimes:pdf,doc,docx,xls,xlsx|max:5120',
             'adjuntos_imagenes.*' => 'nullable|image|mimes:jpeg,png,gif|max:5120'
         ], [
             'titulo.regex' => 'Solo se permiten letras, números y signos de puntuación básicos',
+            'descripcion.regex' => 'Solo se permiten letras, números y signos básicos',
             'elementos.*.nombre.regex' => 'Solo se permiten letras, números y signos básicos',
             'elementos.*.descripcion.regex' => 'Solo se permiten letras, números y signos básicos',
+            'elementos.*.cantidad.max' => 'La cantidad máxima permitida es 1000',
             'adjuntos_documentos.*.max' => 'El archivo no debe exceder 5MB',
-            'adjuntos_imagenes.*.max' => 'La imagen no debe exceder 5MB'
+            'adjuntos_imagenes.*.max' => 'La imagen no debe exceder 5MB',
+            'destinatario.not_in' => 'No puedes enviar un acuse a ti mismo'
         ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
         
         DB::beginTransaction();
 
         try {
             $acuse = new Acuse();
-            $acuse->titulo = $request->titulo;
-            $acuse->descripcion = $request->descripcion;
+            $acuse->titulo = strip_tags($request->titulo);
+            $acuse->descripcion = strip_tags($request->descripcion);
             $acuse->fk_id_usuario_remitente = Auth::user()->id_usuario;
             $acuse->fk_id_usuario_destinatario = $request->destinatario;
             $acuse->estado = 'pendiente';
@@ -202,8 +256,9 @@ class AcuseController extends Controller
 
             foreach ($request->elementos as $elementoData) {
                 $elemento = new Elemento();
-                $elemento->nombre = $elementoData['nombre'];
-                $elemento->descripcion = $elementoData['descripcion'] ?? null;
+                $elemento->nombre = strip_tags($elementoData['nombre']);
+                $elemento->descripcion = isset($elementoData['descripcion']) ? 
+                                         strip_tags($elementoData['descripcion']) : null;
                 $elemento->cantidad = $elementoData['cantidad'] ?? 1;
                 $elemento->fk_id_tipo = $elementoData['fk_id_tipo'];
                 $elemento->fk_id_acuse = $acuse->id_acuse;
@@ -229,7 +284,7 @@ class AcuseController extends Controller
             // Guardar archivos adjuntos
             if ($request->hasFile('adjuntos_documentos')) {
                 foreach ($request->file('adjuntos_documentos') as $archivo) {
-                    $nombre = time() . '_' . $archivo->getClientOriginalName();
+                    $nombre = time() . '_' . preg_replace('/[^a-zA-Z0-9\.]/', '_', $archivo->getClientOriginalName());
                     $ruta = $archivo->storeAs('adjuntos_acuses/documentos', $nombre, 'public');
                     
                     AcuseAdjunto::create([
@@ -243,7 +298,7 @@ class AcuseController extends Controller
             
             if ($request->hasFile('adjuntos_imagenes')) {
                 foreach ($request->file('adjuntos_imagenes') as $archivo) {
-                    $nombre = time() . '_' . $archivo->getClientOriginalName();
+                    $nombre = time() . '_' . preg_replace('/[^a-zA-Z0-9\.]/', '_', $archivo->getClientOriginalName());
                     $ruta = $archivo->storeAs('adjuntos_acuses/imagenes', $nombre, 'public');
                     
                     AcuseAdjunto::create([
@@ -358,7 +413,7 @@ class AcuseController extends Controller
                 // Eliminar archivo físico
                 $filePath = storage_path('app/public/' . $adjunto->ruta);
                 if (file_exists($filePath)) {
-                    unlink($filePath);
+                    @unlink($filePath);
                 }
                 // Eliminar registro
                 $adjunto->delete();

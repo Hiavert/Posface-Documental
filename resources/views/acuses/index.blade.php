@@ -81,7 +81,7 @@
             <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i>Filtros</h5>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('acuses.index') }}">
+            <form method="GET" action="{{ route('acuses.index') }}" id="filterForm">
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Estado</label>
@@ -94,15 +94,21 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Remitente</label>
-                        <input type="text" class="form-control form-control-elegant" name="remitente" placeholder="Nombre del remitente" value="{{ request('remitente') }}">
+                        <input type="text" class="form-control form-control-elegant" name="remitente" 
+                            placeholder="Nombre del remitente" value="{{ request('remitente') }}"
+                            pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo letras y espacios">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Destinatario</label>
-                        <input type="text" class="form-control form-control-elegant" name="destinatario" placeholder="Nombre del destinatario" value="{{ request('destinatario') }}">
+                        <input type="text" class="form-control form-control-elegant" name="destinatario" 
+                            placeholder="Nombre del destinatario" value="{{ request('destinatario') }}"
+                            pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo letras y espacios">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Elemento</label>
-                        <input type="text" class="form-control form-control-elegant" name="elemento" placeholder="Nombre del elemento" value="{{ request('elemento') }}">
+                        <input type="text" class="form-control form-control-elegant" name="elemento" 
+                            placeholder="Nombre del elemento" value="{{ request('elemento') }}"
+                            pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s0-9\-\.,;:()]+" title="Solo letras, números y signos básicos">
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-2">
@@ -861,7 +867,22 @@
         $(document).on('click', '.remove-element', function() {
             $(this).closest('.elemento-item').remove();
         });
-
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            const inputs = this.querySelectorAll('input[pattern]');
+            let valid = true;
+            
+            inputs.forEach(input => {
+                const pattern = new RegExp(input.pattern);
+                if (input.value && !pattern.test(input.value)) {
+                    alert(input.title);
+                    valid = false;
+                }
+            });
+            
+            if (!valid) {
+                e.preventDefault();
+            }
+        });
         // Validar archivos
         window.validateFiles = function(input, type) {
             const maxSize = 5 * 1024 * 1024; // 5MB

@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AcuseTransferencia extends Model
 {
+    use SoftDeletes;
+    
     protected $table = 'acuses_transferencias';
     protected $primaryKey = 'id_transferencia';
     
@@ -19,14 +22,16 @@ class AcuseTransferencia extends Model
     protected $casts = [
         'fecha_transferencia' => 'datetime'
     ];
+    
+    protected $dates = ['deleted_at'];
 
     public function origen()
     {
-        return $this->belongsTo(User::class, 'fk_id_usuario_origen', 'id_usuario');
+        return $this->belongsTo(User::class, 'fk_id_usuario_origen', 'id_usuario')->withTrashed();
     }
     
     public function destino()
     {
-        return $this->belongsTo(User::class, 'fk_id_usuario_destino', 'id_usuario');
+        return $this->belongsTo(User::class, 'fk_id_usuario_destino', 'id_usuario')->withTrashed();
     }
 }
