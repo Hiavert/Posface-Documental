@@ -4,16 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-
 class Acuse extends Model
 {
-
-    
     protected $table = 'acuses';
     protected $primaryKey = 'id_acuse';
     public $timestamps = true;
-    
-    protected $dates = ['deleted_at'];
 
     protected $fillable = [
         'titulo',
@@ -32,12 +27,12 @@ class Acuse extends Model
 
     public function remitente()
     {
-        return $this->belongsTo(User::class, 'fk_id_usuario_remitente', 'id_usuario')->withTrashed();
+        return $this->belongsTo(User::class, 'fk_id_usuario_remitente', 'id_usuario');
     }
 
     public function destinatario()
     {
-        return $this->belongsTo(User::class, 'fk_id_usuario_destinatario', 'id_usuario')->withTrashed();
+        return $this->belongsTo(User::class, 'fk_id_usuario_destinatario', 'id_usuario');
     }
 
     public function elementos()
@@ -53,5 +48,24 @@ class Acuse extends Model
     public function transferencias()
     {
         return $this->hasMany(AcuseTransferencia::class, 'fk_id_acuse', 'id_acuse');
+    }
+    
+    public function rutaCompleta()
+    {
+        $ruta = [];
+        $actual = $this;
+        
+        while ($actual) {
+            array_unshift($ruta, $actual);
+            
+            // Verificar si existe una relación original
+            if ($actual->original) {
+                $actual = $actual->original;
+            } else {
+                $actual = null;
+            }
+        }
+        
+        return $ruta;
     }
 }

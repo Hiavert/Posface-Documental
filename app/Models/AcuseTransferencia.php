@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class AcuseTransferencia extends Model
 {
-    
     protected $table = 'acuses_transferencias';
     protected $primaryKey = 'id_transferencia';
     
@@ -20,16 +19,14 @@ class AcuseTransferencia extends Model
     protected $casts = [
         'fecha_transferencia' => 'datetime'
     ];
-    
-    protected $dates = ['deleted_at'];
 
     public function origen()
     {
-        return $this->belongsTo(User::class, 'fk_id_usuario_origen', 'id_usuario')->withTrashed();
+        return $this->belongsTo(User::class, 'fk_id_usuario_origen', 'id_usuario');
     }
     
     public function destino()
     {
-        return $this->belongsTo(User::class, 'fk_id_usuario_destino', 'id_usuario')->withTrashed();
+        return $this->belongsTo(User::class, 'fk_id_usuario_destino', 'id_usuario');
     }
 }

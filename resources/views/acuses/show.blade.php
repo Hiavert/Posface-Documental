@@ -18,121 +18,115 @@
 
 @section('content')
 <div class="container-fluid">
-    @if(!$acuse)
-        <div class="alert alert-danger">
-            El acuse solicitado no existe o ha sido eliminado.
+    <div class="card card-elegant">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-info-circle mr-2 text-muted"></i> 
+                Acuse AR-{{ str_pad($acuse->id_acuse, 5, '0', STR_PAD_LEFT) }}
+            </h5>
         </div>
-    @else
-        <div class="card card-elegant">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-info-circle mr-2 text-muted"></i> 
-                    Acuse AR-{{ str_pad($acuse->id_acuse, 5, '0', STR_PAD_LEFT) }}
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-user-tag mr-2"></i> Información General</h5>
-                        <div class="info-container p-3 rounded">
-                            <div class="info-item d-flex justify-content-between py-2">
-                                <span class="font-weight-bold">Título:</span>
-                                <span>{{ $acuse->titulo }}</span>
-                            </div>
-                            <div class="info-item d-flex justify-content-between py-2">
-                                <span class="font-weight-bold">Descripción:</span>
-                                <span>{{ $acuse->descripcion ?? 'N/A' }}</span>
-                            </div>
-                            <div class="info-item d-flex justify-content-between py-2">
-                                <span class="font-weight-bold">Remitente:</span>
-                                <span>{{ $acuse->remitente->nombres ?? 'N/A' }} {{ $acuse->remitente->apellidos ?? '' }}</span>
-                            </div>
-                            <div class="info-item d-flex justify-content-between py-2">
-                                <span class="font-weight-bold">Destinatario:</span>
-                                <span>{{ $acuse->destinatario->nombres ?? 'N/A' }} {{ $acuse->destinatario->apellidos ?? '' }}</span>
-                            </div>
-                            <div class="info-item d-flex justify-content-between py-2">
-                                <span class="font-weight-bold">Estado:</span>
-                                <span class="badge badge-state-{{ $acuse->estado }}">
-                                    {{ ucfirst($acuse->estado) }}
-                                </span>
-                            </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-user-tag mr-2"></i> Información General</h5>
+                    <div class="info-container p-3 rounded">
+                        <div class="info-item d-flex justify-content-between py-2">
+                            <span class="font-weight-bold">Título:</span>
+                            <span>{{ $acuse->titulo }}</span>
+                        </div>
+                        <div class="info-item d-flex justify-content-between py-2">
+                            <span class="font-weight-bold">Descripción:</span>
+                            <span>{{ $acuse->descripcion ?? 'N/A' }}</span>
+                        </div>
+                        <div class="info-item d-flex justify-content-between py-2">
+                            <span class="font-weight-bold">Remitente:</span>
+                            <span>{{ $acuse->remitente->nombres }} {{ $acuse->remitente->apellidos }}</span>
+                        </div>
+                        <div class="info-item d-flex justify-content-between py-2">
+                            <span class="font-weight-bold">Destinatario:</span>
+                            <span>{{ $acuse->destinatario->nombres }} {{ $acuse->destinatario->apellidos }}</span>
+                        </div>
+                        <div class="info-item d-flex justify-content-between py-2">
+                            <span class="font-weight-bold">Estado:</span>
+                            <span class="badge badge-state-{{ $acuse->estado }}">
+                                {{ ucfirst($acuse->estado) }}
+                            </span>
                         </div>
                     </div>
-                    
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-calendar-alt mr-2"></i> Fechas</h5>
-                        <div class="info-container p-3 rounded">
-                            <div class="info-item d-flex justify-content-between py-2">
-                                <span class="font-weight-bold">Envío:</span>
-                                <span>{{ $acuse->fecha_envio->format('d/m/Y H:i') }}</span>
-                            </div>
-                            <div class="info-item d-flex justify-content-between py-2">
-                                <span class="font-weight-bold">Recepción:</span>
-                                <span>{{ $acuse->fecha_recepcion ? $acuse->fecha_recepcion->format('d/m/Y H:i') : 'Pendiente' }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <h5 class="mt-4"><i class="fas fa-box-open mr-2"></i> Elementos</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Nombre</th>
-                                <th>Cantidad</th>
-                                <th>Descripción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($acuse->elementos as $elemento)
-                                <tr class="table-row">
-                                    <td>{{ $elemento->tipo->nombre ?? 'N/A' }}</td>
-                                    <td>{{ $elemento->nombre }}</td>
-                                    <td>{{ $elemento->cantidad }}</td>
-                                    <td>{{ $elemento->descripcion ?? 'N/A' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
                 </div>
                 
-                @if($acuse->adjuntos->count() > 0)
-                <div class="mt-4">
-                    <h5><i class="fas fa-paperclip mr-2"></i> Archivos Adjuntos</h5>
-                    <div class="row">
-                        @foreach($acuse->adjuntos as $adjunto)
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-file">
-                                @if($adjunto->tipo == 'imagen')
-                                <img src="{{ asset('storage/' . $adjunto->ruta) }}" class="card-img-top" alt="{{ $adjunto->nombre_archivo }}">
-                                @else
-                                <div class="card-body text-center py-4">
-                                    <i class="fas fa-file-pdf fa-3x text-danger"></i>
-                                </div>
-                                @endif
-                                <div class="card-footer">
-                                    <small class="text-truncate d-block">{{ $adjunto->nombre_archivo }}</small>
-                                    <a href="{{ route('acuses.adjunto.descargar', $adjunto->id_adjunto) }}" class="btn btn-sm btn-link">
-                                        <i class="fas fa-download mr-1"></i> Descargar
-                                    </a>
-                                </div>
-                            </div>
+                <div class="col-md-6">
+                    <h5><i class="fas fa-calendar-alt mr-2"></i> Fechas</h5>
+                    <div class="info-container p-3 rounded">
+                        <div class="info-item d-flex justify-content-between py-2">
+                            <span class="font-weight-bold">Envío:</span>
+                            <span>{{ $acuse->fecha_envio->format('d/m/Y H:i') }}</span>
                         </div>
-                        @endforeach
+                        <div class="info-item d-flex justify-content-between py-2">
+                            <span class="font-weight-bold">Recepción:</span>
+                            <span>{{ $acuse->fecha_recepcion ? $acuse->fecha_recepcion->format('d/m/Y H:i') : 'Pendiente' }}</span>
+                        </div>
                     </div>
                 </div>
-                @endif
             </div>
-            <div class="card-footer text-right">
-                <a href="{{ route('acuses.index') }}" class="btn btn-outline-secondary btn-elegant">
-                    <i class="fas fa-arrow-left mr-1"></i> Volver
-                </a>
+
+            <h5 class="mt-4"><i class="fas fa-box-open mr-2"></i> Elementos</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Nombre</th>
+                            <th>Cantidad</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($acuse->elementos as $elemento)
+                            <tr class="table-row">
+                                <td>{{ $elemento->tipo->nombre }}</td>
+                                <td>{{ $elemento->nombre }}</td>
+                                <td>{{ $elemento->cantidad }}</td>
+                                <td>{{ $elemento->descripcion ?? 'N/A' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
+            
+            @if($acuse->adjuntos->count() > 0)
+            <div class="mt-4">
+                <h5><i class="fas fa-paperclip mr-2"></i> Archivos Adjuntos</h5>
+                <div class="row">
+                    @foreach($acuse->adjuntos as $adjunto)
+                    <div class="col-md-3 mb-3">
+                        <div class="card card-file">
+                            @if($adjunto->tipo == 'imagen')
+                            <img src="{{ asset('storage/' . $adjunto->ruta) }}" class="card-img-top" alt="{{ $adjunto->nombre_archivo }}">
+                            @else
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                            </div>
+                            @endif
+                            <div class="card-footer">
+                                <small class="text-truncate d-block">{{ $adjunto->nombre_archivo }}</small>
+                                <a href="{{ route('acuses.adjunto.descargar', $adjunto->id_adjunto) }}" class="btn btn-sm btn-link">
+                                    <i class="fas fa-download mr-1"></i> Descargar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
         </div>
-    @endif
+        <div class="card-footer text-right">
+            <a href="{{ route('acuses.index') }}" class="btn btn-outline-secondary btn-elegant">
+                <i class="fas fa-arrow-left mr-1"></i> Volver
+            </a>
+        </div>
+    </div>
 </div>
 
 <style>

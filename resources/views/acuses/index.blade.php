@@ -21,12 +21,10 @@
                     @if(auth()->user()->notificaciones->count() > 0)
                         @foreach(auth()->user()->notificaciones as $notificacion)
                             <a class="dropdown-item d-flex justify-content-between align-items-center {{ $notificacion->estado == 'no_leida' ? 'unread' : '' }}" 
-                            href="{{ route('notificaciones.show', $notificacion->id_notificacion) }}">
+                               href="{{ route('notificaciones.show', $notificacion->id_notificacion) }}">
                                 <div>
                                     <div class="font-weight-bold">{{ $notificacion->titulo }}</div>
-                                    <small class="text-muted">
-                                        De: {{ optional(optional($notificacion->acuse)->remitente)->nombres ?? 'N/A' }} {{ optional(optional($notificacion->acuse)->remitente)->apellidos ?? '' }}
-                                    </small>
+                                    <small class="text-muted">De: {{ $notificacion->acuse->remitente->nombres }} {{ $notificacion->acuse->remitente->apellidos }}</small>
                                     <div class="small text-muted">{{ $notificacion->fecha ? $notificacion->fecha->format('d/m/Y H:i') : now()->format('d/m/Y H:i') }}</div>
                                 </div>
                                 @if($notificacion->estado == 'no_leida')
@@ -34,7 +32,6 @@
                                 @endif
                             </a>
                         @endforeach
-
                     @else
                         <div class="text-center py-3">
                             <i class="fas fa-bell-slash fa-2x mb-2 text-muted"></i>
@@ -81,7 +78,7 @@
             <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i>Filtros</h5>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('acuses.index') }}" id="filterForm">
+            <form method="GET" action="{{ route('acuses.index') }}">
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Estado</label>
@@ -94,21 +91,15 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Remitente</label>
-                        <input type="text" class="form-control form-control-elegant" name="remitente" 
-                            placeholder="Nombre del remitente" value="{{ request('remitente') }}"
-                            pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo letras y espacios">
+                        <input type="text" class="form-control form-control-elegant" name="remitente" placeholder="Nombre del remitente" value="{{ request('remitente') }}">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Destinatario</label>
-                        <input type="text" class="form-control form-control-elegant" name="destinatario" 
-                            placeholder="Nombre del destinatario" value="{{ request('destinatario') }}"
-                            pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo letras y espacios">
+                        <input type="text" class="form-control form-control-elegant" name="destinatario" placeholder="Nombre del destinatario" value="{{ request('destinatario') }}">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Elemento</label>
-                        <input type="text" class="form-control form-control-elegant" name="elemento" 
-                            placeholder="Nombre del elemento" value="{{ request('elemento') }}"
-                            pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s0-9\-\.,;:()]+" title="Solo letras, números y signos básicos">
+                        <input type="text" class="form-control form-control-elegant" name="elemento" placeholder="Nombre del elemento" value="{{ request('elemento') }}">
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-2">
@@ -311,17 +302,11 @@
                         </div>
                         <div class="form-group">
                             <label>Título</label>
-                            <input type="text" class="form-control" name="titulo" required 
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
-                                   title="Solo letras, números y signos básicos"
-                                   placeholder="Título del acuse">
+                            <input type="text" class="form-control" name="titulo" required placeholder="Título del acuse">
                         </div>
                         <div class="form-group">
                             <label>Descripción</label>
-                            <textarea class="form-control" name="descripcion" rows="3" 
-                                      pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
-                                      title="Solo letras, números y signos básicos"
-                                      placeholder="Descripción del acuse"></textarea>
+                            <textarea class="form-control" name="descripcion" rows="3" placeholder="Descripción del acuse"></textarea>
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
@@ -354,10 +339,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>Nombre</label>
-                                        <input type="text" class="form-control" name="elementos[0][nombre]" required 
-                                               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
-                                               title="Solo letras, números y signos básicos"
-                                               placeholder="Nombre del elemento">
+                                        <input type="text" class="form-control" name="elementos[0][nombre]" required placeholder="Nombre del elemento">
                                     </div>
                                     <div class="col-md-2">
                                         <label>Cantidad</label>
@@ -372,10 +354,7 @@
                                 <div class="row mt-2">
                                     <div class="col-md-12">
                                         <label>Descripción</label>
-                                        <textarea class="form-control" name="elementos[0][descripcion]" rows="2" 
-                                                  pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
-                                                  title="Solo letras, números y signos básicos"
-                                                  placeholder="Descripción del elemento"></textarea>
+                                        <textarea class="form-control" name="elementos[0][descripcion]" rows="2" placeholder="Descripción del elemento"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -385,9 +364,7 @@
                         <div class="mt-4">
                             <h5><i class="fas fa-paperclip mr-2"></i> Documentos Adjuntos (PDF, Word, Excel)</h5>
                             <div class="form-group">
-                                <input type="file" class="form-control-file" name="adjuntos_documentos[]" multiple 
-                                       accept=".pdf,.doc,.docx,.xls,.xlsx"
-                                       onchange="validateFiles(this, 'documento')">
+                                <input type="file" class="form-control-file" name="adjuntos_documentos[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx">
                                 <small class="form-text text-muted">Solo para elementos de tipo documento</small>
                             </div>
                         </div>
@@ -395,9 +372,7 @@
                         <div class="mt-3">
                             <h5><i class="fas fa-image mr-2"></i> Imágenes Adjuntas (JPG, PNG, GIF)</h5>
                             <div class="form-group">
-                                <input type="file" class="form-control-file" name="adjuntos_imagenes[]" multiple 
-                                       accept="image/*"
-                                       onchange="validateFiles(this, 'imagen')">
+                                <input type="file" class="form-control-file" name="adjuntos_imagenes[]" multiple accept="image/*">
                                 <small class="form-text text-muted">Solo para elementos de tipo objeto o kit</small>
                             </div>
                         </div>
@@ -428,10 +403,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Nombre</label>
-                            <input type="text" class="form-control" name="nombre" required 
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
-                                   title="Solo letras y espacios"
-                                   placeholder="Nombre del tipo">
+                            <input type="text" class="form-control" name="nombre" required placeholder="Nombre del tipo">
                         </div>
                         <div class="form-group">
                             <label>Categoría</label>
@@ -833,10 +805,7 @@
                         </div>
                         <div class="col-md-4">
                             <label>Nombre</label>
-                            <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" required 
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
-                                   title="Solo letras, números y signos básicos"
-                                   placeholder="Nombre del elemento">
+                            <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" required placeholder="Nombre del elemento">
                         </div>
                         <div class="col-md-2">
                             <label>Cantidad</label>
@@ -851,10 +820,7 @@
                     <div class="row mt-2">
                         <div class="col-md-12">
                             <label>Descripción</label>
-                            <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" rows="2" 
-                                      pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.,;:()0-9]+"
-                                      title="Solo letras, números y signos básicos"
-                                      placeholder="Descripción del elemento"></textarea>
+                            <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" rows="2" placeholder="Descripción del elemento"></textarea>
                         </div>
                     </div>
                 </div>
@@ -867,48 +833,6 @@
         $(document).on('click', '.remove-element', function() {
             $(this).closest('.elemento-item').remove();
         });
-        document.getElementById('filterForm').addEventListener('submit', function(e) {
-            const inputs = this.querySelectorAll('input[pattern]');
-            let valid = true;
-            
-            inputs.forEach(input => {
-                const pattern = new RegExp(input.pattern);
-                if (input.value && !pattern.test(input.value)) {
-                    alert(input.title);
-                    valid = false;
-                }
-            });
-            
-            if (!valid) {
-                e.preventDefault();
-            }
-        });
-        // Validar archivos
-        window.validateFiles = function(input, type) {
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            const files = input.files;
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                
-                // Validar tamaño
-                if (file.size > maxSize) {
-                    alert(`El archivo ${file.name} excede el tamaño máximo de 5MB`);
-                    input.value = '';
-                    return;
-                }
-                
-                // Validar tipo
-                if (type === 'documento') {
-                    const docExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
-                    if (!docExtensions.some(ext => file.name.toLowerCase().endsWith(ext))) {
-                        alert(`Tipo de archivo no permitido: ${file.name}`);
-                        input.value = '';
-                        return;
-                    }
-                }
-            }
-        };
     });
 </script>
 @stop
