@@ -132,7 +132,7 @@
                     Mostrando {{ $bitacoras->firstItem() }} - {{ $bitacoras->lastItem() }} de {{ $bitacoras->total() }} registros
                 </div>
                 <div class="pagination-custom">
-                    {{ $bitacoras->appends(request()->query())->links() }}
+                    {{ $bitacoras->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') }}
                 </div>
             </div>
             @endif
@@ -337,11 +337,7 @@
         margin-bottom: 10px;
     }
     
-    /* Paginación */
-    .pagination-custom .pagination {
-        margin: 0;
-    }
-    
+    /* Agregar estilos para la paginación en español */
     .pagination-custom .page-item .page-link {
         border: none;
         border-radius: 8px;
@@ -359,6 +355,16 @@
     .pagination-custom .page-item .page-link:hover {
         background-color: #f0f4f8;
         color: #3a7bd5;
+    }
+    
+    /* Estilos para los textos de navegación */
+    .pagination-custom .page-item.disabled .page-link {
+        color: #6c757d;
+        opacity: 0.6;
+    }
+    
+    .pagination-custom .page-link:focus {
+        box-shadow: none;
     }
     
     /* Formularios */
