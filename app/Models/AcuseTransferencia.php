@@ -3,11 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AcuseTransferencia extends Model
 {
-    use SoftDeletes;
     
     protected $table = 'acuses_transferencias';
     protected $primaryKey = 'id_transferencia';
