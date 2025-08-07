@@ -33,14 +33,15 @@
                                         {{ session('success') }}
                                     </div>
                                 @endif
-                                <form id="crearUsuarioForm" method="POST" action="{{ route('usuarios.store') }}">
+                                <form id="crearUsuarioForm" method="POST" action="{{ route('usuarios.store') }}" novalidate>
                                     @csrf
                                     <div class="form-group">
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text bg-white border-right-0"><i class="bi bi-person text-posface-primary"></i></span>
                                             </div>
-                                            <input type="text" id="nombres" name="nombres" class="form-control border-left-0" placeholder="Nombres" value="{{ old('nombres') }}" required />
+                                            <input type="text" id="nombres" name="nombres" class="form-control border-left-0" placeholder="Nombres" value="{{ old('nombres') }}" required 
+                                                   oninput="validarNombreApellido(this)" maxlength="50" />
                                         </div>
                                         <div class="invalid-feedback" id="nombres_error"></div>
                                     </div>
@@ -49,7 +50,8 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text bg-white border-right-0"><i class="bi bi-person text-posface-primary"></i></span>
                                             </div>
-                                            <input type="text" id="apellidos" name="apellidos" class="form-control border-left-0" placeholder="Apellidos" value="{{ old('apellidos') }}" required />
+                                            <input type="text" id="apellidos" name="apellidos" class="form-control border-left-0" placeholder="Apellidos" value="{{ old('apellidos') }}" required 
+                                                   oninput="validarNombreApellido(this)" maxlength="50" />
                                         </div>
                                         <div class="invalid-feedback" id="apellidos_error"></div>
                                     </div>
@@ -67,7 +69,8 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text bg-white border-right-0"><i class="bi bi-card-text text-posface-primary"></i></span>
                                             </div>
-                                            <input type="text" id="identidad" name="identidad" class="form-control border-left-0" placeholder="Identidad (13 dígitos)" value="{{ old('identidad') }}" required />
+                                            <input type="text" id="identidad" name="identidad" class="form-control border-left-0" placeholder="Identidad (13 dígitos)" value="{{ old('identidad') }}" required 
+                                                   oninput="validarIdentidad(this)" maxlength="13" />
                                         </div>
                                         <div class="invalid-feedback" id="identidad_error"></div>
                                     </div>
@@ -118,6 +121,7 @@
         --posface-white: #FFFFFF;
         --posface-text-dark: #333333;
         --error-color: #dc3545;
+        --success-color: #28a745;
     }
 
     .unah-header {
@@ -224,26 +228,58 @@
         color: var(--error-color);
         font-size: 0.85rem;
         margin-top: 5px;
+        /* Solución para el problema de superposición */
+        position: relative;
+        z-index: 1;
+        min-height: 20px;
+        white-space: normal;
+        word-wrap: break-word;
     }
     
-    /* Estilo para identidad válida */
-    .valid-identidad {
+    /* Indicadores de validación */
+    .validation-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 15px;
+        font-size: 1.2rem;
+        z-index: 10;
+    }
+    
+    .valid-icon {
+        color: var(--success-color);
+    }
+    
+    .invalid-icon {
+        color: var(--error-color);
+    }
+    
+    /* Contenedor para los iconos */
+    .input-icon-container {
         position: relative;
     }
     
-    .valid-identidad::after {
-        content: "✓";
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #28a745;
-        font-weight: bold;
+    /* Ajustar padding para los inputs con iconos */
+    .has-validation-icon {
+        padding-right: 40px !important;
+    }
+
+    /* Espacio adicional para evitar superposición */
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+        z-index: 1;
     }
 
     @media (max-width: 768px) {
         .bg-posface-dark {
             border-radius: 15px 15px 0 0 !important;
+        }
+        
+        /* Ajuste adicional para dispositivos móviles */
+        .invalid-feedback {
+            font-size: 0.75rem;
+            min-height: 18px;
         }
     }
 </style>
@@ -274,11 +310,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const identidadRegex = /^\d{13}$/;
     
+    // Agregar iconos de validación solo a campos de texto
+    agregarIconoValidacion(nombresInput);
+    agregarIconoValidacion(apellidosInput);
+    agregarIconoValidacion(identidadInput);
+    
     // Event listeners para validación en tiempo real
-    nombresInput.addEventListener('input', validateNombres);
-    apellidosInput.addEventListener('input', validateApellidos);
+    nombresInput.addEventListener('input', function() {
+        validarNombreApellido(this);
+        validateNombres();
+    });
+    apellidosInput.addEventListener('input', function() {
+        validarNombreApellido(this);
+        validateApellidos();
+    });
     emailInput.addEventListener('input', validateEmail);
-    identidadInput.addEventListener('input', validateIdentidad);
+    identidadInput.addEventListener('input', function() {
+        validarIdentidad(this);
+        validateIdentidad();
+    });
     rolSelect.addEventListener('change', validateRol);
     estadoSelect.addEventListener('change', validateEstado);
     
@@ -308,6 +358,62 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Función para agregar icono de validación
+    function agregarIconoValidacion(input) {
+        // Verificar si ya existe un icono
+        if (document.getElementById(input.id + '_icon')) return;
+        
+        const icon = document.createElement('span');
+        icon.className = 'validation-icon';
+        icon.id = input.id + '_icon';
+        icon.style.display = 'none';
+        
+        const container = input.parentElement;
+        container.classList.add('input-icon-container');
+        input.classList.add('has-validation-icon');
+        
+        container.appendChild(icon);
+    }
+    
+    // Función para mostrar icono de validación
+    function mostrarIcono(input, isValid) {
+        const icon = document.getElementById(input.id + '_icon');
+        if (icon) {
+            icon.style.display = 'block';
+            icon.className = 'validation-icon ' + (isValid ? 'valid-icon fas fa-check-circle' : 'invalid-icon fas fa-times-circle');
+        }
+    }
+    
+    // Función para validar nombres y apellidos
+    function validarNombreApellido(input) {
+        // Permitir solo letras y espacios
+        input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        
+        // Limitar longitud a 50 caracteres
+        if (input.value.length > 50) {
+            input.value = input.value.substring(0, 50);
+        }
+        
+        // Verificar si hay más de 3 letras iguales consecutivas
+        if (/([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/.test(input.value)) {
+            // Eliminar la cuarta letra consecutiva y posteriores
+            input.value = input.value.replace(/([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/g, function(match) {
+                return match.substring(0, 3);
+            });
+        }
+    }
+    
+    // Función para validar identidad
+    function validarIdentidad(input) {
+        // Permitir solo números
+        input.value = input.value.replace(/\D/g, '');
+        
+        // Limitar a 13 dígitos
+        if (input.value.length > 13) {
+            input.value = input.value.substring(0, 13);
+        }
+    }
+    
     // Funciones de validación
     function validateNombres() {
         const value = nombresInput.value.trim();
@@ -316,6 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Limpiar mensaje de error previo
         nombresError.textContent = '';
         nombresInput.classList.remove('is-invalid');
+        mostrarIcono(nombresInput, false);
         
         // Validar requerido
         if (value === '') {
@@ -329,6 +436,20 @@ document.addEventListener('DOMContentLoaded', function() {
             nombresInput.classList.add('is-invalid');
             isValid = false;
         }
+        // Validar caracteres repetidos
+        else if (/([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/.test(value)) {
+            nombresError.textContent = 'No puede haber más de tres letras iguales consecutivas.';
+            nombresInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        // Validar longitud
+        else if (value.length > 50) {
+            nombresError.textContent = 'Los nombres no pueden exceder los 50 caracteres.';
+            nombresInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            mostrarIcono(nombresInput, true);
+        }
         
         return isValid;
     }
@@ -340,6 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Limpiar mensaje de error previo
         apellidosError.textContent = '';
         apellidosInput.classList.remove('is-invalid');
+        mostrarIcono(apellidosInput, false);
         
         // Validar requerido
         if (value === '') {
@@ -352,6 +474,20 @@ document.addEventListener('DOMContentLoaded', function() {
             apellidosError.textContent = 'Los apellidos solo deben contener letras y espacios.';
             apellidosInput.classList.add('is-invalid');
             isValid = false;
+        }
+        // Validar caracteres repetidos
+        else if (/([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/.test(value)) {
+            apellidosError.textContent = 'No puede haber más de tres letras iguales consecutivas.';
+            apellidosInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        // Validar longitud
+        else if (value.length > 50) {
+            apellidosError.textContent = 'Los apellidos no pueden exceder los 50 caracteres.';
+            apellidosInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            mostrarIcono(apellidosInput, true);
         }
         
         return isValid;
@@ -382,13 +518,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function validateIdentidad() {
-        const value = identidadInput.value.trim().replace(/-/g, '');
+        const value = identidadInput.value.trim();
         let isValid = true;
         
         // Limpiar mensaje de error previo
         identidadError.textContent = '';
         identidadInput.classList.remove('is-invalid');
-        identidadInput.classList.remove('valid-identidad');
+        mostrarIcono(identidadInput, false);
         
         // Validar requerido
         if (value === '') {
@@ -397,13 +533,12 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         } 
         // Validar formato (13 dígitos)
-        else if (!identidadRegex.test(value)) {
-            identidadError.textContent = 'La identidad debe tener 13 dígitos.';
+        else if (!/^\d{13}$/.test(value)) {
+            identidadError.textContent = 'La identidad debe tener exactamente 13 dígitos.';
             identidadInput.classList.add('is-invalid');
             isValid = false;
         } else {
-            // Formato válido
-            identidadInput.classList.add('valid-identidad');
+            mostrarIcono(identidadInput, true);
         }
         
         return isValid;
