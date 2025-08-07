@@ -23,23 +23,26 @@
             <h5 class="card-title mb-0">Información del Proceso</h5>
         </div>
         <div class="card-body">
-            <form action="{{ route('terna.admin.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('terna.admin.store') }}" method="POST" enctype="multipart/form-data" id="pago-form">
                 @csrf
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Descripción</label>
                             <input type="text" class="form-control" name="descripcion" 
-                            pattern="[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,;:¿?¡!()\-]{1,20}"
-                            title="Máximo 20 caracteres. Solo letras, números y signos de puntuación" 
-                            maxlength="20"
+                            pattern="[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,;:¿?¡!()\-]{1,30}"
+                            title="Máximo 30 caracteres. Solo letras, números y signos de puntuación" 
+                            maxlength="30"
                             required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Fecha de Defensa</label>
-                            <input type="date" class="form-control" name="fecha_defensa" required>
+                            <input type="date" class="form-control" name="fecha_defensa" 
+                                min="{{ now()->toDateString() }}" 
+                                required>
+                            <small class="text-muted">Debe ser igual o posterior a hoy</small>
                         </div>
                     </div>
                 </div>
@@ -49,16 +52,19 @@
                         <div class="form-group">
                             <label>Responsable</label>
                             <input type="text" class="form-control" name="responsable"
-                            pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]{1,20}"
-                            title="Máximo 20 caracteres. Solo letras y espacios" 
-                            maxlength="20"
+                            pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]{1,30}"
+                            title="Máximo 30 caracteres. Solo letras y espacios" 
+                            maxlength="30"
                             required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Fecha Límite</label>
-                            <input type="datetime-local" class="form-control" name="fecha_limite" required>
+                            <input type="datetime-local" class="form-control" name="fecha_limite" 
+                                min="{{ now()->format('Y-m-d\TH:i') }}" 
+                                required>
+                            <small class="text-muted">Debe ser igual o posterior a hoy</small>
                         </div>
                     </div>
                 </div>
@@ -130,6 +136,14 @@
         $('form').submit(function() {
             $(this).find('button[type="submit"]').prop('disabled', true);
         });
+        
+        // Establecer valores mínimos para fechas
+        $('input[name="fecha_defensa"]').attr('min', new Date().toISOString().split('T')[0]);
+        
+        const now = new Date();
+        const timezoneOffset = now.getTimezoneOffset() * 60000;
+        const localISOTime = new Date(now - timezoneOffset).toISOString().slice(0, 16);
+        $('input[name="fecha_limite"]').attr('min', localISOTime);
     });
 </script>
 @stop
