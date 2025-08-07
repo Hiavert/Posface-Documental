@@ -21,10 +21,12 @@
                     @if(auth()->user()->notificaciones->count() > 0)
                         @foreach(auth()->user()->notificaciones as $notificacion)
                             <a class="dropdown-item d-flex justify-content-between align-items-center {{ $notificacion->estado == 'no_leida' ? 'unread' : '' }}" 
-                               href="{{ route('notificaciones.show', $notificacion->id_notificacion) }}">
+                            href="{{ route('notificaciones.show', $notificacion->id_notificacion) }}">
                                 <div>
                                     <div class="font-weight-bold">{{ $notificacion->titulo }}</div>
-                                    <small class="text-muted">De: {{ optional($notificacion->acuse->remitente)->nombres ?? 'N/A' }} {{ optional($notificacion->acuse->remitente)->apellidos ?? '' }}</small>
+                                    <small class="text-muted">
+                                        De: {{ optional(optional($notificacion->acuse)->remitente)->nombres ?? 'N/A' }} {{ optional(optional($notificacion->acuse)->remitente)->apellidos ?? '' }}
+                                    </small>
                                     <div class="small text-muted">{{ $notificacion->fecha ? $notificacion->fecha->format('d/m/Y H:i') : now()->format('d/m/Y H:i') }}</div>
                                 </div>
                                 @if($notificacion->estado == 'no_leida')
@@ -32,6 +34,7 @@
                                 @endif
                             </a>
                         @endforeach
+
                     @else
                         <div class="text-center py-3">
                             <i class="fas fa-bell-slash fa-2x mb-2 text-muted"></i>
