@@ -35,7 +35,7 @@
                                 </div>
                             @endif
 
-                            <form method="POST" action="{{ route('usuarios.update', $usuario->id_usuario) }}">
+                            <form method="POST" action="{{ route('usuarios.update', $usuario->id_usuario) }}" id="user-form">
                                 @csrf
                                 @method('PUT')
 
@@ -46,8 +46,14 @@
                                                 <i class="bi bi-person text-posface-primary"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="nombres" class="form-control border-left-0" placeholder="Nombres" value="{{ old('nombres', $usuario->nombres) }}" required />
+                                        <input type="text" name="nombres" class="form-control border-left-0" placeholder="Nombres" 
+                                        value="{{ old('nombres', $usuario->nombres) }}" required 
+                                        oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, ''); validateField(this, 'nombres')" 
+                                        maxlength="50" />
                                     </div>
+                                    <span class="validation-hint">Solo letras y espacios</span>
+                                    <span class="character-count" id="nombres-count">{{ strlen(old('nombres', $usuario->nombres)) }}/50</span>
+                                    <span class="validation-status" id="nombres-status"></span>
                                 </div>
 
                                 <div class="form-group">
@@ -57,8 +63,14 @@
                                                 <i class="bi bi-person text-posface-primary"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="apellidos" class="form-control border-left-0" placeholder="Apellidos" value="{{ old('apellidos', $usuario->apellidos) }}" required />
+                                        <input type="text" name="apellidos" class="form-control border-left-0" placeholder="Apellidos" 
+                                        value="{{ old('apellidos', $usuario->apellidos) }}" required 
+                                        oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, ''); validateField(this, 'apellidos')" 
+                                        maxlength="50" />
                                     </div>
+                                    <span class="validation-hint">Solo letras y espacios</span>
+                                    <span class="character-count" id="apellidos-count">{{ strlen(old('apellidos', $usuario->apellidos)) }}/50</span>
+                                    <span class="validation-status" id="apellidos-status"></span>
                                 </div>
 
                                 <div class="form-group">
@@ -68,7 +80,8 @@
                                                 <i class="bi bi-envelope text-posface-primary"></i>
                                             </span>
                                         </div>
-                                        <input type="email" name="email" class="form-control border-left-0" placeholder="Correo electrónico" value="{{ old('email', $usuario->email) }}" required />
+                                        <input type="email" name="email" class="form-control border-left-0" placeholder="Correo electrónico" 
+                                               value="{{ old('email', $usuario->email) }}" required />
                                     </div>
                                 </div>
 
@@ -76,12 +89,19 @@
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text bg-white border-right-0">
-                                                <i class="bi bi-card-text text-posface-primary"></i>
+                                            <i class="bi bi-card-text text-posface-primary"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="identidad" class="form-control border-left-0" placeholder="Identidad" value="{{ old('identidad', $usuario->identidad) }}" required />
+                                        <input type="text" name="identidad" class="form-control border-left-0" placeholder="Identidad" 
+                                        value="{{ old('identidad', $usuario->identidad) }}" required 
+                                        oninput="this.value = this.value.replace(/[^0-9-]/g, ''); validateField(this, 'identidad')" 
+                                        maxlength="15" />
                                     </div>
+                                    <span class="validation-hint">Solo números y guiones</span>
+                                    <span class="character-count" id="identidad-count">{{ strlen(old('identidad', $usuario->identidad)) }}/15</span>
+                                    <span class="validation-status" id="identidad-status"></span>
                                 </div>
+
 
                                 <div class="form-group">
                                     <div class="input-group">
@@ -90,8 +110,14 @@
                                                 <i class="bi bi-person-badge text-posface-primary"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="usuario" class="form-control border-left-0" placeholder="Usuario" value="{{ old('usuario', $usuario->usuario) }}" required />
+                                        <input type="text" name="usuario" class="form-control border-left-0" placeholder="Usuario" 
+                                        value="{{ old('usuario', $usuario->usuario) }}" required 
+                                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9.-]/g, ''); validateField(this, 'usuario')" 
+                                        maxlength="30" />
                                     </div>
+                                    <span class="validation-hint">Solo letras, números, puntos y guiones</span>
+                                    <span class="character-count" id="usuario-count">{{ strlen(old('usuario', $usuario->usuario)) }}/30</span>
+                                    <span class="validation-status" id="usuario-status"></span>
                                 </div>
 
                                 <div class="form-group">
@@ -235,6 +261,46 @@
         padding-right: 2.25rem;
     }
 
+    /* Estilos para mensajes de validación */
+    .validation-hint {
+        display: block;
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 5px;
+        padding-left: 15px;
+    }
+    
+    /* Indicadores de estado en tiempo real */
+    .validation-status {
+        position: absolute;
+        top: 18px;
+        right: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .valid-status {
+        color: #28a745; /* Verde para válido */
+    }
+    
+    .invalid-status {
+        color: #dc3545; /* Rojo para inválido */
+    }
+    
+    /* Contador de caracteres */
+    .character-count {
+        position: absolute;
+        bottom: -20px;
+        right: 15px;
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+    /* Estilo para inputs con error */
+    .input-error {
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        border-color: #dc3545 !important;
+    }
+
     @media (max-width: 768px) {
         .bg-posface-dark {
             border-radius: 15px 15px 0 0 !important;
@@ -244,8 +310,90 @@
 
 @endsection
 
+
 @section('js')
     <script>
-        document.documentElement.style.setProperty('--posface-dark-blue-rgb', '10, 34, 95');
+        function validateField(input, field) {
+            // Actualizar contador de caracteres
+            document.getElementById(`${field}-count`).textContent = `${input.value.length}/${input.maxLength}`;
+            
+            // Obtener elemento de estado
+            const statusElement = document.getElementById(`${field}-status`);
+            
+            // Validar según el tipo de campo
+            let isValid = false;
+            
+            if (field === 'nombres' || field === 'apellidos') {
+                isValid = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(input.value);
+            } 
+            else if (field === 'identidad') {
+                isValid = /^[0-9-]+$/.test(input.value);
+            }
+            else if (field === 'usuario') {
+                isValid = /^[a-zA-Z0-9.-]+$/.test(input.value);
+            }
+            
+            // Actualizar estado visual
+            if (input.value.length === 0) {
+                statusElement.innerHTML = '';
+                input.classList.remove('input-error');
+            } else if (isValid) {
+                statusElement.innerHTML = '<i class="fas fa-check-circle valid-status"></i>';
+                input.classList.remove('input-error');
+            } else {
+                statusElement.innerHTML = '<i class="fas fa-times-circle invalid-status"></i>';
+                input.classList.add('input-error');
+            }
+        }
+        
+        // Inicializar contadores y estados
+        document.addEventListener('DOMContentLoaded', function() {
+            const fields = ['nombres', 'apellidos', 'identidad', 'usuario'];
+            
+            fields.forEach(field => {
+                const input = document.querySelector(`[name="${field}"]`);
+                if (input) {
+                    validateField(input, field);
+                }
+            });
+        });
+        
+        // Validación al enviar el formulario
+        document.getElementById('user-form').addEventListener('submit', function(e) {
+            const nombres = document.querySelector('[name="nombres"]').value;
+            const apellidos = document.querySelector('[name="apellidos"]').value;
+            const identidad = document.querySelector('[name="identidad"]').value;
+            const usuario = document.querySelector('[name="usuario"]').value;
+            
+            // Validar nombres
+            if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(nombres)) {
+                alert('Los nombres solo pueden contener letras y espacios');
+                e.preventDefault();
+                return false;
+            }
+            
+            // Validar apellidos
+            if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(apellidos)) {
+                alert('Los apellidos solo pueden contener letras y espacios');
+                e.preventDefault();
+                return false;
+            }
+            
+            // Validar identidad
+            if (!/^[0-9-]+$/.test(identidad)) {
+                alert('La identidad solo puede contener números y guiones');
+                e.preventDefault();
+                return false;
+            }
+            
+            // Validar usuario
+            if (!/^[a-zA-Z0-9.-]+$/.test(usuario)) {
+                alert('El usuario solo puede contener letras, números, puntos y guiones bajos');
+                e.preventDefault();
+                return false;
+            }
+            
+            return true;
+        });
     </script>
 @endsection
