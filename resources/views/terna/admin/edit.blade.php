@@ -20,7 +20,7 @@
             <h5 class="card-title mb-0">Editar Información</h5>
         </div>
         <div class="card-body">
-            <form action="{{ route('terna.admin.update', $pagoTerna->id) }}" method="POST">
+            <form action="{{ route('terna.admin.update', $pagoTerna->id) }}" method="POST" id="edit-form">
                 @csrf
                 @method('PUT')
                 <div class="row">
@@ -29,16 +29,20 @@
                             <label>Descripción</label>
                             <input type="text" class="form-control" name="descripcion" 
                                 value="{{ $pagoTerna->descripcion }}" 
-                                pattern="[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,;:¿?¡!()\-]{1,20}"
-                                title="Máximo 20 caracteres. Solo letras, números y signos de puntuación"
-                                maxlength="20"
+                                pattern="[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,;:¿?¡!()\-]{1,30}"
+                                title="Máximo 30 caracteres. Solo letras, números y signos de puntuación"
+                                maxlength="30"
                                 required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Fecha de Defensa</label>
-                            <input type="date" class="form-control" name="fecha_defensa" value="{{ $pagoTerna->fecha_defensa->format('Y-m-d') }}" required>
+                            <input type="date" class="form-control" name="fecha_defensa" 
+                                value="{{ $pagoTerna->fecha_defensa->format('Y-m-d') }}" 
+                                min="{{ now()->toDateString() }}"
+                                required>
+                            <small class="text-muted">Debe ser igual o posterior a hoy</small>
                         </div>
                     </div>
                 </div>
@@ -49,16 +53,20 @@
                             <label>Responsable</label>
                             <input type="text" class="form-control" name="responsable" 
                                 value="{{ $pagoTerna->responsable }}" 
-                                pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]{1,20}"
-                                title="Máximo 20 caracteres. Solo letras y espacios"
-                                maxlength="20"
+                                pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]{1,30}"
+                                title="Máximo 30 caracteres. Solo letras y espacios"
+                                maxlength="30"
                                 required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Fecha Límite</label>
-                            <input type="datetime-local" class="form-control" name="fecha_limite" value="{{ $pagoTerna->fecha_limite->format('Y-m-d\TH:i') }}" required>
+                            <input type="datetime-local" class="form-control" name="fecha_limite" 
+                                value="{{ $pagoTerna->fecha_limite->format('Y-m-d\TH:i') }}" 
+                                min="{{ now()->format('Y-m-d\TH:i') }}"
+                                required>
+                            <small class="text-muted">Debe ser igual o posterior a hoy</small>
                         </div>
                     </div>
                 </div>
@@ -90,4 +98,23 @@
         </div>
     </div>
 </div>
+@stop
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        // Prevenir doble envío
+        $('#edit-form').submit(function() {
+            $(this).find('button[type="submit"]').prop('disabled', true);
+        });
+        
+        // Establecer valores mínimos para fechas
+        $('input[name="fecha_defensa"]').attr('min', new Date().toISOString().split('T')[0]);
+        
+        const now = new Date();
+        const timezoneOffset = now.getTimezoneOffset() * 60000;
+        const localISOTime = new Date(now - timezoneOffset).toISOString().slice(0, 16);
+        $('input[name="fecha_limite"]').attr('min', localISOTime);
+    });
+</script>
 @stop
