@@ -21,7 +21,7 @@
                     @if(auth()->user()->notificaciones->count() > 0)
                         @foreach(auth()->user()->notificaciones as $notificacion)
                             <a class="dropdown-item d-flex justify-content-between align-items-center {{ $notificacion->estado == 'no_leida' ? 'unread' : '' }}" 
-                               href="{{ route('notificaciones.show', $notificacion->id_notificacion) }}">
+                            href="{{ route('notificaciones.show', $notificacion->id_notificacion) }}">
                                 <div>
                                     <div class="font-weight-bold">{{ $notificacion->titulo }}</div>
                                     <small class="text-muted">
@@ -93,15 +93,24 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Remitente</label>
-                        <input type="text" class="form-control form-control-elegant" name="remitente" placeholder="Nombre del remitente" value="{{ request('remitente') }}">
+                        <input type="text" class="form-control form-control-elegant" name="remitente" 
+                               placeholder="Nombre del remitente" value="{{ request('remitente') }}"
+                               maxlength="30" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+"
+                               title="Solo letras, espacios y caracteres como . , - (máximo 30 caracteres)">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Destinatario</label>
-                        <input type="text" class="form-control form-control-elegant" name="destinatario" placeholder="Nombre del destinatario" value="{{ request('destinatario') }}">
+                        <input type="text" class="form-control form-control-elegant" name="destinatario" 
+                               placeholder="Nombre del destinatario" value="{{ request('destinatario') }}"
+                               maxlength="30" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+"
+                               title="Solo letras, espacios y caracteres como . , - (máximo 30 caracteres)">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Elemento</label>
-                        <input type="text" class="form-control form-control-elegant" name="elemento" placeholder="Nombre del elemento" value="{{ request('elemento') }}">
+                        <input type="text" class="form-control form-control-elegant" name="elemento" 
+                               placeholder="Nombre del elemento" value="{{ request('elemento') }}"
+                               maxlength="30" pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]+"
+                               title="Solo letras, números y caracteres como . , - (máximo 30 caracteres)">
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-2">
@@ -304,11 +313,15 @@
                         </div>
                         <div class="form-group">
                             <label>Título</label>
-                            <input type="text" class="form-control" name="titulo" required placeholder="Título del acuse">
+                            <input type="text" class="form-control" name="titulo" required 
+                                   placeholder="Título del acuse" maxlength="30"
+                                   pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]+"
+                                   title="Solo letras, números y caracteres como . , - (máximo 30 caracteres)">
                         </div>
                         <div class="form-group">
                             <label>Descripción</label>
-                            <textarea class="form-control" name="descripcion" rows="3" placeholder="Descripción del acuse"></textarea>
+                            <textarea class="form-control" name="descripcion" rows="3" 
+                                      placeholder="Descripción del acuse" maxlength="255"></textarea>
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
@@ -341,11 +354,15 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>Nombre</label>
-                                        <input type="text" class="form-control" name="elementos[0][nombre]" required placeholder="Nombre del elemento">
+                                        <input type="text" class="form-control" name="elementos[0][nombre]" required 
+                                               placeholder="Nombre del elemento" maxlength="30"
+                                               pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]+"
+                                               title="Solo letras, números y caracteres como . , - (máximo 30 caracteres)">
                                     </div>
                                     <div class="col-md-2">
                                         <label>Cantidad</label>
-                                        <input type="number" class="form-control" name="elementos[0][cantidad]" value="1" min="1">
+                                        <input type="number" class="form-control" name="elementos[0][cantidad]" 
+                                               value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                     <div class="col-md-2 d-flex align-items-end">
                                         <button type="button" class="btn btn-danger btn-block remove-element">
@@ -356,7 +373,8 @@
                                 <div class="row mt-2">
                                     <div class="col-md-12">
                                         <label>Descripción</label>
-                                        <textarea class="form-control" name="elementos[0][descripcion]" rows="2" placeholder="Descripción del elemento"></textarea>
+                                        <textarea class="form-control" name="elementos[0][descripcion]" rows="2" 
+                                                  placeholder="Descripción del elemento" maxlength="255"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -405,7 +423,10 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Nombre</label>
-                            <input type="text" class="form-control" name="nombre" required placeholder="Nombre del tipo">
+                            <input type="text" class="form-control" name="nombre" required 
+                                   placeholder="Nombre del tipo" maxlength="30"
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                                   title="Solo letras y espacios (máximo 30 caracteres)">
                         </div>
                         <div class="form-group">
                             <label>Categoría</label>
@@ -689,6 +710,10 @@
         margin-bottom: 10px;
     }
     
+    .empty-state p {
+        color: #6c757d;
+    }
+    
     /* Paginación */
     .pagination-custom .pagination {
         margin: 0;
@@ -807,11 +832,15 @@
                         </div>
                         <div class="col-md-4">
                             <label>Nombre</label>
-                            <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" required placeholder="Nombre del elemento">
+                            <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" required 
+                                   placeholder="Nombre del elemento" maxlength="30"
+                                   pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]+"
+                                   title="Solo letras, números y caracteres como . , - (máximo 30 caracteres)">
                         </div>
                         <div class="col-md-2">
                             <label>Cantidad</label>
-                            <input type="number" class="form-control" name="elementos[${elementoCount}][cantidad]" value="1" min="1">
+                            <input type="number" class="form-control" name="elementos[${elementoCount}][cantidad]" 
+                                   value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
                             <button type="button" class="btn btn-danger btn-block remove-element">
@@ -822,7 +851,8 @@
                     <div class="row mt-2">
                         <div class="col-md-12">
                             <label>Descripción</label>
-                            <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" rows="2" placeholder="Descripción del elemento"></textarea>
+                            <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" rows="2" 
+                                      placeholder="Descripción del elemento" maxlength="255"></textarea>
                         </div>
                     </div>
                 </div>
@@ -834,6 +864,11 @@
         // Eliminar elemento
         $(document).on('click', '.remove-element', function() {
             $(this).closest('.elemento-item').remove();
+        });
+        
+        // Validación para campos numéricos
+        $('body').on('input', 'input[type="number"]', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
         });
     });
 </script>
