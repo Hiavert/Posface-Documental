@@ -18,27 +18,31 @@
                         <h3 class="card-title"><i class="fas fa-user-tag mr-2"></i> Información del Rol</h3>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('roles.store') }}" method="POST">
+                        <form action="{{ route('roles.store') }}" method="POST" id="roleForm">
                             @csrf
                             
                             <div class="form-group">
                                 <label for="nombre_rol">Nombre del Rol *</label>
                                 <input type="text" class="form-control @error('nombre_rol') is-invalid @enderror" 
                                        id="nombre_rol" name="nombre_rol" value="{{ old('nombre_rol') }}" 
-                                       placeholder="Ej: Administrador, Usuario, Supervisor" required>
+                                       placeholder="Ej: Administrador, Usuario, Supervisor" required
+                                       oninput="sanitizeNombre(this)">
                                 @error('nombre_rol')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
+                                <small class="text-muted float-right char-counter"><span id="nombre_counter">0</span>/50</small>
                             </div>
 
                             <div class="form-group">
                                 <label for="descripcion_rol">Descripción</label>
                                 <textarea class="form-control @error('descripcion_rol') is-invalid @enderror" 
                                           id="descripcion_rol" name="descripcion_rol" rows="3" 
-                                          placeholder="Descripción del rol y sus responsabilidades">{{ old('descripcion_rol') }}</textarea>
+                                          placeholder="Descripción del rol y sus responsabilidades"
+                                          oninput="sanitizeDescripcion(this)">{{ old('descripcion_rol') }}</textarea>
                                 @error('descripcion_rol')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
+                                <small class="text-muted float-right char-counter"><span id="desc_counter">0</span>/100</small>
                             </div>
 
                             <div class="form-group">
@@ -91,284 +95,167 @@
         </div>
     </div>
 @stop 
+
 <style>
-      .unah-header {
-            background: linear-gradient(135deg, #0b2e59, #1a5a8d);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            color: white;
-            margin-bottom: 25px;
-        }
-        
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-            overflow: hidden;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .card-header {
-            background: linear-gradient(to right, #f8f9fa, #e9ecef);
-            border-bottom: 1px solid #dee2e6;
-            font-weight: 600;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #1a5a8d;
-            box-shadow: 0 0 0 0.25rem rgba(26, 90, 141, 0.25);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(to right, #0b2e59, #1a5a8d);
-            border: none;
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(to right, #6c757d, #495057);
-            border: none;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .info-card .card-body {
-            background-color: #f8f9fa;
-            border-radius: 0 0 10px 10px;
-        }
-        
-        .info-card .card-header {
-            background: linear-gradient(to right, #e9ecef, #dee2e6);
-        }
-        
-        .input-icon {
-            position: relative;
-        }
-        
-        .input-icon i {
-            position: absolute;
-            left: 12px;
-            top: 12px;
-            color: #6c757d;
-        }
-        
-        .input-icon input, .input-icon select, .input-icon textarea {
-            padding-left: 40px;
-        }
-        
-        .error-message {
-            display: none;
-            color: #dc3545;
-            font-size: 0.875em;
-            margin-top: 5px;
-        }
-        
-        .is-invalid {
-            border-color: #dc3545 !important;
-        }
-        
-        .is-valid {
-            border-color: #198754 !important;
-        }
-        
-        .validation-icon {
-            position: absolute;
-            right: 12px;
-            top: 12px;
-            display: none;
-        }
-        
-        .fa-check-circle {
-            color: #198754;
-        }
-        
-        .fa-exclamation-circle {
-            color: #dc3545;
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        
-        .status-active {
-            background-color: #28a745;
-        }
-        
-        .status-inactive {
-            background-color: #dc3545;
-        }
+    .unah-header {
+        background: linear-gradient(135deg, #0b2e59, #1a5a8d);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        color: white;
+        margin-bottom: 25px;
+    }
+    
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+        overflow: hidden;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-header {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 600;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #1a5a8d;
+        box-shadow: 0 0 0 0.25rem rgba(26, 90, 141, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(to right, #0b2e59, #1a5a8d);
+        border: none;
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(to right, #6c757d, #495057);
+        border: none;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .info-card .card-body {
+        background-color: #f8f9fa;
+        border-radius: 0 0 10px 10px;
+    }
+    
+    .info-card .card-header {
+        background: linear-gradient(to right, #e9ecef, #dee2e6);
+    }
+    
+    .error-message {
+        display: none;
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 5px;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+    
+    .status-active {
+        background-color: #28a745;
+    }
+    
+    .status-inactive {
+        background-color: #dc3545;
+    }
+    
+    .char-counter {
+        font-size: 0.8rem;
+        margin-top: 5px;
+    }
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('roleForm');
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar contadores
+    document.getElementById('nombre_counter').textContent = 
+        document.getElementById('nombre_rol').value.length;
+    document.getElementById('desc_counter').textContent = 
+        document.getElementById('descripcion_rol').value.length;
+
+    // Funciones de sanitización para nombre
+    window.sanitizeNombre = function(input) {
+        let value = input.value;
+        
+        // Eliminar caracteres especiales y dígitos (solo permite letras y espacios)
+        let newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        
+        // Limitar repeticiones consecutivas a 3
+        newValue = newValue.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // Limitar a 50 caracteres
+        if (newValue.length > 50) {
+            newValue = newValue.substring(0, 50);
+        }
+        
+        // Actualizar valor y contador
+        input.value = newValue;
+        document.getElementById('nombre_counter').textContent = newValue.length;
+    };
+
+    // Funciones de sanitización para descripción
+    window.sanitizeDescripcion = function(input) {
+        let value = input.value;
+        
+        // Eliminar dígitos y caracteres no permitidos (solo permite letras, espacios, guiones, comas y puntos)
+        let newValue = value.replace(/[0-9]/g, '');
+        newValue = newValue.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-,.]/g, '');
+        
+        // Limitar repeticiones consecutivas a 3
+        newValue = newValue.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // Limitar a 100 caracteres
+        if (newValue.length > 100) {
+            newValue = newValue.substring(0, 100);
+        }
+        
+        // Actualizar valor y contador
+        input.value = newValue;
+        document.getElementById('desc_counter').textContent = newValue.length;
+    };
+
+    // Validación al enviar el formulario
+    const form = document.getElementById('roleForm');
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
         const nombreInput = document.getElementById('nombre_rol');
-        const descripcionInput = document.getElementById('descripcion_rol');
-        const estadoSelect = document.getElementById('estado_rol');
+        const descInput = document.getElementById('descripcion_rol');
         
-        // Elementos de validación
-        const nombreValid = document.getElementById('nombre_valid');
-        const nombreInvalid = document.getElementById('nombre_invalid');
-        const descValid = document.getElementById('desc_valid');
-        const descInvalid = document.getElementById('desc_invalid');
-        const estadoValid = document.getElementById('estado_valid');
-        const estadoInvalid = document.getElementById('estado_invalid');
+        // Validar nombre
+        if (nombreInput.value.trim() === '') {
+            isValid = false;
+        }
         
-        // Validación en tiempo real
-        nombreInput.addEventListener('input', validarNombre);
-        descripcionInput.addEventListener('input', validarDescripcion);
-        estadoSelect.addEventListener('change', validarEstado);
+        // Validar descripción (solo longitud)
+        if (descInput.value.length > 100) {
+            isValid = false;
+        }
         
-        // Validación al enviar
-        form.addEventListener('submit', function(e) {
+        if (!isValid) {
             e.preventDefault();
-            
-            let isValid = true;
-            if (!validarNombre()) isValid = false;
-            if (!validarDescripcion()) isValid = false;
-            if (!validarEstado()) isValid = false;
-            
-            if (isValid) {
-                // Simular envío exitoso
-                Swal.fire({
-                    title: '¡Rol creado!',
-                    text: 'El nuevo rol se ha creado exitosamente.',
-                    icon: 'success',
-                    confirmButtonText: 'Continuar',
-                    confirmButtonColor: '#0b2e59'
-                }).then(() => {
-                    form.reset();
-                    // Resetear estados visuales
-                    resetValidationStates();
-                });
-            } else {
-                mostrarToastError();
-            }
-        });
-        
-        // Funciones de validación
-        function validarNombre() {
-            const valor = nombreInput.value.trim();
-            const errorElement = document.getElementById('error-nombre_rol');
-            
-            if (valor.length === 0) {
-                mostrarError(nombreInput, nombreInvalid, errorElement, 'El nombre del rol es obligatorio');
-                return false;
-            }
-            
-            if (valor.length < 3) {
-                mostrarError(nombreInput, nombreInvalid, errorElement, 'Mínimo 3 caracteres');
-                return false;
-            }
-            
-            if (valor.length > 50) {
-                mostrarError(nombreInput, nombreInvalid, errorElement, 'Máximo 50 caracteres');
-                return false;
-            }
-            
-            mostrarValido(nombreInput, nombreValid, errorElement);
-            return true;
-        }
-        
-        function validarDescripcion() {
-            const valor = descripcionInput.value.trim();
-            const errorElement = document.getElementById('error-descripcion_rol');
-            
-            if (valor.length > 255) {
-                mostrarError(descripcionInput, descInvalid, errorElement, 'Máximo 255 caracteres');
-                return false;
-            }
-            
-            mostrarValido(descripcionInput, descValid, errorElement);
-            return true;
-        }
-        
-        function validarEstado() {
-            const valor = estadoSelect.value;
-            const errorElement = document.getElementById('error-estado_rol');
-            
-            if (!valor) {
-                mostrarError(estadoSelect, estadoInvalid, errorElement, 'Seleccione un estado');
-                return false;
-            }
-            
-            mostrarValido(estadoSelect, estadoValid, errorElement);
-            return true;
-        }
-        
-        function mostrarError(input, invalidIcon, errorElement, mensaje) {
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            invalidIcon.style.display = 'block';
-            errorElement.textContent = mensaje;
-            errorElement.style.display = 'block';
-            
-            // Ocultar icono válido si está visible
-            const validIcon = invalidIcon.previousElementSibling;
-            if (validIcon && validIcon.classList.contains('validation-icon')) {
-                validIcon.style.display = 'none';
-            }
-        }
-        
-        function mostrarValido(input, validIcon, errorElement) {
-            input.classList.remove('is-invalid');
-            input.classList.add('is-valid');
-            validIcon.style.display = 'block';
-            errorElement.style.display = 'none';
-            
-            // Ocultar icono inválido si está visible
-            const invalidIcon = validIcon.nextElementSibling;
-            if (invalidIcon && invalidIcon.classList.contains('validation-icon')) {
-                invalidIcon.style.display = 'none';
-            }
-        }
-        
-        function resetValidationStates() {
-            const inputs = [nombreInput, descripcionInput, estadoSelect];
-            const validIcons = [nombreValid, descValid, estadoValid];
-            const invalidIcons = [nombreInvalid, descInvalid, estadoInvalid];
-            const errorElements = [
-                document.getElementById('error-nombre_rol'),
-                document.getElementById('error-descripcion_rol'),
-                document.getElementById('error-estado_rol')
-            ];
-            
-            inputs.forEach(input => {
-                input.classList.remove('is-valid', 'is-invalid');
-            });
-            
-            validIcons.forEach(icon => icon.style.display = 'none');
-            invalidIcons.forEach(icon => icon.style.display = 'none');
-            errorElements.forEach(el => el.style.display = 'none');
-        }
-        
-        function mostrarToastError() {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 5000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
-            
-            Toast.fire({
+            Swal.fire({
                 icon: 'error',
-                title: 'Por favor corrija los errores en el formulario'
+                title: 'Error en el formulario',
+                text: 'Por favor verifique los datos ingresados',
+                confirmButtonColor: '#0b2e59'
             });
         }
     });
-    </script>
+});
+</script>
