@@ -252,7 +252,7 @@
     
     .invalid-icon {
         color: var(--error-color);
-    }
+    }*/
     
     /* Contenedor para los iconos */
     .input-icon-container {
@@ -377,11 +377,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para mostrar icono de validación
     function mostrarIcono(input, isValid) {
-        const icon = document.getElementById(input.id + '_icon');
-        if (icon) {
-            icon.style.display = 'block';
-            icon.className = 'validation-icon ' + (isValid ? 'valid-icon fas fa-check-circle' : 'invalid-icon fas fa-times-circle');
-        }
+    const icon = document.getElementById(input.id + '_icon');
+    if (icon) {
+        icon.style.display = isValid ? 'block' : 'none'; // Ocultar si no es válido
+        icon.className = 'validation-icon ' + (isValid ? 'valid-icon fas fa-check-circle' : '');
+    }
     }
     
     // Función para validar nombres y apellidos
