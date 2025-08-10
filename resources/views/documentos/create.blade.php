@@ -45,20 +45,27 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Remitente</label>
-                            <input type="text" class="form-control form-control-elegant" name="remitente" placeholder="Nombre del remitente" required>
+                            <input type="text" class="form-control form-control-elegant" name="remitente" 
+                                   placeholder="Nombre del remitente" required
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" 
+                                   title="Solo letras, espacios y caracteres como . , -">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Destinatario</label>
-                            <input type="text" class="form-control form-control-elegant" name="destinatario" placeholder="Nombre del destinatario" required>
+                            <input type="text" class="form-control form-control-elegant" name="destinatario" 
+                                   placeholder="Nombre del destinatario" required
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" 
+                                   title="Solo letras, espacios y caracteres como . , -">
                         </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label>Asunto</label>
-                    <input type="text" class="form-control form-control-elegant" name="asunto" placeholder="Asunto del documento" required>
+                    <input type="text" class="form-control form-control-elegant" name="asunto" 
+                           placeholder="Asunto del documento" required maxlength="255">
                 </div>
                 
                 <div class="form-group">
@@ -73,7 +80,6 @@
                             <input type="date" class="form-control form-control-elegant" name="fecha_documento" required>
                         </div>
                     </div>
-                    <极狐
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Adjuntar Documento</label>
@@ -82,7 +88,7 @@
                                 <label class="custom-file-label" for="customFile">Seleccionar archivo (PDF o imagen)</label>
                             </div>
                             <small class="form-text text-muted">Tamaño máximo: 5MB</small>
-                        </极狐
+                        </div>
                     </div>
                 </div>
                 
@@ -111,6 +117,11 @@
             
             // Establecer fecha actual por defecto
             $('input[name="fecha_documento"]').val(new Date().toISOString().split('T')[0]);
+            
+            // Validación de campos
+            $('input[name="remitente"], input[name="destinatario"]').on('input', function() {
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+            });
         });
     </script>
 @stop

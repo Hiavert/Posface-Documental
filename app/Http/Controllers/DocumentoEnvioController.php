@@ -50,10 +50,16 @@ class DocumentoEnvioController extends Controller
     // Ver historial de envíos de un documento
     public function historial(Documento $documento)
     {
-        $envios = $documento->envios()->with('destinatario', 'enviadoPor')->paginate(10);
+        $sort = request('sort') ?? 'created_at';
+        $direction = request('direction') ?? 'desc';
+        
+        $envios = $documento->envios()
+            ->with('destinatario', 'enviadoPor')
+            ->orderBy($sort, $direction)
+            ->paginate(10);
+            
         return view('documentos.historial_envios', compact('documento', 'envios'));
     }
-
     // Marcar un envío como leído (vía AJAX)
     public function marcarLeido(DocumentoEnvio $envio)
     {

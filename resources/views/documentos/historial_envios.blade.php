@@ -26,11 +26,27 @@
                 <table class="table table-hover table-borderless">
                     <thead class="thead-elegant">
                         <tr>
-                            <th>Destinatario</th>
-                            <th>Enviado por</th>
-                            <th>Fecha Envío</th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'destinatario', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Destinatario {!! request('sort') == 'destinatario' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'enviado_por', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Enviado por {!! request('sort') == 'enviado_por' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Fecha Envío {!! request('sort') == 'created_at' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
                             <th>Estado</th>
-                            <th>Fecha Lectura</th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'fecha_leido', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Fecha Lectura {!! request('sort') == 'fecha_leido' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -102,7 +118,11 @@
             margin-bottom: 0.2rem;
             letter-spacing: -0.5px;
         }
-        
+        .table th a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
         .card-elegant {
             border: none;
             border-radius: 12px;

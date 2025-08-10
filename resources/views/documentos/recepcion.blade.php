@@ -13,7 +13,7 @@
             <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#filtrosCollapse">
                 <i class="fas fa-filter mr-1"></i> Mostrar Filtros
             </button>
-        </div>
+        </极狐
     </div>
 </div>
 @stop
@@ -24,7 +24,7 @@
     <div class="collapse mb-4" id="filtrosCollapse">
         <div class="card card-elegant">
             <div class="card-body">
-                <form>
+                <form id="filtrosForm">
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Tipo de Documento</label>
@@ -39,21 +39,24 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Remitente</label>
-                            <input type="text" class="form-control form-control-elegant" placeholder="Nombre del remitente">
+                            <input type="text" class="form-control form-control-elegant" 
+                                   placeholder="Nombre del remitente" name="remitente"
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" title="Solo letras, espacios y caracteres como . , -">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Fecha del Documento</label>
-                            <input type="date" class="form-control form-control-elegant">
+                            <input type="date" class="form-control form-control-elegant" name="fecha">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <label class="form-label">Palabras Clave</label>
-                            <input type="text" class="form-control form-control-elegant" placeholder="Buscar por asunto o contenido">
+                            <input type="text" class="form-control form-control-elegant" 
+                                   placeholder="Buscar por asunto o contenido" name="busqueda">
                         </div>
                         <div class="col-md-4 mb-3 d-flex align-items-end">
                             <div class="d-flex w-100">
-                                <button type="button" class="btn btn-outline-secondary btn-elegant w-50 mr-2">
+                                <button type="button" class="btn btn-outline-secondary btn-elegant w-50 mr-2" id="btnLimpiar">
                                     <i class="fas fa-redo mr-1"></i> Limpiar
                                 </button>
                                 <button type="submit" class="btn btn-primary btn-elegant w-50">
@@ -80,11 +83,27 @@
                 <table class="table table-hover table-borderless">
                     <thead class="thead-elegant">
                         <tr>
-                            <th>#</th>
-                            <th>Tipo</th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'id', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    # {!! request('sort') == 'id' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'tipo', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Tipo {!! request('sort') == 'tipo' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
                             <th>Nombre</th>
-                            <th>Remitente</th>
-                            <th>Fecha Doc</th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'remitente', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Remitente {!! request('sort') == 'remitente' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'fecha_documento', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Fecha Doc {!! request('sort') == 'fecha_documento' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
                             <th>Estado</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -139,7 +158,7 @@
                     Mostrando {{ $documentosRecibidos->firstItem() }} - {{ $documentosRecibidos->lastItem() }} de {{ $documentosRecibidos->total() }} registros
                 </div>
                 <div class="pagination-custom">
-                    {{ $documentosRecibidos->links() }}
+                    {{ $documentosRecibidos->appends(request()->query())->links() }}
                 </div>
             </div>
             @endif
@@ -154,7 +173,7 @@
             background: linear-gradient(135deg, #0b2e59, #1a5a8d);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4极狐
             color: white;
             margin-bottom: 25px;
         }
@@ -227,7 +246,7 @@
         
         .pagination-custom .page-item.active .page-link {
             background: linear-gradient(135deg, #3a7bd5, #00d2ff);
-            border-color: #3a7bd5;
+            border-color: #3a7bd极狐
         }
         
         .empty-state {
@@ -280,5 +299,32 @@
             border: 1px solid #dee2e6;
             color: #6c757d;
         }
+
+        .table-row-unread td {
+            font-weight: 600;
+        }
+        
+        .table th a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
     </style>
+@stop
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        // Limpiar filtros
+        $('#btnLimpiar').click(function() {
+            $('#filtrosForm')[0].reset();
+            window.location = "{{ route('documentos.recepcion') }}";
+        });
+        
+        // Validación de campos
+        $('input[name="remitente"]').on('input', function() {
+            this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+        });
+    });
+</script>
 @stop

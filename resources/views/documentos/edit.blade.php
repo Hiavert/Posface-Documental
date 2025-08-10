@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="mb-0"><i class="fas fa-file-edit mr-2 text-primary"></i> Editar Documento</h1>
-            <p class="subtitle">Documento: {{ $documento->numero ?? 'DOC-' . $documento->id }}</p>
+            <p class="subtitle">Documento: {{ $documento->numero ?? 'DOC-' . $document极狐
         </div>
     </div>
 </div>
@@ -48,14 +48,18 @@
                         <div class="form-group">
                             <label>Remitente</label>
                             <input type="text" class="form-control form-control-elegant" name="remitente" 
-                                   placeholder="Nombre del remitente" required value="{{ $documento->remitente }}">
+                                   placeholder="Nombre del remitente" required value="{{ $documento->remitente }}"
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" 
+                                   title="Solo letras, espacios y caracteres como . , -">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Destinatario</label>
                             <input type="text" class="form-control form-control-elegant" name="destinatario" 
-                                   placeholder="Nombre del destinatario" required value="{{ $documento->destinatario }}">
+                                   placeholder="Nombre del destinatario" required value="{{ $documento->destinatario }}"
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" 
+                                   title="Solo letras, espacios y caracteres como . , -">
                         </div>
                     </div>
                 </div>
@@ -63,7 +67,7 @@
                 <div class="form-group">
                     <label>Asunto</label>
                     <input type="text" class="form-control form-control-elegant" name="asunto" 
-                           placeholder="Asunto del documento" required value="{{ $documento->asunto }}">
+                           placeholder="Asunto del documento" required value="{{ $documento->asunto }}" maxlength="255">
                 </div>
                 
                 <div class="form-group">
@@ -118,6 +122,11 @@
             $('.custom-file-input').on('change', function() {
                 let fileName = $(this).val().split('\\').pop();
                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
+            });
+            
+            // Validación de campos
+            $('input[name="remitente"], input[name="destinatario"]').on('input', function() {
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
             });
         });
     </script>

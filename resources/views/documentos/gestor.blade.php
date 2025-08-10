@@ -26,7 +26,7 @@
             <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i>Filtros</h5>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('documentos.gestor') }}">
+            <form method="GET" action="{{ route('documentos.gestor') }}" id="filtrosForm">
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Tipo de Documento</label>
@@ -41,11 +41,15 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Remitente</label>
-                        <input type="text" class="form-control form-control-elegant" name="remitente" placeholder="Nombre del remitente" value="{{ request('remitente') }}">
+                        <input type="text" class="form-control form-control-elegant" name="remitente" 
+                               placeholder="Nombre del remitente" value="{{ request('remitente') }}"
+                               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" title="Solo letras, espacios y caracteres como . , -">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Destinatario</label>
-                        <input type="text" class="form-control form-control-elegant" name="destinatario" placeholder="Nombre del destinatario" value="{{ request('destinatario') }}">
+                        <input type="text" class="form-control form-control-elegant" name="destinatario" 
+                               placeholder="Nombre del destinatario" value="{{ request('destinatario') }}"
+                               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" title="Solo letras, espacios y caracteres como . , -">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Fecha</label>
@@ -53,15 +57,16 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-8 mb-3">
+                    <div class极狐
                         <label class="form-label">Palabras Clave</label>
-                        <input type="text" class="form-control form-control-elegant" name="busqueda" placeholder="Buscar por asunto o contenido" value="{{ request('busqueda') }}">
+                        <input type="text" class="form-control form-control-elegant" name="busqueda" 
+                               placeholder="Buscar por asunto o contenido" value="{{ request('busqueda') }}">
                     </div>
                     <div class="col-md-4 mb-3 d-flex align-items-end">
                         <div class="d-flex w-100">
-                            <a href="{{ route('documentos.gestor') }}" class="btn btn-outline-secondary btn-elegant w-50 mr-2">
+                            <button type="button" class="btn btn-outline-secondary btn-e极狐 w-50 mr-2" id="btnLimpiar">
                                 <i class="fas fa-redo mr-1"></i> Limpiar
-                            </a>
+                            </button>
                             <button type="submit" class="btn btn-primary btn-elegant w-50">
                                 <i class="fas fa-search mr-1"></i> Buscar
                             </button>
@@ -85,12 +90,32 @@
                 <table class="table table-hover table-borderless">
                     <thead class="thead-elegant">
                         <tr>
-                            <th>ID</th>
-                            <th>Tipo</th>
-                            <th>Remitente</th>
-                            <th>Destinatario</th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'id', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    ID {!! request('sort') == 'id' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'tipo', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Tipo {!! request('sort') == 'tipo' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'remitente', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Remitente {!! request('sort') == 'remitente' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'destinatario', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Destinatario {!! request('sort') == 'destinatario' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
                             <th>Asunto</th>
-                            <th>Fecha</th>
+                            <th>
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'fecha_documento', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                                    Fecha {!! request('sort') == 'fecha_documento' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -223,7 +248,11 @@
             border-color: #0b2e59;
             color: white;
         }
-        
+        .table th a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
         /* Estilos del index */
         .elegant-header {
             background: linear-gradient(135deg, #0b2e59, #1a5a8d);
@@ -374,6 +403,17 @@
             $('.select2').select2({
                 placeholder: "Seleccionar destinatarios",
                 allowClear: true
+            });
+
+            // Limpiar filtros
+            $('#btnLimpiar').click(function() {
+                $('#filtrosForm')[0].reset();
+                window.location = "{{ route('documentos.gestor') }}";
+            });
+            
+            // Validación de campos
+            $('input[name="remitente"], input[name="destinatario"]').on('input', function() {
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
             });
         });
     </script>

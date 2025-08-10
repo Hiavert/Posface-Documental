@@ -15,15 +15,25 @@ class DocumentoController extends Controller
     // Listar documentos (secretaria)
     public function index()
     {
-        $documentos = Documento::where('user_id', Auth::id())->paginate(10);
+        $sort = request('sort') ?? 'id';
+        $direction = request('direction') ?? 'desc';
+        
+        $documentos = Documento::where('user_id', Auth::id())
+            ->orderBy($sort, $direction)
+            ->paginate(10);
+
         return view('documentos.gestor', compact('documentos'));
     }
     
     // Mostrar documentos recibidos
     public function recepcion()
     {
+        $sort = request('sort') ?? 'id';
+        $direction = request('direction') ?? 'desc';
+        
         $documentosRecibidos = DocumentoEnvio::with(['documento', 'enviadoPor'])
             ->where('user_id', auth()->id())
+            ->orderBy($sort, $direction)
             ->paginate(10);
 
         return view('documentos.recepcion', compact('documentosRecibidos'));
