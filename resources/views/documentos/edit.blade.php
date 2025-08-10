@@ -6,11 +6,16 @@
 <div class="elegant-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <h1 class="mb-0"><i class="fas fa-file-edit mr-2 text-primary"></i> Editar Documento</h1>
-            <p class="subtitle">Documento: {{ $documento->numero ?? 'DOC-' . $document极狐
+            <h1 class="mb-0">
+                <i class="fas fa-file-edit mr-2 text-primary"></i> Editar Documento
+            </h1>
+            <p class="subtitle">
+                Documento: {{ $documento->numero ?? 'DOC-' . $documento->id }}
+            </p>
         </div>
     </div>
 </div>
+
 @stop
 
 @section('content')

@@ -63,7 +63,11 @@
                                     <span class="badge badge-warning">No leído</span>
                                 @endif
                             </td>
-                            <td>{{ $envio->fecha_leido ? $envio->fecha_leido->format('d/m/Y H:i') : 'N/A' }}</td>
+                            <td>
+                                {{ $envio->fecha_leido 
+                                    ? \Carbon\Carbon::parse($envio->fecha_leido)->format('d/m/Y H:i') 
+                                    : 'N/A' }}
+                            </td>
                             <td>
                                 <a href="{{ route('documentos.show', $envio->documento) }}" class="btn btn-sm btn-action" title="Ver detalles">
                                     <i class="fas fa-eye text-info"></i>
