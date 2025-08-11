@@ -529,13 +529,13 @@ $(document).ready(function() {
     let sortDirection = 'asc';
     
     // Rutas corregidas
-    const routes = {
+   const routes = {
         list: "{{ route('tesis.list') }}",
         store: "{{ route('tesis.store') }}",
         update: (id) => `{{ url('tesis') }}/${id}`,
         destroy: (id) => `{{ url('tesis') }}/${id}`,
-        download: (filename) => `{{ route('tesis.download', ['filename' => '__FILENAME__']) }}`.replace('__FILENAME__', filename),
-        preview: (filename) => `{{ route('tesis.preview', ['filename' => '__FILENAME__']) }}`.replace('__FILENAME__', filename)
+        download: (filename) => `/tesis/${filename}`,
+        preview: (filename) => `/tesis/${filename}`
     };
     // Inicializar
     cargarTesis();
