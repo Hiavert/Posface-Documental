@@ -534,8 +534,8 @@ $(document).ready(function() {
         store: "{{ route('tesis.store') }}",
         update: (id) => `{{ url('tesis') }}/${id}`,
         destroy: (id) => `{{ url('tesis') }}/${id}`,
-        download: (filename) => `{{ route('tesis.download', ['filename' => '__filename__']) }}`.replace('__filename__', filename),
-        preview: (filename) => `{{ route('tesis.preview', ['filename' => '__filename__']) }}`.replace('__filename__', filename)
+        download: (filename) => `{{ route('tesis', ['filename' => '__filename__']) }}`.replace('__filename__', filename),
+        preview: (filename) => `{{ route('tesis', ['filename' => '__filename__']) }}`.replace('__filename__', filename)
     };
 
     // Inicializar
