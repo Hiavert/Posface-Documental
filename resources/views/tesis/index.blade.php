@@ -524,18 +524,19 @@ $(document).ready(function() {
     let tesisData = {};
     let currentPage = 1;
     const itemsPerPage = 10;
-    const storagePath = "{{ asset('storage/tesis') }}/";
+    const storagePath = "{{ asset('storage') }}/";
     let sortColumn = 'id_tesis';
     let sortDirection = 'asc';
     
-    // Rutas
+    // Rutas corregidas
     const routes = {
         list: "{{ route('tesis.list') }}",
         store: "{{ route('tesis.store') }}",
         update: (id) => `{{ url('tesis') }}/${id}`,
         destroy: (id) => `{{ url('tesis') }}/${id}`,
-        download: (filename) => `{{ route('tesis', ['filename' => '__filename__']) }}`.replace('__filename__', filename),
-        preview: (filename) => `{{ route('tesis', ['filename' => '__filename__']) }}`.replace('__filename__', filename)
+        // Rutas corregidas sin placeholders
+        download: (filename) => `{{ route('tesis.download', ['filename' => '']) }}${filename}`,
+        preview: (filename) => `{{ route('tesis.preview', ['filename' => '']) }}${filename}`
     };
 
     // Inicializar
