@@ -536,8 +536,8 @@ $(document).ready(function() {
         destroy: (id) => `{{ url('tesis') }}/${id}`,
         exportar: "{{ route('tesis.exportar') }}",
         // CORRECCIÓN: Generar rutas correctamente con parámetros
-        download: (filename) => "{{ url('tesis/download') }}/" + filename,
-        preview: (filename) => "{{ url('tesis/preview') }}/" + filename
+        download: (filename) => "{{ url('storage/tesis') }}/" + filename,
+        preview: (filename) => "{{ url('storage/tesis') }}/" + filename
     };
 
 
