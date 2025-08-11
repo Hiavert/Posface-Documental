@@ -534,11 +534,9 @@ $(document).ready(function() {
         store: "{{ route('tesis.store') }}",
         update: (id) => `{{ url('tesis') }}/${id}`,
         destroy: (id) => `{{ url('tesis') }}/${id}`,
-        // Rutas corregidas sin placeholders
-        download: (filename) => `{{ route('tesis.download', ['filename' => '']) }}${filename}`,
-        preview: (filename) => `{{ route('tesis.preview', ['filename' => '']) }}${filename}`
+        download: (filename) => `{{ route('tesis.download', ['filename' => '__FILENAME__']) }}`.replace('__FILENAME__', filename),
+        preview: (filename) => `{{ route('tesis.preview', ['filename' => '__FILENAME__']) }}`.replace('__FILENAME__', filename)
     };
-
     // Inicializar
     cargarTesis();
     inicializarEventos();
