@@ -231,28 +231,6 @@
     </div>
 </div>
 
-<!-- Modal para Vista Previa del PDF -->
-<div class="modal fade" id="modal-preview" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-elegant">
-                <h5 class="modal-title text-white">Vista Previa de Tesis</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="embed-responsive embed-responsive-16by9">
-                    <iframe id="preview-iframe" class="embed-responsive-item" src=""></iframe>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Modal de carga -->
 <div class="modal fade" id="modal-carga" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -460,25 +438,6 @@
         color: white;
     }
     
-    /* Estilo para el modal de vista previa */
-    #modal-preview .modal-dialog {
-        max-width: 90%;
-        height: 90vh;
-    }
-
-    #modal-preview .modal-content {
-        height: 100%;
-    }
-
-    #modal-preview .modal-body {
-        padding: 0;
-        height: calc(100% - 120px); /* Resta el header y footer */
-    }
-
-    .embed-responsive {
-        height: 100%;
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
         .d-flex.justify-content-end {
@@ -496,12 +455,6 @@
         
         .table-responsive {
             max-height: 400px;
-        }
-        
-        #modal-preview .modal-dialog {
-            max-width: 95%;
-            height: 80vh;
-            margin: 5px;
         }
     }
     
@@ -524,19 +477,19 @@ $(document).ready(function() {
     let tesisData = {};
     let currentPage = 1;
     const itemsPerPage = 10;
-    const storagePath = "{{ asset('storage') }}/";
+    const storagePath = "{{ asset('storage/tesis') }}/";
     let sortColumn = 'id_tesis';
     let sortDirection = 'asc';
     
-    // Rutas corregidas
-   const routes = {
+    // Rutas
+    const routes = {
         list: "{{ route('tesis.list') }}",
         store: "{{ route('tesis.store') }}",
         update: (id) => `{{ url('tesis') }}/${id}`,
         destroy: (id) => `{{ url('tesis') }}/${id}`,
-        download: (filename) => `/tesis/${filename}`,
-        preview: (filename) => `/tesis/${filename}`
+        download: (filename) => `{{ route('tesis.download', ['filename' => '__filename__']) }}`.replace('__filename__', filename)
     };
+
     // Inicializar
     cargarTesis();
     inicializarEventos();
@@ -602,16 +555,14 @@ $(document).ready(function() {
 
             // Documento y acciones
             if (tesis.ruta_archivo) {
-                const previewUrl = routes.preview(tesis.ruta_archivo);
-                const downloadUrl = routes.download(tesis.ruta_archivo);
+                const previewUrl = "{{ url('storage/tesis') }}/" + tesis.ruta_archivo;
+                const downloadUrl = "{{ url('storage/tesis') }}/" + tesis.ruta_archivo;
                 
                 tr.append(`<td>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-info btn-preview" 
-                            data-url="${previewUrl}" 
-                            title="Vista previa">
+                        <a href="${previewUrl}" target="_blank" class="btn btn-info" title="Vista previa">
                             <i class="fas fa-eye"></i>
-                        </button>
+                        </a>
                         <a href="${downloadUrl}" class="btn btn-secondary" title="Descargar">
                             <i class="fas fa-download"></i>
                         </a>
@@ -924,18 +875,6 @@ $(document).ready(function() {
             $('#detalle-responsable').text(responsable);
             $('#detalle-fecha-subida').text(fecha);
             $('#modal-detalles').modal('show');
-        });
-        
-        // Mostrar vista previa en modal
-        $(document).on('click', '.btn-preview', function() {
-            const previewUrl = $(this).data('url');
-            $('#preview-iframe').attr('src', previewUrl);
-            $('#modal-preview').modal('show');
-        });
-        
-        // Al cerrar el modal de vista previa, vaciar el iframe
-        $('#modal-preview').on('hidden.bs.modal', function () {
-            $('#preview-iframe').attr('src', '');
         });
         
         // Ordenar por columna
