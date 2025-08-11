@@ -528,15 +528,16 @@ $(document).ready(function() {
     let sortColumn = 'id_tesis';
     let sortDirection = 'asc';
     
-    // Rutas corregidas
+    // Rutas corregidas según tu web.php
     const routes = {
         list: "{{ route('tesis.list') }}",
         store: "{{ route('tesis.store') }}",
         update: (id) => `{{ url('tesis') }}/${id}`,
         destroy: (id) => `{{ url('tesis') }}/${id}`,
-        download: (filename) => `/storage/tesis/${filename}`,
-        preview: (filename) => `/storage/tesis/${filename}`
-    };
+        exportar: "{{ route('tesis.exportar') }}",
+        // Rutas absolutas para archivos
+        download: (filename) => "{{ asset('storage/tesis') }}/" + filename,
+        preview: (filename) => "{{ route('tesis.preview', ['filename' => '']) }}" + filename
     };
 
     // Inicializar
@@ -614,7 +615,7 @@ $(document).ready(function() {
                             title="Vista previa">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <a href="${downloadUrl}" class="btn btn-secondary" title="Descargar">
+                        <a href="${downloadUrl}" class="btn btn-secondary" title="Descargar" target="_blank">
                             <i class="fas fa-download"></i>
                         </a>
                         <button class="btn btn-primary btn-detalles" 
@@ -898,7 +899,7 @@ $(document).ready(function() {
             // Crear formulario temporal para descarga
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = "{{ route('tesis.exportar') }}";
+            form.action = routes.exportar;
             
             const token = document.createElement('input');
             token.type = 'hidden';
