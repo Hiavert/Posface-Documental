@@ -535,10 +535,11 @@ $(document).ready(function() {
         update: (id) => `{{ url('tesis') }}/${id}`,
         destroy: (id) => `{{ url('tesis') }}/${id}`,
         exportar: "{{ route('tesis.exportar') }}",
-        // Rutas absolutas para archivos
-        download: (filename) => "{{ asset('storage/tesis') }}/" + filename,
-        preview: (filename) => "{{ route('tesis.preview', ['filename' => '']) }}" + filename
+        // CORRECCIÓN: Generar rutas correctamente con parámetros
+        download: (filename) => "{{ url('tesis/download') }}/" + filename,
+        preview: (filename) => "{{ url('tesis/preview') }}/" + filename
     };
+
 
     // Inicializar
     cargarTesis();
