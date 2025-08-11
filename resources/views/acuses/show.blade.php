@@ -98,34 +98,50 @@
             <div class="mt-4">
                 <h5><i class="fas fa-paperclip mr-2"></i> Archivos Adjuntos</h5>
                 <div class="row">
-                    @foreach($acuse->adjuntos as $index => $adjunto)
+                    @foreach($acuse->adjuntos as $adjunto)
                     <div class="col-md-3 mb-3">
                         <div class="card card-file">
-                            @if($adjunto->tipo == 'imagen')
-                            <div class="position-relative">
-                                <button class="btn btn-preview p-0 w-100" 
-                                        data-toggle="modal" 
-                                        data-target="#previewModal"
-                                        data-index="{{ $index }}">
-                                    <img src="{{ asset('storage/' . $adjunto->ruta) }}" 
-                                         class="card-img-top" 
-                                         alt="{{ $adjunto->nombre_archivo }}"
-                                         style="height: 150px; object-fit: cover;">
-                                    <div class="preview-overlay">
-                                        <i class="fas fa-search-plus fa-2x"></i>
-                                    </div>
-                                </button>
-                            </div>
-                            @else
                             <div class="card-body text-center py-4">
-                                <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                                @if($adjunto->tipo == 'imagen')
+                                <div class="position-relative">
+                                    <button class="btn btn-preview p-0 w-100" 
+                                            data-toggle="modal" 
+                                            data-target="#imagePreviewModal"
+                                            data-src="{{ asset('storage/' . $adjunto->ruta) }}"
+                                            data-name="{{ $adjunto->nombre_archivo }}">
+                                        <img src="{{ asset('storage/' . $adjunto->ruta) }}" 
+                                             class="card-img-top" 
+                                             alt="{{ $adjunto->nombre_archivo }}"
+                                             style="height: 150px; object-fit: cover;">
+                                        <div class="preview-overlay">
+                                            <i class="fas fa-search-plus fa-2x"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                                @else
+                                <button class="btn btn-preview" 
+                                        data-toggle="modal" 
+                                        data-target="#pdfPreviewModal"
+                                        data-src="{{ asset('storage/' . $adjunto->ruta) }}"
+                                        data-name="{{ $adjunto->nombre_archivo }}">
+                                    <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                                </button>
+                                @endif
                             </div>
-                            @endif
                             <div class="card-footer">
                                 <small class="text-truncate d-block">{{ $adjunto->nombre_archivo }}</small>
-                                <a href="{{ route('acuses.adjunto.descargar', $adjunto->id_adjunto) }}" class="btn btn-sm btn-link">
-                                    <i class="fas fa-download mr-1"></i> Descargar
-                                </a>
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-sm btn-link btn-preview" 
+                                            data-toggle="modal" 
+                                            data-target="{{ $adjunto->tipo == 'imagen' ? '#imagePreviewModal' : '#pdfPreviewModal' }}"
+                                            data-src="{{ asset('storage/' . $adjunto->ruta) }}"
+                                            data-name="{{ $adjunto->nombre_archivo }}">
+                                        <i class="fas fa-eye mr-1"></i> Vista Previa
+                                    </button>
+                                    <a href="{{ route('acuses.adjunto.descargar', $adjunto->id_adjunto) }}" class="btn btn-sm btn-link">
+                                        <i class="fas fa-download mr-1"></i> Descargar
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -142,41 +158,43 @@
     </div>
 </div>
 
-<!-- Modal para vista previa -->
-<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
+<!-- Modal para vista previa de imágenes -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="previewTitle">Vista Previa</h5>
+                <h5 class="modal-title" id="imagePreviewTitle">Vista Previa</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body text-center">
-                <div id="carouselPreview" class="carousel slide" data-ride="carousel">
-                    <div class="carousel-inner">
-                        @foreach($acuse->adjuntos as $index => $adjunto)
-                            @if($adjunto->tipo == 'imagen')
-                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                                <img src="{{ asset('storage/' . $adjunto->ruta) }}" 
-                                     class="d-block w-100"
-                                     alt="{{ $adjunto->nombre_archivo }}">
-                                <div class="carousel-caption d-none d-md-block bg-dark p-2 rounded">
-                                    <p class="mb-0">{{ $adjunto->nombre_archivo }}</p>
-                                </div>
-                            </div>
-                            @endif
-                        @endforeach
-                    </div>
-                    <a class="carousel-control-prev" href="#carouselPreview" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Anterior</span>
-                    </a>
-                    <a class="carousel-control-next" href="#carouselPreview" role="button" data-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Siguiente</span>
-                    </a>
+                <img id="imagePreview" src="" class="img-fluid" alt="Vista previa">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para vista previa de PDF -->
+<div class="modal fade" id="pdfPreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfPreviewTitle">Vista Previa de PDF</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe id="pdfPreviewFrame" class="embed-responsive-item" src="" frameborder="0"></iframe>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <a id="pdfDownloadBtn" href="#" class="btn btn-primary">
+                    <i class="fas fa-download mr-1"></i> Descargar
+                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -214,11 +232,6 @@
         box-shadow: 0 6px 15px rgba(0,0,0,0.1);
     }
     
-    .card-file .card-img-top {
-        height: 150px;
-        object-fit: cover;
-    }
-    
     .badge-state-enviado {
         background-color: #e3f2fd;
         color: #1976d2;
@@ -250,6 +263,11 @@
         background: transparent;
         cursor: pointer;
         padding: 0;
+        transition: all 0.2s;
+    }
+    
+    .btn-preview:hover {
+        transform: scale(1.05);
     }
     
     .preview-overlay {
@@ -274,29 +292,38 @@
         color: white;
     }
     
-    .carousel-caption {
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: auto;
-        max-width: 80%;
+    .card-file .card-footer .btn-link {
+        padding: 0.25rem 0.5rem;
     }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar carrusel
-        $('#previewModal').on('show.bs.modal', function(e) {
+        // Configurar modal para imágenes
+        $('#imagePreviewModal').on('show.bs.modal', function(e) {
             const button = $(e.relatedTarget);
-            const index = button.data('index');
+            const src = button.data('src');
+            const name = button.data('name');
             
-            // Activar el slide correspondiente
-            $(`#carouselPreview .carousel-item`).removeClass('active');
-            $(`#carouselPreview .carousel-item:eq(${index})`).addClass('active');
+            $('#imagePreview').attr('src', src);
+            $('#imagePreviewTitle').text(`Vista Previa: ${name}`);
+        });
+        
+        // Configurar modal para PDF
+        $('#pdfPreviewModal').on('show.bs.modal', function(e) {
+            const button = $(e.relatedTarget);
+            const src = button.data('src');
+            const name = button.data('name');
             
-            // Actualizar título
-            const fileName = button.closest('.card-file').find('small').text();
-            $('#previewTitle').text(`Vista Previa: ${fileName}`);
+            // Configurar el iframe con el PDF
+            $('#pdfPreviewFrame').attr('src', src);
+            $('#pdfPreviewTitle').text(`Vista Previa: ${name}`);
+            $('#pdfDownloadBtn').attr('href', src);
+        });
+        
+        // Limpiar el iframe al cerrar el modal
+        $('#pdfPreviewModal').on('hidden.bs.modal', function() {
+            $('#pdfPreviewFrame').attr('src', '');
         });
     });
 </script>
