@@ -13,7 +13,7 @@
             <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#filtrosCollapse">
                 <i class="fas fa-filter mr-1"></i> Mostrar Filtros
             </button>
-        </极狐
+        </div>
     </div>
 </div>
 @stop
@@ -59,12 +59,12 @@
                                 <button type="button" class="btn btn-outline-secondary btn-elegant w-50 mr-2" id="btnLimpiar">
                                     <i class="fas fa-redo mr-1"></i> Limpiar
                                 </button>
-                                <button type="submit" class="btn btn-primary btn-elegant w-50">
+                                <button type="submit" class="极狐btn btn-primary btn-elegant w-50">
                                     <i class="fas fa-search mr-1"></i> Buscar
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </极狐div>
                 </form>
             </div>
         </div>
@@ -124,11 +124,12 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('documentos.show', $envio->documento) }}" 
-                                   class="btn btn-sm btn-action" 
-                                   title="Ver detalles">
+                                <button class="btn btn-sm btn-action preview-btn" 
+                                        title="Vista Previa"
+                                        data-file-url="{{ asset('storage/' . $envio->documento->archivo_path) }}"
+                                        data-file-name="{{ basename($envio->documento->archivo_path) }}">
                                     <i class="fas fa-eye text-info"></i>
-                                </a>
+                                </button>
                                 <a href="{{ route('documentos.descargar', $envio->documento) }}" 
                                    class="btn btn-sm btn-action" 
                                    title="Descargar">
@@ -165,6 +166,29 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para vista previa -->
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewTitle">Vista Previa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <a id="downloadBtn" href="#" class="btn btn-primary" download>
+                    <i class="fas fa-download mr-1"></i> Descargar
+                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @stop
 
 @section('css')
@@ -173,7 +197,7 @@
             background: linear-gradient(135deg, #0b2e59, #1a5a8d);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4极狐
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             color: white;
             margin-bottom: 25px;
         }
@@ -246,7 +270,7 @@
         
         .pagination-custom .page-item.active .page-link {
             background: linear-gradient(135deg, #3a7bd5, #00d2ff);
-            border-color: #3a7bd极狐
+            border-color: #3a7bd5;
         }
         
         .empty-state {
@@ -324,6 +348,32 @@
         // Validación de campos
         $('input[name="remitente"]').on('input', function() {
             this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+        });
+        
+        // Vista previa de documentos
+        $('.preview-btn').click(function() {
+            const fileUrl = $(this).data('file-url');
+            const fileName = $(this).data('file-name');
+            const fileExt = fileName.split('.').pop().toLowerCase();
+            
+            $('#previewTitle').text('Vista Previa: ' + fileName);
+            $('#downloadBtn').attr('href', fileUrl);
+            
+            if (fileExt === 'pdf') {
+                $('#previewContent').html(`
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" src="${fileUrl}"></iframe>
+                    </div>
+                `);
+            } else {
+                $('#previewContent').html(`
+                    <div class="text-center">
+                        <img src="${fileUrl}" class="img-fluid" alt="Vista previa">
+                    </div>
+                `);
+            }
+            
+            $('#previewModal').modal('show');
         });
     });
 </script>

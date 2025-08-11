@@ -49,7 +49,7 @@
                         <label class="form-label">Destinatario</label>
                         <input type="text" class="form-control form-control-elegant" name="destinatario" 
                                placeholder="Nombre del destinatario" value="{{ request('destinatario') }}"
-                               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" title="Solo letras, espacios y caracteres como . , -">
+                               pattern="[a-zA极狐ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" title="Solo letras, espacios y caracteres como . , -">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Fecha</label>
@@ -57,14 +57,14 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class极狐
+                    <div class="col-md-8 mb-3">
                         <label class="form-label">Palabras Clave</label>
                         <input type="text" class="form-control form-control-elegant" name="busqueda" 
                                placeholder="Buscar por asunto o contenido" value="{{ request('busqueda') }}">
                     </div>
                     <div class="col-md-4 mb-3 d-flex align-items-end">
                         <div class="d-flex w-100">
-                            <button type="button" class="btn btn-outline-secondary btn-e极狐 w-50 mr-2" id="btnLimpiar">
+                            <button type="button" class="btn btn-outline-secondary btn-elegant w-50 mr-2" id="btnLimpiar">
                                 <i class="fas fa-redo mr-1"></i> Limpiar
                             </button>
                             <button type="submit" class="btn btn-primary btn-elegant w-50">
@@ -136,9 +136,12 @@
                                     <button class="btn btn-sm btn-action" title="Reenviar" data-toggle="modal" data-target="#modalReenviar{{ $documento->id }}">
                                         <i class="fas fa-paper-plane text-primary"></i>
                                     </button>
-                                    <a href="{{ route('documentos.show', $documento) }}" class="btn btn-sm btn-action" title="Ver detalles">
+                                    <button class="btn btn-sm btn-action preview-btn" 
+                                            title="Vista Previa"
+                                            data-file-url="{{ asset('storage/' . $documento->archivo_path) }}"
+                                            data-file-name="{{ basename($documento->archivo_path) }}">
                                         <i class="fas fa-eye text-info"></i>
-                                    </a>
+                                    </button>
                                     <a href="{{ route('documentos.descargar', $documento) }}" class="btn btn-sm btn-action" title="Descargar">
                                         <i class="fas fa-download text-success"></i>
                                     </a>
@@ -184,6 +187,29 @@
                 </div>
             </div>
             @endif
+        </div>
+    </div>
+</div>
+
+<!-- Modal para vista previa -->
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewTitle">Vista Previa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <a id="downloadBtn" href="#" class="btn btn-primary" download>
+                    <i class="fas fa-download mr-1"></i> Descargar
+                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -414,6 +440,32 @@
             // Validación de campos
             $('input[name="remitente"], input[name="destinatario"]').on('input', function() {
                 this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+            });
+            
+            // Vista previa de documentos
+            $('.preview-btn').click(function() {
+                const fileUrl = $(this).data('file-url');
+                const fileName = $(this).data('file-name');
+                const fileExt = fileName.split('.').pop().toLowerCase();
+                
+                $('#previewTitle').text('Vista Previa: ' + fileName);
+                $('#downloadBtn').attr('href', fileUrl);
+                
+                if (fileExt === 'pdf') {
+                    $('#previewContent').html(`
+                        <div class="embed-responsive embed-responsive-16by9">
+                            <iframe class="embed-responsive-item" src="${fileUrl}"></iframe>
+                        </div>
+                    `);
+                } else {
+                    $('#previewContent').html(`
+                        <div class="text-center">
+                            <img src="${fileUrl}" class="img-fluid" alt="Vista previa">
+                        </div>
+                    `);
+                }
+                
+                $('#previewModal').modal('show');
             });
         });
     </script>

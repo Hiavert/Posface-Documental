@@ -23,6 +23,11 @@
                     <p class="text-muted">{{ $documento->numero ?? 'DOC-' . $documento->id }} - {{ ucfirst($documento->tipo) }}</p>
                 </div>
                 <div class="col-md-4 text-right">
+                    <button class="btn btn-primary preview-btn" 
+                            data-file-url="{{ asset('storage/' . $documento->archivo_path) }}"
+                            data-file-name="{{ basename($document极狐o->archivo_path) }}">
+                        <i class="fas fa-eye mr-1"></i> Vista Previa
+                    </button>
                     <a href="{{ route('documentos.descargar', $documento) }}" class="btn btn-primary">
                         <i class="fas fa-download mr-1"></i> Descargar
                     </a>
@@ -80,6 +85,29 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para vista previa -->
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewTitle">Vista Previa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <a id="downloadBtn" href="#" class="btn btn-primary" download>
+                    <i class="fas fa-download mr-1"></i> Descargar
+                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @stop
 
 @section('css')
@@ -131,4 +159,35 @@
             border-radius: 4px;
         }
     </style>
+@stop
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        $('.preview-btn').click(function() {
+            const fileUrl = $(this).data('file-url');
+            const fileName = $(this).data('file-name');
+            const fileExt = fileName.split('.').pop().toLowerCase();
+            
+            $('#previewTitle').text('Vista Previa: ' + fileName);
+            $('#downloadBtn').attr('href', fileUrl);
+            
+            if (fileExt === 'pdf') {
+                $('#previewContent').html(`
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" src="${fileUrl}"></iframe>
+                    </div>
+                `);
+            } else {
+                $('#previewContent').html(`
+                    <div class="text-center">
+                        <img src="${fileUrl}" class="img-fluid" alt="Vista previa">
+                    </div>
+                `);
+            }
+            
+            $('#previewModal').modal('show');
+        });
+    });
+</script>
 @stop

@@ -51,7 +51,7 @@
                                    placeholder="Nombre del remitente" required value="{{ $documento->remitente }}">
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <极狐col-md-6">
                         <div class="form-group">
                             <label>Destinatario</label>
                             <input type="text" class="form-control form-control-elegant" name="destinatario" 
@@ -109,6 +109,36 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para vista previa de archivo actual -->
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vista Previa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                @if(pathinfo($documento->archivo_path, PATHINFO_EXTENSION) === 'pdf')
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" src="{{ asset('storage/' . $documento->archivo_path) }}"></iframe>
+                </div>
+                @else
+                <img src="{{ asset('storage/' . $documento->archivo_path) }}" class="img-fluid" alt="Vista previa">
+                @endif
+            </div>
+            <div class="modal-footer">
+                <a href="{{ asset('storage/' . $documento->archivo_path) }}" class="btn btn-primary" download>
+                    <i class="fas fa-download mr-1"></i> Descargar
+                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @stop
 
 @section('css')
@@ -149,6 +179,12 @@
             $('.custom-file-input').on('change', function() {
                 let fileName = $(this).val().split('\\').pop();
                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
+            });
+            
+            // Mostrar vista previa del archivo actual
+            $('.custom-file-label').on('click', function(e) {
+                e.preventDefault();
+                $('#previewModal').modal('show');
             });
         });
     </script>
