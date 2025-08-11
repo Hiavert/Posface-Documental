@@ -98,11 +98,24 @@
             <div class="mt-4">
                 <h5><i class="fas fa-paperclip mr-2"></i> Archivos Adjuntos</h5>
                 <div class="row">
-                    @foreach($acuse->adjuntos as $adjunto)
+                    @foreach($acuse->adjuntos as $index => $adjunto)
                     <div class="col-md-3 mb-3">
                         <div class="card card-file">
                             @if($adjunto->tipo == 'imagen')
-                            <img src="{{ asset('storage/' . $adjunto->ruta) }}" class="card-img-top" alt="{{ $adjunto->nombre_archivo }}">
+                            <div class="position-relative">
+                                <button class="btn btn-preview p-0 w-100" 
+                                        data-toggle="modal" 
+                                        data-target="#previewModal"
+                                        data-index="{{ $index }}">
+                                    <img src="{{ asset('storage/' . $adjunto->ruta) }}" 
+                                         class="card-img-top" 
+                                         alt="{{ $adjunto->nombre_archivo }}"
+                                         style="height: 150px; object-fit: cover;">
+                                    <div class="preview-overlay">
+                                        <i class="fas fa-search-plus fa-2x"></i>
+                                    </div>
+                                </button>
+                            </div>
                             @else
                             <div class="card-body text-center py-4">
                                 <i class="fas fa-file-pdf fa-3x text-danger"></i>
@@ -125,6 +138,46 @@
             <a href="{{ route('acuses.index') }}" class="btn btn-outline-secondary btn-elegant">
                 <i class="fas fa-arrow-left mr-1"></i> Volver
             </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para vista previa -->
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewTitle">Vista Previa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="carouselPreview" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        @foreach($acuse->adjuntos as $index => $adjunto)
+                            @if($adjunto->tipo == 'imagen')
+                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                                <img src="{{ asset('storage/' . $adjunto->ruta) }}" 
+                                     class="d-block w-100"
+                                     alt="{{ $adjunto->nombre_archivo }}">
+                                <div class="carousel-caption d-none d-md-block bg-dark p-2 rounded">
+                                    <p class="mb-0">{{ $adjunto->nombre_archivo }}</p>
+                                </div>
+                            </div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselPreview" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Anterior</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselPreview" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Siguiente</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -189,5 +242,62 @@
         border-radius: 50px;
         font-weight: 500;
     }
+    
+    /* Estilos para vista previa */
+    .btn-preview {
+        position: relative;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+    }
+    
+    .preview-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .btn-preview:hover .preview-overlay {
+        opacity: 1;
+    }
+    
+    .preview-overlay i {
+        color: white;
+    }
+    
+    .carousel-caption {
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+        max-width: 80%;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar carrusel
+        $('#previewModal').on('show.bs.modal', function(e) {
+            const button = $(e.relatedTarget);
+            const index = button.data('index');
+            
+            // Activar el slide correspondiente
+            $(`#carouselPreview .carousel-item`).removeClass('active');
+            $(`#carouselPreview .carousel-item:eq(${index})`).addClass('active');
+            
+            // Actualizar título
+            const fileName = button.closest('.card-file').find('small').text();
+            $('#previewTitle').text(`Vista Previa: ${fileName}`);
+        });
+    });
+</script>
 @stop
