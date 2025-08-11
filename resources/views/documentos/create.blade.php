@@ -45,27 +45,20 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Remitente</label>
-                            <input type="text" class="form-control form-control-elegant" name="remitente" 
-                                   placeholder="Nombre del remitente" required
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" 
-                                   title="Solo letras, espacios y caracteres como . , -">
+                            <input type="text" class="form-control form-control-elegant" name="remitente" placeholder="Nombre del remitente" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Destinatario</label>
-                            <input type="text" class="form-control form-control-elegant" name="destinatario" 
-                                   placeholder="Nombre del destinatario" required
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" 
-                                   title="Solo letras, espacios y caracteres como . , -">
+                            <input type="text" class="form-control form-control-elegant" name="destinatario" placeholder="Nombre del destinatario" required>
                         </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label>Asunto</label>
-                    <input type="text" class="form-control form-control-elegant" name="asunto" 
-                           placeholder="Asunto del documento" required maxlength="255">
+                    <input type="text" class="form-control form-control-elegant" name="asunto" placeholder="Asunto del documento" required>
                 </div>
                 
                 <div class="form-group">
@@ -106,6 +99,37 @@
 </div>
 @stop
 
+@section('css')
+    <style>
+
+        .elegant-header {
+            background: linear-gradient(135deg, #0b2e59, #1a5a8d);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            color: white;
+            margin-bottom: 25px;
+        }
+    
+        .elegant-header h1 {
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 0.2rem;
+            letter-spacing: -0.5px;
+        }
+    
+        .elegant-header .subtitle {
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+    
+        .elegant-header .header-icon {
+            font-size: 2.5rem;
+            opacity: 0.9;
+        }
+    </style>
+@stop
+
 @section('js')
     <script>
         $(document).ready(function() {
@@ -117,11 +141,6 @@
             
             // Establecer fecha actual por defecto
             $('input[name="fecha_documento"]').val(new Date().toISOString().split('T')[0]);
-            
-            // Validación de campos
-            $('input[name="remitente"], input[name="destinatario"]').on('input', function() {
-                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
-            });
         });
     </script>
 @stop
