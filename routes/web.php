@@ -73,42 +73,41 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy')
         ->middleware('can:eliminar-Perfil');
 
-    // Rutas de tareas con permisos granulares
-   Route::middleware('granular.permission:TareasDocumentales,ver')->group(function () {
-    Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
-    Route::get('/tareas/{id}', [TareaController::class, 'show'])->name('tareas.show');
-    Route::get('/tareas/{id}/historial', [TareaController::class, 'historialBitacora'])->name('tareas.historial');
-});
+    // Rutas de tareas con permisos granulares - VERSIÓN CORREGIDA
+    Route::prefix('tareas')->group(function () {
+        // Rutas con permisos granulares
+        Route::middleware('granular.permission:TareasDocumentales,ver')->group(function () {
+            Route::get('/', [TareaController::class, 'index'])->name('tareas.index');
+            Route::get('/{id}', [TareaController::class, 'show'])->name('tareas.show');
+        });
 
-Route::middleware('granular.permission:TareasDocumentales,agregar')->group(function () {
-    Route::get('/tareas/create', [TareaController::class, 'create'])->name('tareas.create');
-    Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store');
-    Route::post('/tareas/upload', [TareaController::class, 'upload'])->name('tareas.upload');
-});
+        Route::middleware('granular.permission:TareasDocumentales,agregar')->group(function () {
+            Route::get('/create', [TareaController::class, 'create'])->name('tareas.create');
+            Route::post('/', [TareaController::class, 'store'])->name('tareas.store');
+            Route::post('/upload', [TareaController::class, 'upload'])->name('tareas.documento.upload');
+        });
 
-Route::middleware('granular.permission:TareasDocumentales,editar')->group(function () {
-    Route::get('/tareas/{id}/edit', [TareaController::class, 'edit'])->name('tareas.edit');
-    Route::put('/tareas/{id}', [TareaController::class, 'update'])->name('tareas.update');
-});
+        Route::middleware('granular.permission:TareasDocumentales,editar')->group(function () {
+            Route::get('/{id}/edit', [TareaController::class, 'edit'])->name('tareas.edit');
+            Route::put('/{id}', [TareaController::class, 'update'])->name('tareas.update');
+            // Nuevas rutas para cambiar estado y delegar
+            Route::post('/{id}/estado', [TareaController::class, 'cambiarEstado'])->name('tareas.estado');
+            Route::post('/{id}/delegar', [TareaController::class, 'delegar'])->name('tareas.delegar');
+        });
 
-Route::middleware('granular.permission:TareasDocumentales,eliminar')->group(function () {
-    Route::delete('/tareas/{id}', [TareaController::class, 'destroy'])->name('tareas.destroy');
-    Route::delete('/tareas/documento/{id}', [TareaController::class, 'eliminarDocumento'])->name('tareas.documento.eliminar');
-});
-// Tareas Documentales
-Route::resource('tareas', 'TareaController');
-Route::post('tareas/{id}/estado', 'TareaController@cambiarEstado')->name('tareas.estado');
-Route::post('tareas/{id}/delegar', 'TareaController@delegar')->name('tareas.delegar');
-Route::post('tareas/documento/upload', 'TareaController@upload')->name('tareas.documento.upload');
-Route::delete('tareas/documento/{id}', 'TareaController@eliminarDocumento')->name('tareas.documento.eliminar');
+        Route::middleware('granular.permission:TareasDocumentales,eliminar')->group(function () {
+            Route::delete('/{id}', [TareaController::class, 'destroy'])->name('tareas.destroy');
+            Route::delete('/documento/{id}', [TareaController::class, 'eliminarDocumento'])->name('tareas.documento.eliminar');
+        });
+    });
 
-Route::get('/notificaciones/leer-todas', function () {
-    $user = Auth::user();
-    if ($user) {
-        $user->unreadNotifications->markAsRead();
-    }
-    return redirect()->back();
-})->name('notificaciones.leer_todas');
+    Route::get('/notificaciones/leer-todas', function () {
+        $user = Auth::user();
+        if ($user) {
+            $user->unreadNotifications->markAsRead();
+        }
+        return redirect()->back();
+    })->name('notificaciones.leer_todas');
     
     // Módulo de Tesis
     Route::prefix('tesis')->group(function () {
