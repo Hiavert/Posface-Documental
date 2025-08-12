@@ -135,29 +135,28 @@ class TareaController extends Controller
         }
     }
 
-    public function show($id)
-    {
-        try {
-            if (!auth()->user()->puedeVer('TareasDocumentales')) {
-                throw new \Exception('No tienes permisos para ver tareas.');
-            }
-
-            // Validar ID
-            if (!is_numeric($id) {
-                throw new \Exception('ID de tarea no válido.');
-            }
-
-            $tarea = Tarea::with(['usuarioAsignado', 'usuarioCreador', 'documentos'])
-                        ->findOrFail($id);
-                        
-            return view('tareas.show', compact('tarea'));
-
-        } catch (\Exception $e) {
-            Log::error('Error en show: ' . $e->getMessage());
-            return back()->with('error', 'Error al mostrar la tarea: ' . $e->getMessage());
+   public function show($id)
+{
+    try {
+        if (!auth()->user()->puedeVer('TareasDocumentales')) {
+            throw new \Exception('No tienes permisos para ver tareas.');
         }
-    }
 
+        // Validar ID
+        if (!is_numeric($id)) {
+            throw new \Exception('ID de tarea no válido.');
+        }
+
+        $tarea = Tarea::with(['usuarioAsignado', 'usuarioCreador', 'documentos'])
+                    ->findOrFail($id);
+                    
+        return view('tareas.show', compact('tarea'));
+
+    } catch (\Exception $e) {
+        Log::error('Error en show: ' . $e->getMessage());
+        return back()->with('error', 'Error al mostrar la tarea: ' . $e->getMessage());
+    }
+}
     public function edit($id)
     {
         try {
