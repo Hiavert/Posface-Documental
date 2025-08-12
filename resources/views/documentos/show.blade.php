@@ -25,7 +25,7 @@
                 <div class="col-md-4 text-right">
                     <button class="btn btn-primary preview-btn" 
                             data-file-url="{{ asset('storage/' . $documento->archivo_path) }}"
-                            data-file-name="{{ basename($document极狐o->archivo_path) }}">
+                            data-file-name="{{ basename($documento->archivo_path) }}">
                         <i class="fas fa-eye mr-1"></i> Vista Previa
                     </button>
                     <a href="{{ route('documentos.descargar', $documento) }}" class="btn btn-primary">
