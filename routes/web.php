@@ -95,7 +95,11 @@ Route::middleware('granular.permission:TareasDocumentales,eliminar')->group(func
     Route::delete('/tareas/{id}', [TareaController::class, 'destroy'])->name('tareas.destroy');
     Route::delete('/tareas/documento/{id}', [TareaController::class, 'eliminarDocumento'])->name('tareas.documento.eliminar');
 });
-
+Route::resource('tareas', TareaController::class);
+Route::put('/tareas/{id}/cambiar-estado', [TareaController::class, 'cambiarEstado'])->name('tareas.cambiar-estado');
+Route::post('/tareas/agregar-documento', [TareaController::class, 'agregarDocumento'])->name('tareas.agregar-documento');
+Route::delete('/tareas/documento/{id}', [TareaController::class, 'eliminarDocumento'])->name('tareas.documento.eliminar');
+Route::get('/tareas/{id}/historial', [TareaController::class, 'historialBitacora'])->name('tareas.historial');
 Route::get('/notificaciones/leer-todas', function () {
     $user = Auth::user();
     if ($user) {

@@ -7,19 +7,9 @@
     <div class="d-flex align-items-center justify-content-between">
         <div>
             <h1 class="mb-0"><i class="fas fa-tasks mr-2 text-primary"></i> Gestión de Tareas Documentales</h1>
-            <p class="subtitle">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
+            <p class="subtitle">Universidad Nacional Autónoma de Honduras - Posgrado en Informática Administrativa</p>
         </div>
         <div class="d-flex align-items-center">
-            <!-- Notificaciones -->
-            <div class="notifications-dropdown ml-3">
-                <button class="btn btn-notification" type="button" id="notifDropdown" data-toggle="dropdown">
-                    <i class="fas fa-bell"></i>
-                    <span class="badge badge-danger" id="notifCounter">{{ auth()->user()->notificacionesNoLeidas->count() }}</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notifDropdown">
-                    <!-- Contenido de notificaciones -->
-                </div>
-            </div>
             <div class="header-icon ml-3">
                 <i class="fas fa-file-alt"></i>
             </div>
@@ -195,11 +185,31 @@
                 <table class="table table-hover table-borderless">
                     <thead class="thead-elegant">
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Responsable</th>
-                            <th>Estado</th>
-                            <th>Fecha Creación</th>
+                            <th>
+                                <a href="{{ route('tareas.index', array_merge(request()->query(), ['sort' => 'id_tarea', 'direction' => request('direction', 'asc') == 'asc' ? 'desc' : 'asc'])) }}">
+                                    ID {!! request('sort') == 'id_tarea' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('tareas.index', array_merge(request()->query(), ['sort' => 'nombre', 'direction' => request('direction', 'asc') == 'asc' ? 'desc' : 'asc'])) }}">
+                                    Nombre {!! request('sort') == 'nombre' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('tareas.index', array_merge(request()->query(), ['sort' => 'responsable', 'direction' => request('direction', 'asc') == 'asc' ? 'desc' : 'asc'])) }}">
+                                    Responsable {!! request('sort') == 'responsable' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('tareas.index', array_merge(request()->query(), ['sort' => 'estado', 'direction' => request('direction', 'asc') == 'asc' ? 'desc' : 'asc'])) }}">
+                                    Estado {!! request('sort') == 'estado' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('tareas.index', array_merge(request()->query(), ['sort' => 'fecha_creacion', 'direction' => request('direction', 'asc') == 'asc' ? 'desc' : 'asc'])) }}">
+                                    Fecha Creación {!! request('sort') == 'fecha_creacion' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                </a>
+                            </th>
                             <th>Documentos</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -224,27 +234,33 @@
     </div>
 </div>
 
-<!-- Modal para nueva/editar tarea -->
+<!-- Modal para nueva tarea -->
 <div class="modal fade" id="modalNuevaTarea" tabindex="-1" role="dialog" aria-labelledby="modalNuevaTareaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #0b2e59; color: white;">
                 <h5 class="modal-title" id="modalNuevaTareaLabel">
-                    <i class="fas fa-plus-circle mr-2"></i> <span id="modalTareaTitle">Nueva Tarea Documental</span>
+                    <i class="fas fa-plus-circle mr-2"></i> Nueva Tarea Documental
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" id="formTarea" action="{{ route('tareas.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('tareas.store') }}" enctype="multipart/form-data">
                 @csrf
-                <input type="hidden" name="tarea_id" id="tareaId">
                 <div class="modal-body">
                     <div class="form-row">
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-8">
                             <label for="nombreTarea">Nombre de la tarea *</label>
-                            <input type="text" class="form-control" id="nombreTarea" name="nombre" required maxlength="100">
+                            <input type="text" class="form-control" id="nombreTarea" name="nombre" required maxlength="100" placeholder="Ingrese el nombre de la tarea">
                         </div>
+                        <div class="form-group col-md-4">
+                            <label for="fechaVencimientoTarea">Fecha de Vencimiento</label>
+                            <input type="date" class="form-control" id="fechaVencimientoTarea" name="fecha_vencimiento">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="responsableTarea">Responsable *</label>
                             <select class="form-control" id="responsableTarea" name="fk_id_usuario_asignado" required>
@@ -254,59 +270,178 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="form-group col-md-6">
+                            <label for="fk_id_tipo">Tipo de Documento *</label>
+                            <select name="fk_id_tipo" id="fk_id_tipo" class="form-control" required>
+                                <option value="">Seleccionar tipo...</option>
+                                @foreach($tiposDocumento as $tipo)
+                                    <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     
                     <input type="hidden" name="fk_id_usuario_creador" value="{{ auth()->id() }}">
+                    <input type="hidden" name="estado" value="Pendiente">
+                    <input type="hidden" name="fecha_creacion" value="{{ date('Y-m-d') }}">
                     
                     <div class="form-group">
-                        <label for="descripcionTarea">Descripción</label>
-                        <textarea class="form-control" id="descripcionTarea" name="descripcion" rows="3" maxlength="500"></textarea>
+                        <label for="descripcionTarea">Descripción (opcional)</label>
+                        <textarea class="form-control" id="descripcionTarea" name="descripcion" rows="3" maxlength="500" placeholder="Descripción de la tarea"></textarea>
                         <small class="form-text text-muted">Máximo 500 caracteres</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="documentoTarea">Documento adjunto *</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="documentoTarea" name="documento" accept="application/pdf,image/*" required>
+                            <label class="custom-file-label" for="documentoTarea" id="documentoLabel">Seleccionar archivo (PDF o imagen)</label>
+                        </div>
+                        <small class="form-text text-muted">Tamaño máximo: 2MB</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar tarea -->
+<div class="modal fade" id="modalEditarTarea" tabindex="-1" role="dialog" aria-labelledby="modalEditarTareaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0b2e59; color: white;">
+                <h5 class="modal-title" id="modalEditarTareaLabel">
+                    <i class="fas fa-edit mr-2"></i> Editar Tarea Documental
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" id="formEditarTarea">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <input type="hidden" name="tarea_id" id="editTareaId">
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-8">
+                            <label for="editNombreTarea">Nombre de la tarea *</label>
+                            <input type="text" class="form-control" id="editNombreTarea" name="nombre" required maxlength="100">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="editFechaVencimientoTarea">Fecha de Vencimiento</label>
+                            <input type="date" class="form-control" id="editFechaVencimientoTarea" name="fecha_vencimiento">
+                        </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="estadoTarea">Estado *</label>
-                            <select class="form-control" id="estadoTarea" name="estado" required>
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="En Proceso">En Proceso</option>
-                                <option value="Completada">Completada</option>
-                                <option value="Rechazada">Rechazada</option>
+                            <label for="editResponsableTarea">Responsable *</label>
+                            <select class="form-control" id="editResponsableTarea" name="fk_id_usuario_asignado" required>
+                                <option value="">Seleccionar responsable</option>
+                                @foreach($responsables as $responsable)
+                                    <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="fechaCreacionTarea">Fecha de Creación *</label>
-                            <input type="date" class="form-control" id="fechaCreacionTarea" name="fecha_creacion" value="{{ date('Y-m-d') }}" required>
+                            <label for="editDescripcionTarea">Descripción</label>
+                            <textarea class="form-control" id="editDescripcionTarea" name="descripcion" rows="3" maxlength="500"></textarea>
                         </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cambiar estado -->
+<div class="modal fade" id="modalCambiarEstado" tabindex="-1" role="dialog" aria-labelledby="modalCambiarEstadoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0b2e59; color: white;">
+                <h5 class="modal-title" id="modalCambiarEstadoLabel">
+                    <i class="fas fa-sync-alt mr-2"></i> Cambiar Estado de Tarea
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" id="formCambiarEstado">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="tarea_id" id="estadoTareaId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="nuevoEstado">Nuevo Estado *</label>
+                        <select class="form-control" id="nuevoEstado" name="estado" required>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Proceso">En Proceso</option>
+                            <option value="Completada">Completada</option>
+                            <option value="Rechazada">Rechazada</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
-                        <label for="fechaVencimientoTarea">Fecha de Vencimiento</label>
-                        <input type="date" class="form-control" id="fechaVencimientoTarea" name="fecha_vencimiento">
+                        <label for="comentarioEstado">Comentario (opcional)</label>
+                        <textarea class="form-control" id="comentarioEstado" name="comentario" rows="2" placeholder="Agregar comentario sobre el cambio de estado"></textarea>
                     </div>
-                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar documentos -->
+<div class="modal fade" id="modalAgregarDocumento" tabindex="-1" role="dialog" aria-labelledby="modalAgregarDocumentoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0b2e59; color: white;">
+                <h5 class="modal-title" id="modalAgregarDocumentoLabel">
+                    <i class="fas fa-file-upload mr-2"></i> Agregar Documento
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" id="formAgregarDocumento" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="tarea_id" id="documentoTareaId">
+                <div class="modal-body">
                     <div class="form-group">
-                        <label for="documentoTarea">Documento adjunto (PDF, JPG, PNG)</label>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="documentoTarea" name="documento" accept="application/pdf,image/*">
-                            <label class="custom-file-label" for="documentoTarea" id="documentoLabel">Seleccionar archivo</label>
-                        </div>
-                        <small class="form-text text-muted">Tamaño máximo: 2MB</small>
-                    </div>
-                    
-                    <div class="form-group" id="tipoDocumentoContainer">
-                        <label for="fk_id_tipo">Tipo de Documento *</label>
-                        <select name="fk_id_tipo" id="fk_id_tipo" class="form-control" required>
+                        <label for="fk_id_tipo_doc">Tipo de Documento *</label>
+                        <select name="fk_id_tipo" id="fk_id_tipo_doc" class="form-control" required>
                             <option value="">Seleccionar tipo...</option>
                             @foreach($tiposDocumento as $tipo)
                                 <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
                             @endforeach
                         </select>
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="nuevoDocumento">Documento *</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="nuevoDocumento" name="documento" accept="application/pdf,image/*" required>
+                            <label class="custom-file-label" for="nuevoDocumento" id="nuevoDocumentoLabel">Seleccionar archivo</label>
+                        </div>
+                        <small class="form-text text-muted">Tamaño máximo: 2MB</small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" id="btnGuardarTarea">Guardar Tarea</button>
+                    <button type="submit" class="btn btn-primary">Agregar Documento</button>
                 </div>
             </form>
         </div>
@@ -367,6 +502,9 @@
                         <div class="text-center text-muted py-3">Cargando historial...</div>
                     </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -753,12 +891,12 @@
         
         // Modal Detalle
         $('#modalDetalleTarea').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
+            var button = $(event).relatedTarget || $(event.relatedTarget);
             var tareaId = button.data('id');
             
-            $('#detalle-nombre').text(button.data('nombre'));
-            $('#detalle-responsable').text(button.data('responsable'));
-            $('#detalle-fecha').text(button.data('fecha'));
+            $('#detalle-nombre').text(button.data('nombre') || '');
+            $('#detalle-responsable').text(button.data('responsable') || '');
+            $('#detalle-fecha').text(button.data('fecha') || '');
             $('#detalle-vencimiento').text(button.data('vencimiento') || 'No definida');
             $('#detalle-descripcion').text(button.data('descripcion') || 'Sin descripción');
             
@@ -831,41 +969,42 @@
             });
         });
 
-        // Modal Nueva/Editar Tarea
-        $('#modalNuevaTarea').on('show.bs.modal', function (event) {
+        // Modal Editar Tarea
+        $('#modalEditarTarea').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
-            var modal = $(this);
-            var form = modal.find('form');
-            var isEdit = button.data('id') ? true : false;
-
-            // Reset form
-            form.trigger('reset');
-            form.find('input[name="_method"]').remove();
-            modal.find('#documentoLabel').text('Seleccionar archivo');
-            $('#modalTareaTitle').text('Nueva Tarea Documental');
-            $('#btnGuardarTarea').text('Crear Tarea');
-            $('#tareaId').val('');
+            var tareaId = button.data('id');
             
-            // Mostrar campo de documento solo para crear
-            $('#tipoDocumentoContainer').show();
+            // Configurar formulario
+            var form = $(this).find('form');
+            form.attr('action', '/tareas/' + tareaId);
+            $('#editTareaId').val(tareaId);
+            
+            // Llenar datos
+            $('#editNombreTarea').val(button.data('nombre'));
+            $('#editResponsableTarea').val(button.data('responsable'));
+            $('#editDescripcionTarea').val(button.data('descripcion') || '');
+            $('#editFechaVencimientoTarea').val(button.data('vencimiento') || '');
+        });
 
-            if (isEdit) {
-                // Editar
-                $('#modalTareaTitle').text('Editar Tarea Documental');
-                $('#btnGuardarTarea').text('Actualizar Tarea');
-                form.attr('action', '/tareas/' + button.data('id'));
-                form.append('<input type="hidden" name="_method" value="PUT">');
-                $('#tareaId').val(button.data('id'));
-                $('#nombreTarea').val(button.data('nombre'));
-                $('#responsableTarea').val(button.data('responsable'));
-                $('#estadoTarea').val(button.data('estado'));
-                $('#fechaCreacionTarea').val(button.data('fecha'));
-                $('#fechaVencimientoTarea').val(button.data('vencimiento'));
-                $('#descripcionTarea').val(button.data('descripcion'));
-                
-                // Ocultar campo de documento para edición
-                $('#tipoDocumentoContainer').hide();
-            }
+        // Modal Cambiar Estado
+        $('#modalCambiarEstado').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var tareaId = button.data('id');
+            var estadoActual = button.data('estado');
+            
+            var form = $(this).find('form');
+            form.attr('action', '/tareas/' + tareaId + '/cambiar-estado');
+            $('#estadoTareaId').val(tareaId);
+            $('#nuevoEstado').val(estadoActual);
+        });
+
+        // Modal Agregar Documento
+        $('#modalAgregarDocumento').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var tareaId = button.data('id');
+            
+            $('#documentoTareaId').val(tareaId);
+            $('#nuevoDocumentoLabel').text('Seleccionar archivo');
         });
 
         // Visualizar documento en modal
@@ -903,11 +1042,11 @@
         
         // Validación de fechas
         $('#fechaVencimientoTarea').on('change', function() {
-            var fechaInicio = new Date($('#fechaCreacionTarea').val());
+            var fechaInicio = new Date();
             var fechaFin = new Date($(this).val());
             
             if(fechaFin < fechaInicio) {
-                alert('La fecha de vencimiento no puede ser anterior a la fecha de creación');
+                alert('La fecha de vencimiento no puede ser anterior a la fecha actual');
                 $(this).val('');
             }
         });
@@ -921,7 +1060,7 @@
                 type: 'GET',
                 data: form.serialize(),
                 success: function(data) {
-                    $(".table tbody").html(data);
+                    $(".table tbody").html($(data).find('tbody').html());
                 },
                 error: function() {
                     alert('Error al filtrar las tareas.');
