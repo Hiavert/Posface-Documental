@@ -73,33 +73,28 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy')
         ->middleware('can:eliminar-Perfil');
 
-    // Rutas de tareas con permisos granulares
-   Route::middleware('granular.permission:TareasDocumentales,ver')->group(function () {
-    Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
-    Route::get('/tareas/{id}', [TareaController::class, 'show'])->name('tareas.show');
-    Route::get('/tareas/{id}/historial', [TareaController::class, 'historialBitacora'])->name('tareas.historial');
-});
+    // Tareas - Agrupadas correctamente
+    Route::prefix('tareas')->group(function () {
+        // Rutas con verificación granular
+        Route::middleware('granular.permission:TareasDocumentales,ver')->group(function () {
+            Route::get('/', [TareaController::class, 'index'])->name('tareas.index');
+            Route::get('/{id}/historial', [TareaController::class, 'historialBitacora'])->name('tareas.historial');
+        });
 
-Route::middleware('granular.permission:TareasDocumentales,agregar')->group(function () {
-    Route::get('/tareas/create', [TareaController::class, 'create'])->name('tareas.create');
-    Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store');
-    Route::post('/tareas/upload', [TareaController::class, 'upload'])->name('tareas.upload');
-});
+        Route::middleware('granular.permission:TareasDocumentales,agregar')->group(function () {
+            Route::post('/', [TareaController::class, 'store'])->name('tareas.store');
+            Route::post('/agregar-documento', [TareaController::class, 'agregarDocumento'])->name('tareas.agregar-documento');
+        });
 
-Route::middleware('granular.permission:TareasDocumentales,editar')->group(function () {
-    Route::get('/tareas/{id}/edit', [TareaController::class, 'edit'])->name('tareas.edit');
-    Route::put('/tareas/{id}', [TareaController::class, 'update'])->name('tareas.update');
-});
+        Route::middleware('granular.permission:TareasDocumentales,editar')->group(function () {
+            Route::put('/{id}', [TareaController::class, 'update'])->name('tareas.update');
+            Route::put('/{id}/cambiar-estado', [TareaController::class, 'cambiarEstado'])->name('tareas.cambiar-estado');
+        });
 
-Route::middleware('granular.permission:TareasDocumentales,eliminar')->group(function () {
-    Route::delete('/tareas/{id}', [TareaController::class, 'destroy'])->name('tareas.destroy');
-    Route::delete('/tareas/documento/{id}', [TareaController::class, 'eliminarDocumento'])->name('tareas.documento.eliminar');
-});
-Route::resource('tareas', TareaController::class);
-Route::put('/tareas/{id}/cambiar-estado', [TareaController::class, 'cambiarEstado'])->name('tareas.cambiar-estado');
-Route::post('/tareas/agregar-documento', [TareaController::class, 'agregarDocumento'])->name('tareas.agregar-documento');
-Route::delete('/tareas/documento/{id}', [TareaController::class, 'eliminarDocumento'])->name('tareas.documento.eliminar');
-Route::get('/tareas/{id}/historial', [TareaController::class, 'historialBitacora'])->name('tareas.historial');
+        Route::middleware('granular.permission:TareasDocumentales,eliminar')->group(function () {
+            Route::delete('/{id}', [TareaController::class, 'destroy'])->name('tareas.destroy');
+            Route::delete('/documento/{id}', [TareaController::class, 'eliminarDocumento'])->name('tareas.documento.eliminar');
+        });
 Route::get('/notificaciones/leer-todas', function () {
     $user = Auth::user();
     if ($user) {

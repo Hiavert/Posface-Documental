@@ -370,7 +370,7 @@ class TareaController extends Controller
         return response()->json(['historial' => $eventos]);
     }
 
-    private function registrarBitacora($accion, $modulo, $registroId, $datosAntes, $datosDespues)
+    protected function registrarBitacora($accion, $modulo, $registroId, $datosAntes, $datosDespues)
     {
         Bitacora::create([
             'accion' => $accion,
