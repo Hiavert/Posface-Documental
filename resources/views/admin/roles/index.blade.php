@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="unah-header">
         <h1 class="mb-0"><i class="fas fa-user-tag mr-2"></i> Gestión de Roles</h1>
-        <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado en Informática Administrativa</p>
+        <p class="mb-0">Universidad Nacional Autónoma de Honduras</p>
     </div>
     @if (session('success'))
         <div class="alert alert-success" id="successAlert">
