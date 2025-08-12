@@ -56,36 +56,14 @@ class TareaController extends Controller
         'tipo_documento.exists' => 'El tipo de documento seleccionado no existe.'
     ];
 
-    // Validaciones para carga de documentos
-    protected $uploadValidationRules = [
-        'id_tarea' => 'required|exists:tareas,id_tarea',
-        'documento' => 'required|file|mimes:pdf,jpg,jpeg,png,gif|max:10240', // 10MB
-        'fk_id_tipo' => 'required|exists:tipo_documento,id_tipo',
-        'descripcion' => 'nullable|string|max:200|regex:/^[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,;:()\-]+$/'
-    ];
-
-    protected $uploadValidationMessages = [
-        'id_tarea.required' => 'Debe seleccionar una tarea.',
-        'id_tarea.exists' => 'La tarea seleccionada no existe.',
-        'documento.required' => 'Debe seleccionar un archivo.',
-        'documento.mimes' => 'El documento debe ser PDF, JPG, PNG o GIF.',
-        'documento.max' => 'El archivo no debe superar los 10MB.',
-        'fk_id_tipo.required' => 'Debe seleccionar un tipo de documento.',
-        'fk_id_tipo.exists' => 'El tipo de documento seleccionado no existe.',
-        'descripcion.max' => 'La descripción no debe exceder los 200 caracteres.',
-        'descripcion.regex' => 'La descripción contiene caracteres no permitidos.'
-    ];
-
     /**
      * Mostrar lista de tareas con filtros
      */
     public function index(Request $request)
     {
         try {
-            // Validar parámetros de filtrado
             $request->validate($this->filterValidationRules, $this->filterValidationMessages);
 
-            // Construir query base con relaciones
             $query = Tarea::with([
                 'usuarioAsignado:id_usuario,nombres,apellidos,email',
                 'usuarioCreador:id_usuario,nombres,apellidos',
@@ -95,7 +73,6 @@ class TareaController extends Controller
                 }
             ]);
 
-            // Aplicar filtros si están presentes
             if ($request->filled('estado')) {
                 $query->where('estado', $request->estado);
             }
@@ -118,7 +95,6 @@ class TareaController extends Controller
                 });
             }
 
-            // Filtrar por usuario si no es SuperAdmin
             if (!auth()->user()->tieneRol('SuperAdmin')) {
                 $query->where(function($q) {
                     $q->where('fk_id_usuario_asignado', auth()->id())
@@ -126,10 +102,8 @@ class TareaController extends Controller
                 });
             }
 
-            // Obtener tareas ordenadas por fecha de creación descendente
             $tareas = $query->orderBy('fecha_creacion', 'desc')->get();
 
-            // Calcular estadísticas
             $estadisticas = [
                 'pendientes' => $tareas->where('estado', 'Pendiente')->count(),
                 'en_proceso' => $tareas->where('estado', 'En Proceso')->count(),
@@ -137,7 +111,6 @@ class TareaController extends Controller
                 'rechazadas' => $tareas->where('estado', 'Rechazada')->count(),
             ];
 
-            // Agregar información adicional a cada tarea
             $tareas->each(function($tarea) {
                 $tarea->total_documentos = $tarea->documentos->count();
                 $tarea->tipo_documento = $tarea->documentos->isNotEmpty() 
@@ -146,11 +119,10 @@ class TareaController extends Controller
                 $tarea->responsable = $tarea->usuarioAsignado;
             });
 
-            // Obtener datos para filtros
             $responsables = User::select('id_usuario', 'nombres', 'apellidos')
                                ->orderBy('nombres')
                                ->get();
-            
+
             $tiposDocumento = TipoDocumento::select('id_tipo', 'nombre_tipo')
                                          ->orderBy('nombre_tipo')
                                          ->get();
@@ -169,21 +141,15 @@ class TareaController extends Controller
      */
     public function create()
     {
-        try {
-            // Validar permisos
-            if (!auth()->user() || !method_exists(auth()->user(), 'puedeAgregar') || !auth()->user()->puedeAgregar('TareasDocumentales')) {
-                return back()->with('error', 'No tienes permisos para crear tareas.');
-            }
-
-            $responsables = User::select('id_usuario', 'nombres', 'apellidos')
-                               ->orderBy('nombres')
-                               ->get();
-
-            return view('tareas.create', compact('responsables'));
-
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error al cargar el formulario: ' . $e->getMessage());
+        if (!auth()->user() || !method_exists(auth()->user(), 'puedeAgregar') || !auth()->user()->puedeAgregar('TareasDocumentales')) {
+            return back()->with('error', 'No tienes permisos para crear tareas.');
         }
+
+        $responsables = User::select('id_usuario', 'nombres', 'apellidos')
+                           ->orderBy('nombres')
+                           ->get();
+
+        return view('tareas.create', compact('responsables'));
     }
 
     /**
@@ -191,29 +157,17 @@ class TareaController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            // Validar permisos
-            if (!auth()->user() || !method_exists(auth()->user(), 'puedeAgregar') || !auth()->user()->puedeAgregar('TareasDocumentales')) {
-                return back()->with('error', 'No tienes permisos para crear tareas.');
-            }
-
-            // Validar datos de entrada
-            $validated = $request->validate($this->validationRules, $this->validationMessages);
-
-            // Asegurar que el usuario creador sea el actual
-            $validated['fk_id_usuario_creador'] = auth()->id();
-
-            // Crear la tarea
-            $tarea = Tarea::create($validated);
-
-            return redirect()->route('tareas.index')
-                ->with('success', 'Tarea creada correctamente con ID: TD-' . str_pad($tarea->id_tarea, 5, '0', STR_PAD_LEFT));
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return back()->withErrors($e->errors())->withInput();
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error al crear la tarea: ' . $e->getMessage())->withInput();
+        if (!auth()->user() || !method_exists(auth()->user(), 'puedeAgregar') || !auth()->user()->puedeAgregar('TareasDocumentales')) {
+            return back()->with('error', 'No tienes permisos para crear tareas.');
         }
+
+        $validated = $request->validate($this->validationRules, $this->validationMessages);
+        $validated['fk_id_usuario_creador'] = auth()->id();
+
+        $tarea = Tarea::create($validated);
+
+        return redirect()->route('tareas.index')
+            ->with('success', 'Tarea creada correctamente con ID: TD-' . str_pad($tarea->id_tarea, 5, '0', STR_PAD_LEFT));
     }
 
     /**
@@ -221,37 +175,27 @@ class TareaController extends Controller
      */
     public function show($id)
     {
-        try {
-            // Validar permisos
-            if (!auth()->user() || !method_exists(auth()->user(), 'puedeVer') || !auth()->user()->puedeVer('TareasDocumentales')) {
-                return back()->with('error', 'No tienes permisos para ver tareas.');
-            }
-
-            // Validar ID
-            if (!is_numeric($id) || $id <= 0) {
-                return back()->with('error', 'ID de tarea no válido.');
-            }
-
-            $tarea = Tarea::with([
-                'usuarioAsignado:id_usuario,nombres,apellidos,email',
-                'usuarioCreador:id_usuario,nombres,apellidos',
-                'documentos.tipoDocumento'
-            ])->findOrFail($id);
-
-            // Verificar si el usuario puede ver esta tarea específica
-            if (!auth()->user()->tieneRol('SuperAdmin') && 
-                $tarea->fk_id_usuario_asignado !== auth()->id() && 
-                $tarea->fk_id_usuario_creador !== auth()->id()) {
-                return back()->with('error', 'No tienes permisos para ver esta tarea.');
-            }
-
-            return view('tareas.show', compact('tarea'));
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return back()->with('error', 'Tarea no encontrada.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error al mostrar la tarea: ' . $e->getMessage());
+        if (!auth()->user() || !method_exists(auth()->user(), 'puedeVer') || !auth()->user()->puedeVer('TareasDocumentales')) {
+            return back()->with('error', 'No tienes permisos para ver tareas.');
         }
+
+        if (!is_numeric($id) || $id <= 0) {
+            return back()->with('error', 'ID de tarea no válido.');
+        }
+
+        $tarea = Tarea::with([
+            'usuarioAsignado:id_usuario,nombres,apellidos,email',
+            'usuarioCreador:id_usuario,nombres,apellidos',
+            'documentos.tipoDocumento'
+        ])->findOrFail($id);
+
+        if (!auth()->user()->tieneRol('SuperAdmin') &&
+            $tarea->fk_id_usuario_asignado !== auth()->id() &&
+            $tarea->fk_id_usuario_creador !== auth()->id()) {
+            return back()->with('error', 'No tienes permisos para ver esta tarea.');
+        }
+
+        return view('tareas.show', compact('tarea'));
     }
 
     /**
@@ -259,36 +203,26 @@ class TareaController extends Controller
      */
     public function edit($id)
     {
-        try {
-            // Validar permisos
-            if (!auth()->user() || !method_exists(auth()->user(), 'puedeEditar') || !auth()->user()->puedeEditar('TareasDocumentales')) {
-                return back()->with('error', 'No tienes permisos para editar tareas.');
-            }
-
-            // Validar ID
-            if (!is_numeric($id) || $id <= 0) {
-                return back()->with('error', 'ID de tarea no válido.');
-            }
-
-            $tarea = Tarea::with(['usuarioAsignado', 'usuarioCreador'])->findOrFail($id);
-
-            // Verificar si el usuario puede editar esta tarea específica
-            if (!auth()->user()->tieneRol('SuperAdmin') && 
-                $tarea->fk_id_usuario_creador !== auth()->id()) {
-                return back()->with('error', 'Solo puedes editar tareas que hayas creado.');
-            }
-
-            $responsables = User::select('id_usuario', 'nombres', 'apellidos')
-                               ->orderBy('nombres')
-                               ->get();
-            
-            return view('tareas.edit', compact('tarea', 'responsables'));
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return back()->with('error', 'Tarea no encontrada.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error al cargar la tarea para edición: ' . $e->getMessage());
+        if (!auth()->user() || !method_exists(auth()->user(), 'puedeEditar') || !auth()->user()->puedeEditar('TareasDocumentales')) {
+            return back()->with('error', 'No tienes permisos para editar tareas.');
         }
+
+        if (!is_numeric($id) || $id <= 0) {
+            return back()->with('error', 'ID de tarea no válido.');
+        }
+
+        $tarea = Tarea::with(['usuarioAsignado', 'usuarioCreador'])->findOrFail($id);
+
+        if (!auth()->user()->tieneRol('SuperAdmin') &&
+            $tarea->fk_id_usuario_creador !== auth()->id()) {
+            return back()->with('error', 'Solo puedes editar tareas que hayas creado.');
+        }
+
+        $responsables = User::select('id_usuario', 'nombres', 'apellidos')
+                           ->orderBy('nombres')
+                           ->get();
+
+        return view('tareas.edit', compact('tarea', 'responsables'));
     }
 
     /**
@@ -296,43 +230,29 @@ class TareaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try {
-            // Validar permisos
-            if (!auth()->user() || !method_exists(auth()->user(), 'puedeEditar') || !auth()->user()->puedeEditar('TareasDocumentales')) {
-                return back()->with('error', 'No tienes permisos para editar tareas.');
-            }
-
-            // Validar ID
-            if (!is_numeric($id) || $id <= 0) {
-                return back()->with('error', 'ID de tarea no válido.');
-            }
-
-            // Validar datos de entrada
-            $validated = $request->validate($this->validationRules, $this->validationMessages);
-
-            $tarea = Tarea::findOrFail($id);
-
-            // Verificar si el usuario puede editar esta tarea específica
-            if (!auth()->user()->tieneRol('SuperAdmin') && 
-                $tarea->fk_id_usuario_creador !== auth()->id()) {
-                return back()->with('error', 'Solo puedes editar tareas que hayas creado.');
-            }
-
-            // Mantener el creador original
-            $validated['fk_id_usuario_creador'] = $tarea->fk_id_usuario_creador;
-
-            $tarea->update($validated);
-
-            return redirect()->route('tareas.index')
-                ->with('success', 'Tarea actualizada correctamente.');
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return back()->withErrors($e->errors())->withInput();
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return back()->with('error', 'Tarea no encontrada.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error al actualizar la tarea: ' . $e->getMessage())->withInput();
+        if (!auth()->user() || !method_exists(auth()->user(), 'puedeEditar') || !auth()->user()->puedeEditar('TareasDocumentales')) {
+            return back()->with('error', 'No tienes permisos para editar tareas.');
         }
+
+        if (!is_numeric($id) || $id <= 0) {
+            return back()->with('error', 'ID de tarea no válido.');
+        }
+
+        $validated = $request->validate($this->validationRules, $this->validationMessages);
+
+        $tarea = Tarea::findOrFail($id);
+
+        if (!auth()->user()->tieneRol('SuperAdmin') &&
+            $tarea->fk_id_usuario_creador !== auth()->id()) {
+            return back()->with('error', 'Solo puedes editar tareas que hayas creado.');
+        }
+
+        $validated['fk_id_usuario_creador'] = $tarea->fk_id_usuario_creador;
+
+        $tarea->update($validated);
+
+        return redirect()->route('tareas.index')
+            ->with('success', 'Tarea actualizada correctamente.');
     }
 
     /**
@@ -340,53 +260,37 @@ class TareaController extends Controller
      */
     public function destroy($id)
     {
-        try {
-            // Validar permisos
-            if (!auth()->user() || !method_exists(auth()->user(), 'puedeEliminar') || !auth()->user()->puedeEliminar('TareasDocumentales')) {
-                return back()->with('error', 'No tienes permisos para eliminar tareas.');
-            }
-
-            // Validar ID
-            if (!is_numeric($id) || $id <= 0) {
-                return back()->with('error', 'ID de tarea no válido.');
-            }
-
-            $tarea = Tarea::with('documentos')->findOrFail($id);
-
-            // Verificar si el usuario puede eliminar esta tarea específica
-            if (!auth()->user()->tieneRol('SuperAdmin') && 
-                $tarea->fk_id_usuario_creador !== auth()->id()) {
-                return back()->with('error', 'Solo puedes eliminar tareas que hayas creado.');
-            }
-
-            DB::beginTransaction();
-
-            // Eliminar documentos asociados
-            foreach ($tarea->documentos as $documento) {
-                if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
-                    Storage::disk('public')->delete($documento->ruta_archivo);
-                }
-                // Eliminar relación en tabla pivot
-                DB::table('tarea_documento')->where('fk_id_documento', $documento->id_documento)->delete();
-                // Eliminar documento
-                $documento->delete();
-            }
-
-            // Eliminar la tarea
-            $tarea->delete();
-
-            DB::commit();
-
-            return redirect()->route('tareas.index')
-                ->with('success', 'Tarea y documentos asociados eliminados correctamente.');
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            DB::rollBack();
-            return back()->with('error', 'Tarea no encontrada.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Error al eliminar la tarea: ' . $e->getMessage());
+        if (!auth()->user() || !method_exists(auth()->user(), 'puedeEliminar') || !auth()->user()->puedeEliminar('TareasDocumentales')) {
+            return back()->with('error', 'No tienes permisos para eliminar tareas.');
         }
+
+        if (!is_numeric($id) || $id <= 0) {
+            return back()->with('error', 'ID de tarea no válido.');
+        }
+
+        $tarea = Tarea::with('documentos')->findOrFail($id);
+
+        if (!auth()->user()->tieneRol('SuperAdmin') &&
+            $tarea->fk_id_usuario_creador !== auth()->id()) {
+            return back()->with('error', 'Solo puedes eliminar tareas que hayas creado.');
+        }
+
+        DB::beginTransaction();
+
+        foreach ($tarea->documentos as $documento) {
+            if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
+                Storage::disk('public')->delete($documento->ruta_archivo);
+            }
+            DB::table('tarea_documento')->where('fk_id_documento', $documento->id_documento)->delete();
+            $documento->delete();
+        }
+
+        $tarea->delete();
+
+        DB::commit();
+
+        return redirect()->route('tareas.index')
+            ->with('success', 'Tarea y documentos asociados eliminados correctamente.');
     }
 
     /**
@@ -394,64 +298,47 @@ class TareaController extends Controller
      */
     public function upload(Request $request)
     {
-        try {
-            // Validar permisos
-            if (!auth()->user() || !method_exists(auth()->user(), 'puedeAgregar') || !auth()->user()->puedeAgregar('TareasDocumentales')) {
-                return back()->with('error', 'No tienes permisos para cargar documentos.');
-            }
-
-            // Validar datos de entrada
-            $validated = $request->validate($this->uploadValidationRules, $this->uploadValidationMessages);
-
-            // Verificar que la tarea existe y el usuario tiene acceso
-            $tarea = Tarea::findOrFail($validated['id_tarea']);
-            
-            if (!auth()->user()->tieneRol('SuperAdmin') && 
-                $tarea->fk_id_usuario_asignado !== auth()->id() && 
-                $tarea->fk_id_usuario_creador !== auth()->id()) {
-                return back()->with('error', 'No tienes permisos para cargar documentos a esta tarea.');
-            }
-
-            DB::beginTransaction();
-
-            $file = $request->file('documento');
-            $originalName = $file->getClientOriginalName();
-            $fileName = time() . '_' . $originalName;
-            $path = $file->storeAs('tareas_documentos', $fileName, 'public');
-
-            // Crear el documento
-            $documento = DocumentoAdministrativo::create([
-                'nombre_documento' => $originalName,
-                'descripcion' => $request->input('descripcion', null),
-                'ruta_archivo' => $path,
-                'fecha_subida' => now(),
-                'fk_id_usuario' => auth()->id(),
-                'fk_id_tipo' => $validated['fk_id_tipo'],
-            ]);
-
-            // Asociar documento con tarea
-            DB::table('tarea_documento')->insert([
-                'fk_id_tarea' => $validated['id_tarea'],
-                'fk_id_documento' => $documento->id_documento,
-                'fecha_asociacion' => now(),
-                'observaciones' => null,
-            ]);
-
-            DB::commit();
-
-            return redirect()->route('tareas.index')
-                ->with('success', 'Documento "' . $originalName . '" cargado correctamente.');
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return back()->withErrors($e->errors())->withInput();
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            DB::rollBack();
-            return back()->with('error', 'Tarea no encontrada.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Error al cargar el documento: ' . $e->getMessage());
+        if (!auth()->user() || !method_exists(auth()->user(), 'puedeAgregar') || !auth()->user()->puedeAgregar('TareasDocumentales')) {
+            return back()->with('error', 'No tienes permisos para cargar documentos.');
         }
+
+        $validated = $request->validate($this->uploadValidationRules, $this->uploadValidationMessages);
+
+        $tarea = Tarea::findOrFail($validated['id_tarea']);
+
+        if (!auth()->user()->tieneRol('SuperAdmin') &&
+            $tarea->fk_id_usuario_asignado !== auth()->id() &&
+            $tarea->fk_id_usuario_creador !== auth()->id()) {
+            return back()->with('error', 'No tienes permisos para cargar documentos a esta tarea.');
+        }
+
+        DB::beginTransaction();
+
+        $file = $request->file('documento');
+        $originalName = $file->getClientOriginalName();
+        $fileName = time() . '_' . $originalName;
+        $path = $file->storeAs('tareas_documentos', $fileName, 'public');
+
+        $documento = DocumentoAdministrativo::create([
+            'nombre_documento' => $originalName,
+            'descripcion' => $request->input('descripcion', null),
+            'ruta_archivo' => $path,
+            'fecha_subida' => now(),
+            'fk_id_usuario' => auth()->id(),
+            'fk_id_tipo' => $validated['fk_id_tipo'],
+        ]);
+
+        DB::table('tarea_documento')->insert([
+            'fk_id_tarea' => $validated['id_tarea'],
+            'fk_id_documento' => $documento->id_documento,
+            'fecha_asociacion' => now(),
+            'observaciones' => null,
+        ]);
+
+        DB::commit();
+
+        return redirect()->route('tareas.index')
+            ->with('success', 'Documento "' . $originalName . '" cargado correctamente.');
     }
 
     /**
@@ -459,48 +346,33 @@ class TareaController extends Controller
      */
     public function eliminarDocumento($id)
     {
-        try {
-            // Validar permisos
-            if (!auth()->user() || !method_exists(auth()->user(), 'puedeEliminar') || !auth()->user()->puedeEliminar('TareasDocumentales')) {
-                return back()->with('error', 'No tienes permisos para eliminar documentos.');
-            }
-
-            // Validar ID
-            if (!is_numeric($id) || $id <= 0) {
-                return back()->with('error', 'ID de documento no válido.');
-            }
-
-            $documento = DocumentoAdministrativo::findOrFail($id);
-
-            // Verificar si el usuario puede eliminar este documento
-            if (!auth()->user()->tieneRol('SuperAdmin') && 
-                $documento->fk_id_usuario !== auth()->id()) {
-                return back()->with('error', 'Solo puedes eliminar documentos que hayas subido.');
-            }
-
-            DB::beginTransaction();
-
-            // Eliminar archivo físico si existe
-            if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
-                Storage::disk('public')->delete($documento->ruta_archivo);
-            }
-
-            // Eliminar relación en tabla pivot
-            DB::table('tarea_documento')->where('fk_id_documento', $id)->delete();
-            
-            // Eliminar documento de la base de datos
-            $documento->delete();
-
-            DB::commit();
-
-            return back()->with('success', 'Documento eliminado correctamente.');
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            DB::rollBack();
-            return back()->with('error', 'Documento no encontrado.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Error al eliminar el documento: ' . $e->getMessage());
+        if (!auth()->user() || !method_exists(auth()->user(), 'puedeEliminar') || !auth()->user()->puedeEliminar('TareasDocumentales')) {
+            return back()->with('error', 'No tienes permisos para eliminar documentos.');
         }
+
+        if (!is_numeric($id) || $id <= 0) {
+            return back()->with('error', 'ID de documento no válido.');
+        }
+
+        $documento = DocumentoAdministrativo::findOrFail($id);
+
+        if (!auth()->user()->tieneRol('SuperAdmin') &&
+            $documento->fk_id_usuario !== auth()->id()) {
+            return back()->with('error', 'Solo puedes eliminar documentos que hayas subido.');
+        }
+
+        DB::beginTransaction();
+
+        if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
+            Storage::disk('public')->delete($documento->ruta_archivo);
+        }
+
+        DB::table('tarea_documento')->where('fk_id_documento', $id)->delete();
+
+        $documento->delete();
+
+        DB::commit();
+
+        return back()->with('success', 'Documento eliminado correctamente.');
     }
 }
