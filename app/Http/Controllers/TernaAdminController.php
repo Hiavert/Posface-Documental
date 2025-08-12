@@ -294,13 +294,16 @@ class TernaAdminController extends Controller
 
         if ($request->hasFile('identidad')) {
             $file = $request->file('identidad');
-            $fileName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) 
-                       . '.' . $file->getClientOriginalExtension();
+            $fileName = Str::slug(
+                pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)
+            ) . '.' . $file->getClientOriginalExtension();
+
             $path = $file->storeAs(
                 'integrantes_identidad',
                 $fileName,
                 'public'
             );
+
             $integrante->ruta_identidad = $path;
         }
 
