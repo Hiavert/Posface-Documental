@@ -82,11 +82,12 @@ class TernaAdminController extends Controller
             'responsable' => 'required|string|max:30|regex:/^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/',
             'fecha_limite' => 'required|date|after_or_equal:'.$today,
             'estudiante_nombre' => 'required|string|max:100',
-            'estudiante_cuenta' => 'required|string|max:20',
+            'estudiante_cuenta' => 'required|string|max:20|regex:/^[0-9]+$/',
             'estudiante_carrera' => 'required|string|max:50',
             'metodologo_id' => 'required|exists:integrantes_terna,id',
             'tecnico1_id' => 'required|exists:integrantes_terna,id',
             'tecnico2_id' => 'required|exists:integrantes_terna,id',
+            // Documentos ahora son opcionales (archivo o enlace)
             'documento_fisico' => 'nullable|file|mimes:pdf|max:2048',
             'documento_fisico_enlace' => 'nullable|url',
             'solvencia_cobranza' => 'nullable|file|mimes:pdf|max:2048',
@@ -98,6 +99,7 @@ class TernaAdminController extends Controller
             'fecha_limite.after_or_equal' => 'La fecha límite debe ser igual o posterior a hoy.',
             'descripcion.regex' => 'La descripción solo puede contener letras, números y signos de puntuación.',
             'responsable.regex' => 'El responsable solo puede contener letras y espacios.',
+            'estudiante_cuenta.regex' => 'El número de cuenta solo puede contener números.',
             'documento_fisico_enlace.url' => 'El enlace del documento físico debe ser una URL válida.',
             'solvencia_cobranza_enlace.url' => 'El enlace de solvencia de cobranza debe ser una URL válida.',
             'acta_graduacion_enlace.url' => 'El enlace del acta de graduación debe ser una URL válida.',
@@ -105,6 +107,7 @@ class TernaAdminController extends Controller
 
         $this->validateDocumentPresence($request);
 
+        // Obtener último ID para código secuencial
         $ultimoId = PagoTerna::max('id') ?? 0;
         
         $pagoTerna = PagoTerna::create([
@@ -130,6 +133,7 @@ class TernaAdminController extends Controller
             'fecha_envio_admin' => now()
         ]);
 
+        // Notificar al asistente
         $asistente = User::find($request->id_asistente);
         if ($asistente) {
             $asistente->notify(new NuevoProcesoTernaNotification($pagoTerna));
@@ -209,7 +213,15 @@ class TernaAdminController extends Controller
     public function show($id)
     {
         $pagoTerna = PagoTerna::with('documentos', 'administrador', 'asistente', 'metodologo', 'tecnico1', 'tecnico2')->findOrFail($id);
-        return view('terna.admin.show', compact('pagoTerna'));
+        
+        // Obtener identidades de los integrantes
+        $identidades = [
+            'metodologo' => $pagoTerna->metodologo->ruta_identidad,
+            'tecnico1' => $pagoTerna->tecnico1->ruta_identidad,
+            'tecnico2' => $pagoTerna->tecnico2->ruta_identidad,
+        ];
+        
+        return view('terna.admin.show', compact('pagoTerna', 'identidades'));
     }
 
     public function edit($id)
@@ -235,7 +247,7 @@ class TernaAdminController extends Controller
             'responsable' => 'required|string|max:30|regex:/^[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+$/',
             'fecha_limite' => 'required|date|after_or_equal:'.$today,
             'estudiante_nombre' => 'required|string|max:100',
-            'estudiante_cuenta' => 'required|string|max:20',
+            'estudiante_cuenta' => 'required|string|max:20|regex:/^[0-9]+$/',
             'estudiante_carrera' => 'required|string|max:50',
             'metodologo_id' => 'required|exists:integrantes_terna,id',
             'tecnico1_id' => 'required|exists:integrantes_terna,id',
@@ -245,6 +257,7 @@ class TernaAdminController extends Controller
             'fecha_limite.after_or_equal' => 'La fecha límite debe ser igual o posterior a hoy.',
             'descripcion.regex' => 'La descripción solo puede contener letras, números y signos de puntuación.',
             'responsable.regex' => 'El responsable solo puede contener letras y espacios.',
+            'estudiante_cuenta.regex' => 'El número de cuenta solo puede contener números.',
         ]);
 
         $pagoTerna = PagoTerna::findOrFail($id);
@@ -257,6 +270,7 @@ class TernaAdminController extends Controller
     {
         $pagoTerna = PagoTerna::findOrFail($id);
         
+        // Eliminar documentos asociados
         foreach ($pagoTerna->documentos as $documento) {
             if ($documento->tipo_archivo === 'archivo') {
                 Storage::disk('documentos_terna')->delete($documento->ruta_archivo);
@@ -284,8 +298,10 @@ class TernaAdminController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:100',
-            'cuenta' => 'required|string|max:20',
+            'cuenta' => 'required|string|max:20|regex:/^[0-9]+$/',
             'identidad' => 'nullable|file|mimes:pdf|max:2048',
+        ], [
+            'cuenta.regex' => 'El número de cuenta solo puede contener números.',
         ]);
 
         $integrante = new IntegranteTerna();
@@ -294,16 +310,12 @@ class TernaAdminController extends Controller
 
         if ($request->hasFile('identidad')) {
             $file = $request->file('identidad');
-            $fileName = Str::slug(
-                pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)
-            ) . '.' . $file->getClientOriginalExtension();
-
+            $fileName = Str::slug($request->nombre) . '_identidad.' . $file->getClientOriginalExtension();
             $path = $file->storeAs(
                 'integrantes_identidad',
                 $fileName,
                 'public'
             );
-
             $integrante->ruta_identidad = $path;
         }
 

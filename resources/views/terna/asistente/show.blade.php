@@ -28,18 +28,26 @@
                     @if(in_array($documento->tipo, ['documento_fisico', 'solvencia_cobranza', 'acta_graduacion']))
                     <div class="col-md-4 mb-3">
                         <div class="card document-card shadow-sm">
-                            <div class="card-body text-center">
-                                @if($documento->tipo_archivo === 'archivo')
-                                    <i class="fas fa-file-pdf fa-3x text-danger"></i>
-                                @else
-                                    <i class="fas fa-link fa-3x text-primary"></i>
-                                @endif
-                                
-                                <h6 class="document-title mt-2">
+                            <div class="card-body">
+                                <h6 class="document-title">
                                     {{ ucfirst(str_replace('_', ' ', $documento->tipo)) }}
                                 </h6>
                                 
-                                <div class="mt-3">
+                                @if($documento->tipo_archivo === 'archivo')
+                                    <div class="document-preview">
+                                        <iframe src="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" 
+                                            width="100%" 
+                                            height="200" 
+                                            style="border: none; background: #f8f9fc;">
+                                        </iframe>
+                                    </div>
+                                @else
+                                    <div class="text-center py-3">
+                                        <i class="fas fa-link fa-3x text-primary"></i>
+                                    </div>
+                                @endif
+                                
+                                <div class="mt-3 text-center">
                                     @if($documento->tipo_archivo === 'archivo')
                                         <a href="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" 
                                            target="_blank" 
@@ -81,15 +89,15 @@
                 <h5><i class="fas fa-users mr-2"></i> Integrantes de Terna</h5>
                 <div class="info-item">
                     <label>Metodólogo:</label>
-                    <p>{{ $pagoTerna->metodologo?->nombre ?? 'Sin asignar' }} ({{ $pagoTerna->metodologo?->cuenta ?? 'N/A' }})</p>
+                    <p>{{ $pagoTerna->metodologo->nombre }} ({{ $pagoTerna->metodologo->cuenta }})</p>
                 </div>
                 <div class="info-item">
                     <label>Técnico 1:</label>
-                    <p>{{ $pagoTerna->tecnico1?->nombre ?? 'Sin asignar' }} ({{ $pagoTerna->tecnico1?->cuenta ?? 'N/A' }})</p>
+                    <p>{{ $pagoTerna->tecnico1->nombre }} ({{ $pagoTerna->tecnico1->cuenta }})</p>
                 </div>
                 <div class="info-item">
                     <label>Técnico 2:</label>
-                    <p>{{ $pagoTerna->tecnico2?->nombre ?? 'Sin asignar' }} ({{ $pagoTerna->tecnico2?->cuenta ?? 'N/A' }})</p>
+                    <p>{{ $pagoTerna->tecnico2->nombre }} ({{ $pagoTerna->tecnico2->cuenta }})</p>
                 </div>
             </div>
         </div>
@@ -107,8 +115,8 @@
                         <div class="form-group">
                             <label>Constancia de Participación</label>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="constancia_participacion">
-                                <label class="custom-file-label">Subir PDF</label>
+                                <input type="file" class="custom-file-input" name="constancia_participacion" id="constancia_participacion">
+                                <label class="custom-file-label" for="constancia_participacion">Subir PDF</label>
                             </div>
                             <div class="mt-2">
                                 <input type="text" class="form-control" name="constancia_participacion_enlace" placeholder="O ingresar enlace">
@@ -119,8 +127,8 @@
                         <div class="form-group">
                             <label>Orden de Pago</label>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="orden_pago">
-                                <label class="custom-file-label">Subir PDF</label>
+                                <input type="file" class="custom-file-input" name="orden_pago" id="orden_pago">
+                                <label class="custom-file-label" for="orden_pago">Subir PDF</label>
                             </div>
                             <div class="mt-2">
                                 <input type="text" class="form-control" name="orden_pago_enlace" placeholder="O ingresar enlace">
@@ -131,8 +139,8 @@
                         <div class="form-group">
                             <label>Propuesta de Maestrías</label>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="propuesta_maestria">
-                                <label class="custom-file-label">Subir PDF</label>
+                                <input type="file" class="custom-file-input" name="propuesta_maestria" id="propuesta_maestria">
+                                <label class="custom-file-label" for="propuesta_maestria">Subir PDF</label>
                             </div>
                             <div class="mt-2">
                                 <input type="text" class="form-control" name="propuesta_maestria_enlace" placeholder="O ingresar enlace">
@@ -167,6 +175,7 @@
         border-radius: 10px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border: 1px solid #eaeef5;
+        height: 100%;
     }
     
     .document-card:hover {
@@ -177,6 +186,15 @@
     .document-title {
         font-weight: 600;
         color: #2c3e50;
+        margin-bottom: 15px;
+        font-size: 1rem;
+    }
+    
+    .document-preview {
+        background-color: #f8f9fc;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 200px;
     }
     
     .btn-download {

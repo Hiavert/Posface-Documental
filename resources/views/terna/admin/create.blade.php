@@ -91,19 +91,28 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Nombre Completo</label>
-                                <input type="text" class="form-control" name="estudiante_nombre" required>
+                                <input type="text" class="form-control" name="estudiante_nombre" 
+                                    pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+"
+                                    title="Solo letras y espacios"
+                                    required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Número de Cuenta</label>
-                                <input type="text" class="form-control" name="estudiante_cuenta" required>
+                                <input type="text" class="form-control" name="estudiante_cuenta" 
+                                    pattern="[0-9]+"
+                                    title="Solo números"
+                                    required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Carrera</label>
-                                <input type="text" class="form-control" name="estudiante_carrera" required>
+                                <input type="text" class="form-control" name="estudiante_carrera" 
+                                    pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+"
+                                    title="Solo letras y espacios"
+                                    required>
                             </div>
                         </div>
                     </div>
@@ -167,8 +176,8 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="documento_fisico">
-                                    <label class="custom-file-label">Subir PDF</label>
+                                    <input type="file" class="custom-file-input" name="documento_fisico" id="documento_fisico">
+                                    <label class="custom-file-label" for="documento_fisico">Subir PDF</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -184,8 +193,8 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="solvencia_cobranza">
-                                    <label class="custom-file-label">Subir PDF</label>
+                                    <input type="file" class="custom-file-input" name="solvencia_cobranza" id="solvencia_cobranza">
+                                    <label class="custom-file-label" for="solvencia_cobranza">Subir PDF</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -201,8 +210,8 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="acta_graduacion">
-                                    <label class="custom-file-label">Subir PDF</label>
+                                    <input type="file" class="custom-file-input" name="acta_graduacion" id="acta_graduacion">
+                                    <label class="custom-file-label" for="acta_graduacion">Subir PDF</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -239,11 +248,11 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Nombre Completo</label>
-                    <input type="text" class="form-control" id="integrante_nombre">
+                    <input type="text" class="form-control" id="integrante_nombre" pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios">
                 </div>
                 <div class="form-group">
                     <label>Número de Cuenta</label>
-                    <input type="text" class="form-control" id="integrante_cuenta">
+                    <input type="text" class="form-control" id="integrante_cuenta" pattern="[0-9]+" title="Solo números">
                 </div>
                 <div class="form-group">
                     <label>Identidad (PDF opcional)</label>
@@ -257,35 +266,6 @@
         </div>
     </div>
 </div>
-@stop
-@section('css')
-<style>
-.elegant-header {
-        background: linear-gradient(135deg, #0b2e59, #1a5a8d);
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        color: white;
-        margin-bottom: 25px;
-    }
-    
-    .elegant-header h1 {
-        font-weight: 600;
-        font-size: 1.8rem;
-        margin-bottom: 0.2rem;
-        letter-spacing: -0.5px;
-    }
-    
-    .elegant-header .subtitle {
-        font-size: 1rem;
-        opacity: 0.85;
-    }
-    
-    .elegant-header .header-icon {
-        font-size: 2.5rem;
-        opacity: 0.9;
-    }
-</style>
 @stop
 
 @section('js')
@@ -311,7 +291,10 @@
             const formData = new FormData();
             formData.append('nombre', $('#integrante_nombre').val());
             formData.append('cuenta', $('#integrante_cuenta').val());
-            formData.append('identidad', $('#integrante_identidad')[0].files[0]);
+            
+            if ($('#integrante_identidad')[0].files[0]) {
+                formData.append('identidad', $('#integrante_identidad')[0].files[0]);
+            }
             
             $.ajax({
                 url: "{{ route('terna.integrantes.store') }}",
@@ -329,9 +312,10 @@
                     
                     $('#modalAgregarIntegrante').modal('hide');
                     resetModal();
+                    toastr.success('Integrante agregado correctamente');
                 },
                 error: function(xhr) {
-                    alert('Error: ' + xhr.responseJSON.message);
+                    toastr.error(xhr.responseJSON.message || 'Error al agregar integrante');
                 }
             });
         });

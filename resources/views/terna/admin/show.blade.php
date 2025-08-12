@@ -103,18 +103,26 @@
                         @if(in_array($documento->tipo, ['documento_fisico', 'solvencia_cobranza', 'acta_graduacion']))
                         <div class="col-md-4 mb-3">
                             <div class="card document-card shadow-sm">
-                                <div class="card-body text-center">
-                                    @if($documento->tipo_archivo === 'archivo')
-                                        <i class="fas fa-file-pdf fa-3x text-danger"></i>
-                                    @else
-                                        <i class="fas fa-link fa-3x text-primary"></i>
-                                    @endif
-                                    
-                                    <h6 class="document-title mt-2">
+                                <div class="card-body">
+                                    <h6 class="document-title">
                                         {{ ucfirst(str_replace('_', ' ', $documento->tipo)) }}
                                     </h6>
                                     
-                                    <div class="mt-3">
+                                    @if($documento->tipo_archivo === 'archivo')
+                                        <div class="document-preview">
+                                            <iframe src="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" 
+                                                width="100%" 
+                                                height="200" 
+                                                style="border: none; background: #f8f9fc;">
+                                            </iframe>
+                                        </div>
+                                    @else
+                                        <div class="text-center py-3">
+                                            <i class="fas fa-link fa-3x text-primary"></i>
+                                        </div>
+                                    @endif
+                                    
+                                    <div class="mt-3 text-center">
                                         @if($documento->tipo_archivo === 'archivo')
                                             <a href="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" 
                                                target="_blank" 
@@ -145,18 +153,26 @@
                         @if(in_array($documento->tipo, ['constancia_participacion', 'orden_pago', 'propuesta_maestria']))
                         <div class="col-md-4 mb-3">
                             <div class="card document-card shadow-sm">
-                                <div class="card-body text-center">
-                                    @if($documento->tipo_archivo === 'archivo')
-                                        <i class="fas fa-file-pdf fa-3x text-danger"></i>
-                                    @else
-                                        <i class="fas fa-link fa-3x text-primary"></i>
-                                    @endif
-                                    
-                                    <h6 class="document-title mt-2">
+                                <div class="card-body">
+                                    <h6 class="document-title">
                                         {{ ucfirst(str_replace('_', ' ', $documento->tipo)) }}
                                     </h6>
                                     
-                                    <div class="mt-3">
+                                    @if($documento->tipo_archivo === 'archivo')
+                                        <div class="document-preview">
+                                            <iframe src="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" 
+                                                width="100%" 
+                                                height="200" 
+                                                style="border: none; background: #f8f9fc;">
+                                            </iframe>
+                                        </div>
+                                    @else
+                                        <div class="text-center py-3">
+                                            <i class="fas fa-link fa-3x text-primary"></i>
+                                        </div>
+                                    @endif
+                                    
+                                    <div class="mt-3 text-center">
                                         @if($documento->tipo_archivo === 'archivo')
                                             <a href="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" 
                                                target="_blank" 
@@ -181,6 +197,98 @@
             @endif
 
             @if($pagoTerna->estado == 'pendiente_pago')
+            <div class="mt-4">
+                <h5><i class="fas fa-id-card mr-2"></i> Identidades de los Integrantes</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card document-card shadow-sm">
+                            <div class="card-body">
+                                <h6 class="document-title">Metodólogo: {{ $pagoTerna->metodologo->nombre }}</h6>
+                                @if($identidades['metodologo'])
+                                    <div class="document-preview">
+                                        <iframe src="{{ asset('storage/' . $identidades['metodologo']) }}" 
+                                            width="100%" 
+                                            height="200" 
+                                            style="border: none; background: #f8f9fc;">
+                                        </iframe>
+                                    </div>
+                                    <div class="mt-3 text-center">
+                                        <a href="{{ asset('storage/' . $identidades['metodologo']) }}" 
+                                           target="_blank" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download mr-1"></i> Descargar
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-file-excel text-muted fa-3x"></i>
+                                        <p class="mt-2">No se subió identidad</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card document-card shadow-sm">
+                            <div class="card-body">
+                                <h6 class="document-title">Técnico 1: {{ $pagoTerna->tecnico1->nombre }}</h6>
+                                @if($identidades['tecnico1'])
+                                    <div class="document-preview">
+                                        <iframe src="{{ asset('storage/' . $identidades['tecnico1']) }}" 
+                                            width="100%" 
+                                            height="200" 
+                                            style="border: none; background: #f8f9fc;">
+                                        </iframe>
+                                    </div>
+                                    <div class="mt-3 text-center">
+                                        <a href="{{ asset('storage/' . $identidades['tecnico1']) }}" 
+                                           target="_blank" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download mr-1"></i> Descargar
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-file-excel text-muted fa-3x"></i>
+                                        <p class="mt-2">No se subió identidad</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card document-card shadow-sm">
+                            <div class="card-body">
+                                <h6 class="document-title">Técnico 2: {{ $pagoTerna->tecnico2->nombre }}</h6>
+                                @if($identidades['tecnico2'])
+                                    <div class="document-preview">
+                                        <iframe src="{{ asset('storage/' . $identidades['tecnico2']) }}" 
+                                            width="100%" 
+                                            height="200" 
+                                            style="border: none; background: #f8f9fc;">
+                                        </iframe>
+                                    </div>
+                                    <div class="mt-3 text-center">
+                                        <a href="{{ asset('storage/' . $identidades['tecnico2']) }}" 
+                                           target="_blank" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download mr-1"></i> Descargar
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-file-excel text-muted fa-3x"></i>
+                                        <p class="mt-2">No se subió identidad</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="mt-4 text-center">
                 <form action="{{ route('terna.admin.marcar-pagado', $pagoTerna->id) }}" method="POST">
                     @csrf
@@ -207,6 +315,7 @@
         border-radius: 10px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border: 1px solid #eaeef5;
+        height: 100%;
     }
     
     .document-card:hover {
@@ -217,6 +326,15 @@
     .document-title {
         font-weight: 600;
         color: #2c3e50;
+        margin-bottom: 15px;
+        font-size: 1rem;
+    }
+    
+    .document-preview {
+        background-color: #f8f9fc;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 200px;
     }
     
     .btn-download {
@@ -241,6 +359,22 @@
         padding: 8px 12px;
         background-color: #f8f9fc;
         border-radius: 8px;
+    }
+    
+    .badge-state-pendiente_pago {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-weight: 500;
+    }
+    
+    .badge-state-pagado {
+        background-color: #e8f5e9;
+        color: #388e3c;
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-weight: 500;
     }
 </style>
 @stop
