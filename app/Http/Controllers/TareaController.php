@@ -121,7 +121,7 @@ class TareaController extends Controller
         }
 
         $tarea = Tarea::with(['usuarioAsignado', 'usuarioCreador', 'documentos'])->findOrFail($id);
-        return view('tareas.show', compact('tarea'));
+        return view('tareas.index', compact('tarea'));
     }
 
     public function edit($id)
