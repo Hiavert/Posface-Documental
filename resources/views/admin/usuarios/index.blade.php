@@ -7,7 +7,7 @@
         <div class="d-flex align-items-center">
             <div>
                 <h1 class="mb-0"><i class="bi bi-people mr-2"></i> Gestión de Usuarios</h1>
-                <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado en Informática Administrativa</p>
+                <p class="mb-0">Universidad Nacional Autónoma de Honduras</p>
             </div>
         </div>
     </div>
