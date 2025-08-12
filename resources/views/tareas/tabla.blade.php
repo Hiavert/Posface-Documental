@@ -1,3 +1,4 @@
+{{-- tabla.blade.php --}}
 @php use Carbon\Carbon; @endphp
 @forelse($tareas as $tarea)
     <tr class="table-row" data-id="{{ $tarea->id_tarea }}">
@@ -60,15 +61,6 @@
             @php
                 $user = Auth::user();
             @endphp
-            <!-- Cambiar Estado -->
-            <button class="btn btn-sm btn-action" title="Cambiar estado"
-                data-toggle="modal"
-                data-target="#modalCambiarEstado"
-                data-id="{{ $tarea->id_tarea }}"
-                data-estado="{{ $tarea->estado }}">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-            
             <!-- Ver detalles -->
             <button class="btn btn-sm btn-action" title="Ver detalles"
                 data-toggle="modal"
@@ -97,23 +89,15 @@
             @if($user->puedeEditar('TareasDocumentales'))
                 <button class="btn btn-sm btn-action" title="Editar"
                     data-toggle="modal"
-                    data-target="#modalEditarTarea"
+                    data-target="#modalNuevaTarea"
                     data-id="{{ $tarea->id_tarea }}"
                     data-nombre="{{ $tarea->nombre }}"
                     data-responsable="{{ $tarea->fk_id_usuario_asignado }}"
-                    data-descripcion="{{ $tarea->descripcion }}"
-                    data-vencimiento="{{ $tarea->fecha_vencimiento }}">
+                    data-estado="{{ $tarea->estado }}"
+                    data-fecha="{{ $tarea->fecha_creacion }}"
+                    data-vencimiento="{{ $tarea->fecha_vencimiento }}"
+                    data-descripcion="{{ $tarea->descripcion }}">
                     <i class="fas fa-edit"></i>
-                </button>
-            @endif
-            
-            <!-- Agregar Documento -->
-            @if($user->puedeAgregar('TareasDocumentales'))
-                <button class="btn btn-sm btn-action" title="Agregar documento"
-                    data-toggle="modal"
-                    data-target="#modalAgregarDocumento"
-                    data-id="{{ $tarea->id_tarea }}">
-                    <i class="fas fa-plus"></i>
                 </button>
             @endif
             
