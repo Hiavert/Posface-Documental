@@ -37,7 +37,6 @@ class TareaController extends Controller
 
         $query = Tarea::with(['usuarioAsignado', 'usuarioCreador', 'documentos']);
 
-        // Aplicar filtros validados
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
@@ -100,7 +99,7 @@ class TareaController extends Controller
                 'string',
                 'max:100',
                 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_.,;:()\/]+$/',
-                'not_regex:/<[^>]*>/' // Evitar HTML
+                'not_regex:/<[^>]*>/' 
             ],
             'descripcion' => [
                 'nullable',
@@ -143,7 +142,6 @@ class TareaController extends Controller
 
         DB::beginTransaction();
         try {
-            // Crear la tarea
             $tarea = Tarea::create([
                 'nombre' => strip_tags($request->nombre),
                 'descripcion' => $request->descripcion ? strip_tags($request->descripcion) : null,
@@ -154,7 +152,6 @@ class TareaController extends Controller
                 'fecha_vencimiento' => $request->fecha_vencimiento,
             ]);
 
-            // Procesar documento si existe
             if ($request->hasFile('documento')) {
                 $file = $request->file('documento');
                 $path = $file->store('tareas_documentos', 'public');
@@ -178,7 +175,6 @@ class TareaController extends Controller
 
             DB::commit();
 
-            // Notificar al usuario asignado
             $usuario = User::find($request->fk_id_usuario_asignado);
             if ($usuario) {
                 $usuario->notify(new \App\Notifications\TareaAsignadaNotification($tarea));
@@ -270,7 +266,6 @@ class TareaController extends Controller
 
         DB::beginTransaction();
         try {
-            // Actualizar la tarea
             $tarea->update([
                 'nombre' => strip_tags($request->nombre),
                 'descripcion' => $request->descripcion ? strip_tags($request->descripcion) : null,
@@ -280,7 +275,6 @@ class TareaController extends Controller
                 'fecha_vencimiento' => $request->fecha_vencimiento,
             ]);
 
-            // Procesar documento si existe
             if ($request->hasFile('documento')) {
                 $file = $request->file('documento');
                 $path = $file->store('tareas_documentos', 'public');
@@ -331,21 +325,20 @@ class TareaController extends Controller
         DB::beginTransaction();
         try {
             $tarea = Tarea::findOrFail($id);
-            
-            // Eliminar documentos asociados
+
             foreach ($tarea->documentos as $documento) {
                 if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
                     Storage::disk('public')->delete($documento->ruta_archivo);
                 }
                 $documento->delete();
             }
-            
+
             $tarea->delete();
-            
+
             DB::commit();
-            
+
             return redirect()->route('tareas.index')->with('success', 'Tarea eliminada correctamente.');
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors('Error al eliminar la tarea: ' . $e->getMessage());
@@ -362,7 +355,7 @@ class TareaController extends Controller
             'id_tarea' => 'required|integer|exists:tareas,id_tarea',
             'documento' => 'required|file|max:'.self::MAX_FILE_SIZE.'|mimes:'.implode(',', self::ALLOWED_MIMES),
             'fk_id_tipo' => 'required|integer|exists:tipo_documento,id_tipo',
-            'descripcion' => 'required|string|max:200'
+            'descripcion' => 'nullable|string|max:200'  // Aquí es opcional
         ], [
             'id_tarea.required' => 'Se requiere una tarea asociada.',
             'id_tarea.exists' => 'La tarea especificada no existe.',
@@ -371,7 +364,6 @@ class TareaController extends Controller
             'documento.mimes' => 'El tipo de archivo no está permitido.',
             'fk_id_tipo.required' => 'Debe seleccionar un tipo de documento.',
             'fk_id_tipo.exists' => 'El tipo de documento seleccionado no existe.',
-            'descripcion.required' => 'Debe agregar una descripción.',
             'descripcion.max' => 'La descripción no debe exceder los 200 caracteres.'
         ]);
 
@@ -389,7 +381,7 @@ class TareaController extends Controller
 
             $documento = DocumentoAdministrativo::create([
                 'nombre_documento' => $file->getClientOriginalName(),
-                'descripcion' => strip_tags($request->descripcion),
+                'descripcion' => $request->descripcion ? strip_tags($request->descripcion) : null,
                 'ruta_archivo' => $path,
                 'fecha_subida' => now(),
                 'fk_id_usuario' => auth()->id(),
@@ -430,9 +422,10 @@ class TareaController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         DB::beginTransaction();
@@ -443,16 +436,21 @@ class TareaController extends Controller
                 Storage::disk('public')->delete($documento->ruta_archivo);
             }
 
-            DB::table('tarea_documento')->where('fk_id_documento', $id)->delete();
             $documento->delete();
 
             DB::commit();
 
-            return back()->with('success', 'Documento eliminado correctamente.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Documento eliminado correctamente.'
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors('Error al eliminar el documento: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar el documento: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
