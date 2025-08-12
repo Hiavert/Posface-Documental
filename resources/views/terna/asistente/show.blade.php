@@ -81,15 +81,15 @@
                 <h5><i class="fas fa-users mr-2"></i> Integrantes de Terna</h5>
                 <div class="info-item">
                     <label>Metodólogo:</label>
-                    <p>{{ $pagoTerna->metodologo->nombre }} ({{ $pagoTerna->metodologo->cuenta }})</p>
+                    <p>{{ $pagoTerna->metodologo?->nombre ?? 'Sin asignar' }} ({{ $pagoTerna->metodologo?->cuenta ?? 'N/A' }})</p>
                 </div>
                 <div class="info-item">
                     <label>Técnico 1:</label>
-                    <p>{{ $pagoTerna->tecnico1->nombre }} ({{ $pagoTerna->tecnico1->cuenta }})</p>
+                    <p>{{ $pagoTerna->tecnico1?->nombre ?? 'Sin asignar' }} ({{ $pagoTerna->tecnico1?->cuenta ?? 'N/A' }})</p>
                 </div>
                 <div class="info-item">
                     <label>Técnico 2:</label>
-                    <p>{{ $pagoTerna->tecnico2->nombre }} ({{ $pagoTerna->tecnico2->cuenta }})</p>
+                    <p>{{ $pagoTerna->tecnico2?->nombre ?? 'Sin asignar' }} ({{ $pagoTerna->tecnico2?->cuenta ?? 'N/A' }})</p>
                 </div>
             </div>
         </div>
