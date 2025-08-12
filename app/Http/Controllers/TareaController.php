@@ -294,17 +294,17 @@ class TareaController extends Controller
         return response()->json(['historial' => $eventos]);
     }
 
-    protected function registrarBitacora($accion, $modulo, $registro_id = null, $datos_antes = null, $datos_despues = null)
-    {
-        Bitacora::create([
-            'usuario_id' => auth()->id(),
-            'usuario_nombre' => auth()->user()->name ?? 'Sistema',
-            'accion' => $accion,
-            'modulo' => $modulo,
-            'registro_id' => $registro_id,
-            'datos_antes' => $datos_antes,
-            'datos_despues' => $datos_despues,
-            'created_at' => now(),
-        ]);
-    }
+   protected function registrarBitacora($accion, $modulo, $registro_id = null, $datos_antes = null, $datos_despues = null)
+{
+    Bitacora::create([
+        'usuario_id' => auth()->id(),
+        'usuario_nombre' => auth()->user()->name ?? 'Sistema',
+        'accion' => $accion,
+        'modulo' => $modulo,
+        'registro_id' => $registro_id,
+        'datos_antes' => $datos_antes,
+        'datos_despues' => $datos_despues,
+        'created_at' => now(),
+    ]);
+}
 }
