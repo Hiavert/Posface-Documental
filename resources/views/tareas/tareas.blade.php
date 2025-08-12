@@ -89,20 +89,24 @@
                         <label class="form-label">Responsable</label>
                         <select class="form-control form-control-elegant" name="responsable">
                             <option value="">Todos</option>
-                            @foreach($responsables as $responsable)
-                                <option value="{{ $responsable->id_usuario }}" {{ request('responsable') == $responsable->id_usuario ? 'selected' : '' }}>
-                                    {{ $responsable->nombres }} {{ $responsable->apellidos }}
-                                </option>
-                            @endforeach
+                            @if($responsables && $responsables->count() > 0)
+                                @foreach($responsables as $responsable)
+                                    <option value="{{ $responsable->id_usuario }}" {{ request('responsable') == $responsable->id_usuario ? 'selected' : '' }}>
+                                        {{ $responsable->nombres }} {{ $responsable->apellidos }}
+                                    </option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Tipo de Documento</label>
                         <select class="form-control form-control-elegant" name="tipo_documento">
                             <option value="">Todos</option>
-                            @foreach($tiposDocumento as $tipo)
-                                <option value="{{ $tipo->id_tipo }}" {{ request('tipo_documento') == $tipo->id_tipo ? 'selected' : '' }}>{{ $tipo->nombre_tipo }}</option>
-                            @endforeach
+                            @if($tiposDocumento && $tiposDocumento->count() > 0)
+                                @foreach($tiposDocumento as $tipo)
+                                    <option value="{{ $tipo->id_tipo }}" {{ request('tipo_documento') == $tipo->id_tipo ? 'selected' : '' }}>{{ $tipo->nombre_tipo }}</option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                     <div class="col-md-2 mb-3">
@@ -118,18 +122,16 @@
                             <button class="btn btn-primary btn-elegant mr-2 mb-2" type="submit">
                                 <i class="fas fa-filter mr-1"></i> Filtrar
                             </button>
-                            <a href="#" id="btnRestablecer" class="btn btn-outline-secondary btn-elegant mb-2">
+                            <a href="{{ route('tareas.index') }}" class="btn btn-outline-secondary btn-elegant mb-2">
                                 <i class="fas fa-redo mr-1"></i> Restablecer
                             </a>
                         </div>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-2">
-                    @if(Auth::user()->puedeAgregar('TareasDocumentales'))
                     <button type="button" class="btn btn-success btn-elegant" data-toggle="modal" data-target="#modalNuevaTarea">
                         <i class="fas fa-plus mr-1"></i> Nueva Tarea
                     </button>
-                    @endif
                 </div>
             </form>
         </div>
@@ -188,7 +190,7 @@
         <div class="card-header d-flex align-items-center">
             <h5 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted"></i> Tareas Documentales</h5>
             <div class="ml-auto">
-                <span class="badge badge-light">{{ $tareas->count() }} registros</span>
+                <span class="badge badge-light">{{ $tareas ? $tareas->count() : 0 }} registros</span>
             </div>
         </div>
         <div class="card-body">
@@ -207,107 +209,101 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($tareas as $tarea)
-                            <tr class="table-row">
-                                <td class="font-weight-bold">TD-{{ str_pad($tarea->id_tarea, 5, '0', STR_PAD_LEFT) }}</td>
-                                <td>{{ $tarea->nombre }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm mr-2">
-                                            @if($tarea->responsable)
+                        @if($tareas && $tareas->count() > 0)
+                            @foreach($tareas as $tarea)
+                                <tr class="table-row">
+                                    <td class="font-weight-bold">TD-{{ str_pad($tarea->id_tarea ?? 0, 5, '0', STR_PAD_LEFT) }}</td>
+                                    <td>{{ $tarea->nombre ?? 'Sin nombre' }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm mr-2">
                                                 <div class="avatar-initials bg-primary text-white">
-                                                    {{ substr($tarea->responsable->nombres, 0, 1) }}{{ substr($tarea->responsable->apellidos, 0, 1) }}
+                                                    {{ substr($tarea->responsable->nombres ?? 'N', 0, 1) }}{{ substr($tarea->responsable->apellidos ?? 'D', 0, 1) }}
                                                 </div>
-                                            @else
-                                                <div class="avatar-initials bg-secondary text-white">ND</div>
-                                            @endif
+                                            </div>
+                                            <div>
+                                                {{ $tarea->responsable->nombres ?? 'No' }} {{ $tarea->responsable->apellidos ?? 'asignado' }}
+                                            </div>
                                         </div>
-                                        <div>
-                                            {{ $tarea->responsable->nombres ?? 'No asignado' }} {{ $tarea->responsable->apellidos ?? '' }}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge badge-state-{{ strtolower(str_replace(' ', '-', $tarea->estado)) }}">
-                                        {{ $tarea->estado }}
-                                    </span>
-                                </td>
-                                <td>{{ $tarea->fecha_creacion ? \Carbon\Carbon::parse($tarea->fecha_creacion)->format('d/m/Y H:i') : 'N/A' }}</td>
-                                <td>
-                                    @if($tarea->documentos && $tarea->documentos->count() > 0)
-                                        <i class="fas fa-file-pdf text-danger" title="{{ $tarea->documentos->count() }} documento(s)"></i>
-                                        <span class="ml-1">{{ $tarea->documentos->count() }}</span>
-                                    @else
-                                        <i class="fas fa-file-times text-muted" title="Sin documentos"></i>
-                                        <span class="ml-1 text-muted">0</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($tarea->documentos && $tarea->documentos->first())
-                                        <span class="badge badge-info">{{ $tarea->documentos->first()->tipoDocumento->nombre_tipo ?? 'N/A' }}</span>
-                                    @else
-                                        <span class="text-muted">Sin documento</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-actions" role="group">
-                                        <button class="btn btn-sm btn-action" data-toggle="modal" data-target="#modalDetalleTarea"
-                                                data-id="{{ $tarea->id_tarea }}"
-                                                data-nombre="{{ $tarea->nombre }}"
-                                                data-responsable="{{ $tarea->responsable->nombres ?? 'No asignado' }} {{ $tarea->responsable->apellidos ?? '' }}"
-                                                data-estado="{{ $tarea->estado }}"
-                                                data-fecha="{{ $tarea->fecha_creacion ? \Carbon\Carbon::parse($tarea->fecha_creacion)->format('d/m/Y') : 'N/A' }}"
-                                                data-descripcion="{{ $tarea->descripcion ?? 'Sin descripción' }}"
-                                                title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        
-                                        @if(Auth::user()->puedeEditar('TareasDocumentales'))
-                                        <button class="btn btn-sm btn-action" data-toggle="modal" data-target="#modalNuevaTarea"
-                                                data-id="{{ $tarea->id_tarea }}"
-                                                data-nombre="{{ $tarea->nombre }}"
-                                                data-responsable="{{ $tarea->fk_id_usuario_asignado }}"
-                                                data-estado="{{ $tarea->estado }}"
-                                                data-fecha="{{ $tarea->fecha_creacion }}"
-                                                data-descripcion="{{ $tarea->descripcion }}"
-                                                title="Editar">
-                                            <i class="fas fa-edit text-warning"></i>
-                                        </button>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-state-{{ strtolower(str_replace(' ', '-', $tarea->estado ?? 'pendiente')) }}">
+                                            {{ $tarea->estado ?? 'Pendiente' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if($tarea->fecha_creacion)
+                                            {{ \Carbon\Carbon::parse($tarea->fecha_creacion)->format('d/m/Y H:i') }}
+                                        @else
+                                            N/A
                                         @endif
-                                        
-                                        <button class="btn btn-sm btn-action" data-toggle="modal" data-target="#modalCargarDocumento"
-                                                data-id="{{ $tarea->id_tarea }}" title="Cargar documento">
-                                            <i class="fas fa-upload text-success"></i>
-                                        </button>
-                                        
-                                        @if(Auth::user()->puedeEliminar('TareasDocumentales'))
-                                        <form action="{{ route('tareas.destroy', $tarea->id_tarea) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-action" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
-                                                <i class="fas fa-trash-alt text-danger"></i>
+                                    </td>
+                                    <td>
+                                        @if(($tarea->total_documentos ?? 0) > 0)
+                                            <i class="fas fa-file-pdf text-danger" title="{{ $tarea->total_documentos }} documento(s)"></i>
+                                            <span class="ml-1">{{ $tarea->total_documentos }}</span>
+                                        @else
+                                            <i class="fas fa-file-times text-muted" title="Sin documentos"></i>
+                                            <span class="ml-1 text-muted">0</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">{{ $tarea->tipo_documento ?? 'Sin documento' }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-actions" role="group">
+                                            <button class="btn btn-sm btn-action btn-ver-detalle" 
+                                                    data-id="{{ $tarea->id_tarea }}"
+                                                    data-nombre="{{ $tarea->nombre }}"
+                                                    data-responsable="{{ ($tarea->responsable->nombres ?? 'No') . ' ' . ($tarea->responsable->apellidos ?? 'asignado') }}"
+                                                    data-estado="{{ $tarea->estado }}"
+                                                    data-fecha="{{ $tarea->fecha_creacion ? \Carbon\Carbon::parse($tarea->fecha_creacion)->format('d/m/Y') : 'N/A' }}"
+                                                    data-descripcion="{{ $tarea->descripcion ?? 'Sin descripción' }}"
+                                                    title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
                                             </button>
-                                        </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
+                                            
+                                            <button class="btn btn-sm btn-action btn-editar" 
+                                                    data-id="{{ $tarea->id_tarea }}"
+                                                    data-nombre="{{ $tarea->nombre }}"
+                                                    data-responsable="{{ $tarea->fk_id_usuario_asignado }}"
+                                                    data-estado="{{ $tarea->estado }}"
+                                                    data-fecha="{{ $tarea->fecha_creacion }}"
+                                                    data-descripcion="{{ $tarea->descripcion }}"
+                                                    title="Editar">
+                                                <i class="fas fa-edit text-warning"></i>
+                                            </button>
+                                            
+                                            <button class="btn btn-sm btn-action btn-cargar-documento" 
+                                                    data-id="{{ $tarea->id_tarea }}" title="Cargar documento">
+                                                <i class="fas fa-upload text-success"></i>
+                                            </button>
+                                            
+                                            <form action="{{ route('tareas.destroy', $tarea->id_tarea) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-action" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
+                                                    <i class="fas fa-trash-alt text-danger"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
                             <tr>
                                 <td colspan="8" class="text-center py-5">
                                     <div class="empty-state">
                                         <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
                                         <h5>No se encontraron tareas</h5>
                                         <p class="text-muted">Parece que aún no hay tareas registradas en el sistema</p>
-                                        @if(Auth::user()->puedeAgregar('TareasDocumentales'))
                                         <button type="button" class="btn btn-primary mt-2" data-toggle="modal" data-target="#modalNuevaTarea">
                                             <i class="fas fa-plus mr-1"></i> Crear primera tarea
                                         </button>
-                                        @endif
                                     </div>
                                 </td>
                             </tr>
-                        @endforelse
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -331,16 +327,18 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="nombreTarea">Nombre de la tarea</label>
+                        <label for="nombreTarea">Nombre de la tarea *</label>
                         <input type="text" class="form-control form-control-elegant" id="nombreTarea" name="nombre" required>
                     </div>
                     <div class="form-group">
-                        <label for="responsableTarea">Responsable</label>
+                        <label for="responsableTarea">Responsable *</label>
                         <select class="form-control form-control-elegant" id="responsableTarea" name="fk_id_usuario_asignado" required>
                             <option value="">Seleccione</option>
-                            @foreach($responsables as $responsable)
-                                <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
-                            @endforeach
+                            @if($responsables && $responsables->count() > 0)
+                                @foreach($responsables as $responsable)
+                                    <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                     <input type="hidden" name="fk_id_usuario_creador" value="{{ auth()->id() }}">
@@ -349,7 +347,7 @@
                         <textarea class="form-control form-control-elegant" id="descripcionTarea" name="descripcion" rows="3"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="estadoTarea">Estado</label>
+                        <label for="estadoTarea">Estado *</label>
                         <select class="form-control form-control-elegant" id="estadoTarea" name="estado" required>
                             <option value="Pendiente">Pendiente</option>
                             <option value="En Proceso">En Proceso</option>
@@ -358,7 +356,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="fechaCreacionTarea">Fecha de Creación</label>
+                        <label for="fechaCreacionTarea">Fecha de Creación *</label>
                         <input type="date" class="form-control form-control-elegant" id="fechaCreacionTarea" name="fecha_creacion" value="{{ date('Y-m-d') }}" required>
                     </div>
                     <div class="form-group">
@@ -392,22 +390,25 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="fk_id_tipo">Tipo de Documento</label>
+                        <label for="fk_id_tipo">Tipo de Documento *</label>
                         <select name="fk_id_tipo" id="fk_id_tipo" class="form-control form-control-elegant" required>
                             <option value="">Seleccione...</option>
-                            @foreach($tiposDocumento as $tipo)
-                                <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
-                            @endforeach
+                            @if($tiposDocumento && $tiposDocumento->count() > 0)
+                                @foreach($tiposDocumento as $tipo)
+                                    <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="documento">Archivo (PDF o imagen)</label>
+                        <label for="documento">Archivo (PDF o imagen) *</label>
                         <input type="file" class="form-control form-control-elegant" id="documento" name="documento" accept="application/pdf,image/*" required>
+                        <small class="form-text text-muted">Tamaño máximo: 10MB</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Subir</button>
+                    <button type="submit" class="btn btn-success">Subir Documento</button>
                 </div>
             </div>
         </form>
@@ -429,58 +430,18 @@
             <div class="modal-body">
                 <dl class="row">
                     <dt class="col-sm-4">Nombre</dt>
-                    <dd class="col-sm-8" id="detalle-nombre"></dd>
+                    <dd class="col-sm-8" id="detalle-nombre">-</dd>
                     <dt class="col-sm-4">Responsable</dt>
-                    <dd class="col-sm-8" id="detalle-responsable"></dd>
+                    <dd class="col-sm-8" id="detalle-responsable">-</dd>
                     <dt class="col-sm-4">Estado</dt>
                     <dd class="col-sm-8">
-                        <span id="detalle-estado" class="badge badge-pill"></span>
+                        <span id="detalle-estado" class="badge badge-pill">-</span>
                     </dd>
                     <dt class="col-sm-4">Fecha de Creación</dt>
-                    <dd class="col-sm-8" id="detalle-fecha"></dd>
+                    <dd class="col-sm-8" id="detalle-fecha">-</dd>
                     <dt class="col-sm-4">Descripción</dt>
-                    <dd class="col-sm-8" id="detalle-descripcion"></dd>
+                    <dd class="col-sm-8" id="detalle-descripcion">-</dd>
                 </dl>
-                <!-- Tarjeta de historial -->
-                <div class="card mt-3">
-                    <div class="card-header p-2">
-                        <strong><i class="fas fa-history mr-1"></i>Historial de acciones</strong>
-                    </div>
-                    <div class="card-body p-2 historial-scroll" style="max-height: 250px; overflow-y: auto; background: #f8f9fa;" id="historial-bitacora">
-                        <div class="text-center text-muted">Cargando historial...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para visualizar documento -->
-<div class="modal fade" id="modalVerDocumento" tabindex="-1" role="dialog" aria-labelledby="modalVerDocumentoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="iconoDocumento" style="font-size:2.5rem; margin-right:10px;"></span>
-                <h5 class="modal-title" id="modalVerDocumentoLabel"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center" id="contenedorDocumento">
-                <!-- Aquí se carga el documento dinámicamente -->
-            </div>
-            <div class="modal-footer">
-                <form id="formEliminarDocumento" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger" id="btnEliminarDocumento" onclick="return confirm('¿Seguro que desea eliminar este documento?')">
-                        <i class="fas fa-trash"></i> Eliminar
-                    </button>
-                </form>
-                <a href="#" id="descargarDocumento" class="btn btn-primary" download target="_blank">
-                    <i class="fas fa-download"></i> Descargar
-                </a>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -488,7 +449,7 @@
 
 @if ($errors->any())
     <div class="alert alert-danger">
-        <ul>
+        <ul class="mb-0">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
@@ -1004,17 +965,114 @@
     .card-elegant {
         animation: fadeInUp 0.4s ease-out;
     }
+</style>
+@stop
+
+@section('js')
+<script>
+$(document).ready(function() {
+    // Manejar modal de nueva tarea
+    $('#modalNuevaTarea').on('show.bs.modal', function(event) {
+        var button = $(event.relatedTarget);
+        var modal = $(this);
+        
+        // Limpiar formulario
+        modal.find('form')[0].reset();
+        modal.find('#fechaCreacionTarea').val(new Date().toISOString().split('T')[0]);
+        
+        // Verificar si es edición
+        if (button.data('id')) {
+            // Modo edición
+            modal.find('.modal-title').html('<i class="fas fa-edit mr-2"></i> Editar Tarea');
+            modal.find('#btnGuardarTarea').text('Actualizar Tarea');
+            modal.find('form').attr('action', '/tareas/' + button.data('id'));
+            modal.find('form').append('<input type="hidden" name="_method" value="PUT">');
+            
+            // Llenar campos
+            modal.find('#nombreTarea').val(button.data('nombre'));
+            modal.find('#responsableTarea').val(button.data('responsable'));
+            modal.find('#estadoTarea').val(button.data('estado'));
+            modal.find('#fechaCreacionTarea').val(button.data('fecha'));
+            modal.find('#descripcionTarea').val(button.data('descripcion'));
+        } else {
+            // Modo creación
+            modal.find('.modal-title').html('<i class="fas fa-plus mr-2"></i> Nueva Tarea');
+            modal.find('#btnGuardarTarea').text('Crear Tarea');
+            modal.find('form').attr('action', '{{ route("tareas.store") }}');
+            modal.find('input[name="_method"]').remove();
+        }
+    });
     
-    /* Scrollbar personalizado */
-    .historial-scroll::-webkit-scrollbar {
-        width: 8px;
-    }
+    // Manejar modal de cargar documento
+    $('.btn-cargar-documento').click(function() {
+        var tareaId = $(this).data('id');
+        $('#idTareaDocumento').val(tareaId);
+        $('#modalCargarDocumento').modal('show');
+    });
     
-    .historial-scroll::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 4px;
-    }
+    // Manejar modal de detalle
+    $('.btn-ver-detalle').click(function() {
+        var nombre = $(this).data('nombre');
+        var responsable = $(this).data('responsable');
+        var estado = $(this).data('estado');
+        var fecha = $(this).data('fecha');
+        var descripcion = $(this).data('descripcion');
+        
+        $('#detalle-nombre').text(nombre);
+        $('#detalle-responsable').text(responsable);
+        $('#detalle-estado').text(estado).attr('class', 'badge badge-pill badge-state-' + estado.toLowerCase().replace(' ', '-'));
+        $('#detalle-fecha').text(fecha);
+        $('#detalle-descripcion').text(descripcion);
+        
+        $('#modalDetalleTarea').modal('show');
+    });
     
-    .historial-scroll::-webkit-scrollbar-track {
-        background: #f8f9fa;
-    }
+    // Manejar botón de editar
+    $('.btn-editar').click(function() {
+        // Simular click en botón de nueva tarea con datos
+        $('#modalNuevaTarea').modal('show');
+        
+        setTimeout(() => {
+            var modal = $('#modalNuevaTarea');
+            modal.find('.modal-title').html('<i class="fas fa-edit mr-2"></i> Editar Tarea');
+            modal.find('#btnGuardarTarea').text('Actualizar Tarea');
+            modal.find('form').attr('action', '/tareas/' + $(this).data('id'));
+            
+            // Agregar método PUT si no existe
+            if (modal.find('input[name="_method"]').length === 0) {
+                modal.find('form').append('<input type="hidden" name="_method" value="PUT">');
+            }
+            
+            // Llenar campos
+            modal.find('#nombreTarea').val($(this).data('nombre'));
+            modal.find('#responsableTarea').val($(this).data('responsable'));
+            modal.find('#estadoTarea').val($(this).data('estado'));
+            modal.find('#fechaCreacionTarea').val($(this).data('fecha'));
+            modal.find('#descripcionTarea').val($(this).data('descripcion'));
+        }, 100);
+    });
+    
+    // Auto-ocultar alertas después de 5 segundos
+    setTimeout(function() {
+        $('.alert').fadeOut();
+    }, 5000);
+    
+    // Validación de formularios
+    $('form').submit(function() {
+        var requiredFields = $(this).find('[required]');
+        var valid = true;
+        
+        requiredFields.each(function() {
+            if (!$(this).val()) {
+                $(this).addClass('is-invalid');
+                valid = false;
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        return valid;
+    });
+});
+</script>
+@stop
