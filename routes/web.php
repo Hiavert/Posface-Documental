@@ -73,16 +73,28 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy')
         ->middleware('can:eliminar-Perfil');
 
-    
+    // Rutas de tareas con permisos granulares
+   Route::middleware('granular.permission:TareasDocumentales,ver')->group(function () {
+    Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
+    Route::get('/tareas/{id}', [TareaController::class, 'show'])->name('tareas.show');
+    Route::get('/tareas/{id}/historial', [TareaController::class, 'historialBitacora'])->name('tareas.historial');
 });
 
-// Tareas Documentales
-Route::resource('tareas', 'TareaController');
-Route::post('tareas/{id}/estado', 'TareaController@cambiarEstado')->name('tareas.estado');
-Route::post('tareas/{id}/delegar', 'TareaController@delegar')->name('tareas.delegar');
-Route::post('tareas/documento/upload', 'TareaController@upload')->name('tareas.documento.upload');
-Route::delete('tareas/documento/{id}', 'TareaController@eliminarDocumento')->name('tareas.documento.eliminar');
+Route::middleware('granular.permission:TareasDocumentales,agregar')->group(function () {
+    Route::get('/tareas/create', [TareaController::class, 'create'])->name('tareas.create');
+    Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store');
+    Route::post('/tareas/upload', [TareaController::class, 'upload'])->name('tareas.upload');
+});
 
+Route::middleware('granular.permission:TareasDocumentales,editar')->group(function () {
+    Route::get('/tareas/{id}/edit', [TareaController::class, 'edit'])->name('tareas.edit');
+    Route::put('/tareas/{id}', [TareaController::class, 'update'])->name('tareas.update');
+});
+
+Route::middleware('granular.permission:TareasDocumentales,eliminar')->group(function () {
+    Route::delete('/tareas/{id}', [TareaController::class, 'destroy'])->name('tareas.destroy');
+    Route::delete('/tareas/documento/{id}', [TareaController::class, 'eliminarDocumento'])->name('tareas.documento.eliminar');
+});
 
 Route::get('/notificaciones/leer-todas', function () {
     $user = Auth::user();
