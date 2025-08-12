@@ -122,7 +122,7 @@ class TareaController extends Controller
             'fecha_vencimiento' => 'nullable|date|after_or_equal:fecha_creacion',
             'documento' => 'nullable|file|max:'.self::MAX_FILE_SIZE.'|mimes:'.implode(',', self::ALLOWED_MIMES),
             'fk_id_tipo' => 'nullable|required_with:documento|exists:tipo_documento,id_tipo',
-            'descripcion_documento' => 'nullable|required_with:documento|string|max:200'
+            'descripcion_documento' => 'nullable|string|max:200'
         ], [
             'nombre.required' => 'El nombre de la tarea es obligatorio.',
             'nombre.max' => 'El nombre no debe exceder los 100 caracteres.',
@@ -137,7 +137,6 @@ class TareaController extends Controller
             'documento.max' => 'El archivo no debe superar los 10MB.',
             'documento.mimes' => 'El tipo de archivo no está permitido.',
             'fk_id_tipo.required_with' => 'Debe seleccionar un tipo de documento cuando sube un archivo.',
-            'descripcion_documento.required_with' => 'Debe agregar una descripción cuando sube un archivo.'
         ]);
 
         if ($validator->fails()) {
