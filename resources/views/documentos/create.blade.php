@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="mb-0"><i class="fas fa-file-upload mr-2 text-primary"></i> Registrar Nuevo Documento</h1>
-            <p class="subtitle">Universidad Nacional Autónoma de Honduras - Posgrado en Informática Administrativa</p>
+            <p class="subtitle">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
         </div>
     </div>
 </div>
