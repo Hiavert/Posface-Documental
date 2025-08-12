@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\DocumentoAdministrativo;
 use App\Models\TipoDocumento;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Bitacora;
 
@@ -15,206 +16,242 @@ class TareaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Tarea::with(['usuarioAsignado', 'usuarioCreador', 'documentos']);
+        try {
+            $query = Tarea::with(['usuarioAsignado', 'usuarioCreador', 'documentos']);
 
-        // Filtros
-        if ($request->filled('estado')) {
-            $query->where('estado', $request->estado);
-        }
-        if ($request->filled('responsable')) {
-            $query->where('fk_id_usuario_asignado', $request->responsable);
-        }
-        if ($request->filled('fecha_inicio')) {
-            $query->whereDate('fecha_creacion', '>=', $request->fecha_inicio);
-        }
-        if ($request->filled('fecha_fin')) {
-            $query->whereDate('fecha_creacion', '<=', $request->fecha_fin);
-        }
-        if ($request->filled('tipo_documento')) {
-            $query->whereHas('documentos', function($q) use ($request) {
-                $q->where('fk_id_tipo', $request->tipo_documento);
-            });
-        }
+            // Filtros
+            if ($request->filled('estado')) {
+                $query->where('estado', $request->estado);
+            }
+            if ($request->filled('responsable')) {
+                $query->where('fk_id_usuario_asignado', $request->responsable);
+            }
+            if ($request->filled('fecha_inicio')) {
+                $query->whereDate('fecha_creacion', '>=', $request->fecha_inicio);
+            }
+            if ($request->filled('fecha_fin')) {
+                $query->whereDate('fecha_creacion', '<=', $request->fecha_fin);
+            }
+            if ($request->filled('tipo_documento')) {
+                $query->whereHas('documentos', function($q) use ($request) {
+                    $q->where('fk_id_tipo', $request->tipo_documento);
+                });
+            }
 
-        if (!auth()->user()->tieneRol('SuperAdmin')) {
-            $query->where('fk_id_usuario_asignado', auth()->id());
+            if (!auth()->user()->tieneRol('SuperAdmin')) {
+                $query->where('fk_id_usuario_asignado', auth()->id());
+            }
+
+            $tareas = $query->get();
+            $responsables = User::all();
+            $estadisticas = [
+                'pendientes' => Tarea::where('estado', 'Pendiente')->count(),
+                'en_proceso' => Tarea::where('estado', 'En Proceso')->count(),
+                'completadas' => Tarea::where('estado', 'Completada')->count(),
+                'rechazadas' => Tarea::where('estado', 'Rechazada')->count(),
+            ];
+            $tiposDocumento = TipoDocumento::all();
+
+            if ($request->ajax()) {
+                return view('tareas.tabla', compact('tareas'))->render();
+            }
+
+            return view('tareas.tareas', compact('tareas', 'responsables', 'estadisticas', 'tiposDocumento'));
+
+        } catch (\Exception $e) {
+            Log::error('Error en index de TareaController: ' . $e->getMessage());
+            return back()->with('error', 'Error al cargar las tareas');
         }
-
-        $tareas = $query->get();
-        $responsables = User::all();
-        $estadisticas = [
-            'pendientes' => Tarea::where('estado', 'Pendiente')->count(),
-            'en_proceso' => Tarea::where('estado', 'En Proceso')->count(),
-            'completadas' => Tarea::where('estado', 'Completada')->count(),
-            'rechazadas' => Tarea::where('estado', 'Rechazada')->count(),
-        ];
-        $tiposDocumento = TipoDocumento::all();
-
-        if ($request->ajax()) {
-            return view('tareas.tabla', compact('tareas'))->render();
-        }
-
-        return view('tareas.tareas', compact('tareas', 'responsables', 'estadisticas', 'tiposDocumento'));
     }
 
     public function create()
     {
-        if (!auth()->user()->puedeAgregar('TareasDocumentales')) {
-            abort(403, 'No tienes permisos para crear tareas.');
-        }
+        try {
+            if (!auth()->user()->puedeAgregar('TareasDocumentales')) {
+                throw new \Exception('No tienes permisos para crear tareas.');
+            }
 
-        $responsables = User::all();
-        return view('tareas.create', compact('responsables'));
+            $responsables = User::all();
+            return view('tareas.create', compact('responsables'));
+
+        } catch (\Exception $e) {
+            Log::error('Error en create de TareaController: ' . $e->getMessage());
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function store(Request $request)
     {
-        if (!auth()->user()->puedeAgregar('TareasDocumentales')) {
-            abort(403, 'No tienes permisos para crear tareas.');
+        try {
+            if (!auth()->user()->puedeAgregar('TareasDocumentales')) {
+                throw new \Exception('No tienes permisos para crear tareas.');
+            }
+
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:100',
+                'descripcion' => 'nullable|string',
+                'fk_id_usuario_asignado' => 'required|exists:usuarios,id_usuario',
+                'fk_id_usuario_creador' => 'required|exists:usuarios,id_usuario',
+                'estado' => 'required|string|in:Pendiente,En Proceso,Completada,Rechazada',
+                'fecha_creacion' => 'required|date',
+                'fecha_vencimiento' => 'nullable|date|after_or_equal:fecha_creacion',
+            ], [
+                'nombre.required' => 'El nombre de la tarea es obligatorio.',
+                'fk_id_usuario_asignado.exists' => 'El usuario asignado no existe.',
+                'fk_id_usuario_creador.exists' => 'El usuario creador no existe.',
+                'estado.in' => 'El estado seleccionado no es válido.',
+                'fecha_vencimiento.after_or_equal' => 'La fecha de vencimiento debe ser igual o posterior a la fecha de creación.',
+            ]);
+
+            $tarea = Tarea::create($validated);
+
+            $this->registrarBitacora('crear', 'Tarea', $tarea->id_tarea, null, $tarea->toArray());
+
+            // Notificar al usuario asignado
+            $usuario = User::find($request->fk_id_usuario_asignado);
+            if ($usuario) {
+                $usuario->notify(new \App\Notifications\TareaAsignadaNotification($tarea));
+            }
+
+            return redirect()->route('tareas.index')
+                ->with('success', 'Tarea creada correctamente.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Error de validación en store de TareaController: ' . json_encode($e->errors()));
+            return back()->withErrors($e->errors())->withInput();
+            
+        } catch (\Exception $e) {
+            Log::error('Error en store de TareaController: ' . $e->getMessage());
+            return back()->with('error', 'Error al crear la tarea: ' . $e->getMessage())->withInput();
         }
-
-        $request->validate([
-            'nombre' => 'required|string|max:100',
-            'descripcion' => 'nullable|string',
-            'fk_id_usuario_asignado' => 'required|exists:usuario,id_usuario',
-            'fk_id_usuario_creador' => 'required|exists:usuario,id_usuario',
-            'estado' => 'required|string|max:50',
-            'fecha_creacion' => 'required|date',
-            'fecha_vencimiento' => 'nullable|date|after_or_equal:fecha_creacion',
-        ], [
-            'nombre.required' => 'El nombre de la tarea es obligatorio.',
-            'nombre.max' => 'El nombre no debe exceder los 100 caracteres.',
-            'fk_id_usuario_asignado.required' => 'Debe asignar un responsable.',
-            'fk_id_usuario_asignado.exists' => 'El usuario asignado no existe.',
-            'fk_id_usuario_creador.required' => 'Debe indicar el creador de la tarea.',
-            'fk_id_usuario_creador.exists' => 'El usuario creador no existe.',
-            'estado.required' => 'El estado es obligatorio.',
-            'fecha_creacion.required' => 'La fecha de creación es obligatoria.',
-            'fecha_vencimiento.after_or_equal' => 'La fecha de vencimiento debe ser igual o posterior a la fecha de creación.',
-        ]);
-
-        $tarea = Tarea::create([
-            'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
-            'fk_id_usuario_asignado' => $request->fk_id_usuario_asignado,
-            'fk_id_usuario_creador' => $request->fk_id_usuario_creador,
-            'estado' => $request->estado,
-            'fecha_creacion' => $request->fecha_creacion,
-            'fecha_vencimiento' => $request->fecha_vencimiento,
-        ]);
-
-        $this->registrarBitacora('crear', 'Tarea', $tarea->id_tarea, null, $tarea->toArray());
-
-        // Notificar al usuario asignado
-        $usuario = User::find($request->fk_id_usuario_asignado);
-        if ($usuario) {
-            $usuario->notify(new \App\Notifications\TareaAsignadaNotification($tarea));
-        }
-
-        return redirect()->route('tareas.index')->with('success', 'Tarea creada correctamente.');
     }
 
     public function show($id)
     {
-        if (!auth()->user()->puedeVer('TareasDocumentales')) {
-            abort(403, 'No tienes permisos para ver tareas.');
-        }
+        try {
+            if (!auth()->user()->puedeVer('TareasDocumentales')) {
+                throw new \Exception('No tienes permisos para ver tareas.');
+            }
 
-        $tarea = Tarea::with(['usuarioAsignado', 'usuarioCreador', 'documentos'])->findOrFail($id);
-        return view('tareas.show', compact('tarea'));
+            $tarea = Tarea::with(['usuarioAsignado', 'usuarioCreador', 'documentos'])
+                        ->findOrFail($id);
+                        
+            return view('tareas.show', compact('tarea'));
+
+        } catch (\Exception $e) {
+            Log::error('Error en show de TareaController: ' . $e->getMessage());
+            return back()->with('error', 'Error al mostrar la tarea');
+        }
     }
 
     public function edit($id)
     {
-        if (!auth()->user()->puedeEditar('TareasDocumentales')) {
-            abort(403, 'No tienes permisos para editar tareas.');
-        }
+        try {
+            if (!auth()->user()->puedeEditar('TareasDocumentales')) {
+                throw new \Exception('No tienes permisos para editar tareas.');
+            }
 
-        $tarea = Tarea::findOrFail($id);
-        $responsables = User::all();
-        return view('tareas.edit', compact('tarea', 'responsables'));
+            $tarea = Tarea::findOrFail($id);
+            $responsables = User::all();
+            
+            return view('tareas.edit', compact('tarea', 'responsables'));
+
+        } catch (\Exception $e) {
+            Log::error('Error en edit de TareaController: ' . $e->getMessage());
+            return back()->with('error', 'Error al cargar la tarea para edición');
+        }
     }
 
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->puedeEditar('TareasDocumentales')) {
-            abort(403, 'No tienes permisos para editar tareas.');
+        try {
+            if (!auth()->user()->puedeEditar('TareasDocumentales')) {
+                throw new \Exception('No tienes permisos para editar tareas.');
+            }
+
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:100',
+                'descripcion' => 'nullable|string',
+                'fk_id_usuario_asignado' => 'required|exists:usuarios,id_usuario',
+                'fk_id_usuario_creador' => 'required|exists:usuarios,id_usuario',
+                'estado' => 'required|string|in:Pendiente,En Proceso,Completada,Rechazada',
+                'fecha_creacion' => 'required|date',
+                'fecha_vencimiento' => 'nullable|date|after_or_equal:fecha_creacion',
+            ], [
+                'nombre.required' => 'El nombre de la tarea es obligatorio.',
+                'fk_id_usuario_asignado.exists' => 'El usuario asignado no existe.',
+                'fk_id_usuario_creador.exists' => 'El usuario creador no existe.',
+                'estado.in' => 'El estado seleccionado no es válido.',
+                'fecha_vencimiento.after_or_equal' => 'La fecha de vencimiento debe ser igual o posterior a la fecha de creación.',
+            ]);
+
+            $tarea = Tarea::findOrFail($id);
+            $datos_antes = $tarea->toArray();
+            $estado_anterior = $tarea->estado;
+
+            $tarea->update($validated);
+
+            $this->registrarBitacora('editar', 'Tarea', $tarea->id_tarea, $datos_antes, $tarea->toArray());
+
+            if ($estado_anterior !== $request->estado) {
+                $this->registrarBitacora('cambiar_estado', 'Tarea', $tarea->id_tarea, 
+                    ['estado' => $estado_anterior], ['estado' => $request->estado]);
+            }
+
+            return redirect()->route('tareas.index')
+                ->with('success', 'Tarea actualizada correctamente.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Error de validación en update de TareaController: ' . json_encode($e->errors()));
+            return back()->withErrors($e->errors())->withInput();
+            
+        } catch (\Exception $e) {
+            Log::error('Error en update de TareaController: ' . $e->getMessage());
+            return back()->with('error', 'Error al actualizar la tarea: ' . $e->getMessage())->withInput();
         }
-
-        $request->validate([
-            'nombre' => 'required|string|max:100',
-            'descripcion' => 'nullable|string',
-            'fk_id_usuario_asignado' => 'required|exists:usuario,id_usuario',
-            'fk_id_usuario_creador' => 'required|exists:usuario,id_usuario',
-            'estado' => 'required|string|max:50',
-            'fecha_creacion' => 'required|date',
-            'fecha_vencimiento' => 'nullable|date|after_or_equal:fecha_creacion',
-        ], [
-            'nombre.required' => 'El nombre de la tarea es obligatorio.',
-            'nombre.max' => 'El nombre no debe exceder los 100 caracteres.',
-            'fk_id_usuario_asignado.required' => 'Debe asignar un responsable.',
-            'fk_id_usuario_asignado.exists' => 'El usuario asignado no existe.',
-            'fk_id_usuario_creador.required' => 'Debe indicar el creador de la tarea.',
-            'fk_id_usuario_creador.exists' => 'El usuario creador no existe.',
-            'estado.required' => 'El estado es obligatorio.',
-            'fecha_creacion.required' => 'La fecha de creación es obligatoria.',
-            'fecha_vencimiento.after_or_equal' => 'La fecha de vencimiento debe ser igual o posterior a la fecha de creación.',
-        ]);
-
-        $tarea = Tarea::findOrFail($id);
-        $datos_antes = $tarea->toArray();
-        $estado_anterior = $tarea->estado;
-
-        $tarea->update([
-            'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
-            'fk_id_usuario_asignado' => $request->fk_id_usuario_asignado,
-            'fk_id_usuario_creador' => $request->fk_id_usuario_creador,
-            'estado' => $request->estado,
-            'fecha_creacion' => $request->fecha_creacion,
-            'fecha_vencimiento' => $request->fecha_vencimiento,
-        ]);
-
-        $this->registrarBitacora('editar', 'Tarea', $tarea->id_tarea, $datos_antes, $tarea->toArray());
-
-        if ($estado_anterior !== $request->estado) {
-            $this->registrarBitacora('cambiar_estado', 'Tarea', $tarea->id_tarea, ['estado' => $estado_anterior], ['estado' => $request->estado]);
-        }
-
-        return redirect()->route('tareas.index')->with('success', 'Tarea actualizada correctamente.');
     }
 
     public function destroy($id)
     {
-        if (!auth()->user()->puedeEliminar('TareasDocumentales')) {
-            abort(403, 'No tienes permisos para eliminar tareas.');
+        try {
+            if (!auth()->user()->puedeEliminar('TareasDocumentales')) {
+                throw new \Exception('No tienes permisos para eliminar tareas.');
+            }
+
+            $tarea = Tarea::findOrFail($id);
+            $datos_antes = $tarea->toArray();
+            
+            $tarea->delete();
+            
+            $this->registrarBitacora('eliminar', 'Tarea', $id, $datos_antes, null);
+
+            return redirect()->route('tareas.index')
+                ->with('success', 'Tarea eliminada correctamente.');
+
+        } catch (\Exception $e) {
+            Log::error('Error en destroy de TareaController: ' . $e->getMessage());
+            return back()->with('error', 'Error al eliminar la tarea: ' . $e->getMessage());
         }
-
-        $tarea = Tarea::findOrFail($id);
-        $datos_antes = $tarea->toArray();
-        $tarea->delete();
-        $this->registrarBitacora('eliminar', 'Tarea', $id, $datos_antes, null);
-
-        return redirect()->route('tareas.index')->with('success', 'Tarea eliminada correctamente.');
     }
 
     public function upload(Request $request)
     {
-        if (!auth()->user()->puedeAgregar('TareasDocumentales')) {
-            abort(403, 'No tienes permisos para cargar documentos.');
-        }
-
-        $request->validate([
-            'id_tarea' => 'required|exists:tareas,id_tarea',
-            'documento' => 'required|file|mimes:pdf,jpg,jpeg,png,gif|max:2048',
-            'fk_id_tipo' => 'required|exists:tipo_documento,id_tipo',
-        ], [
-            'documento.mimes' => 'El documento debe ser un archivo PDF, JPG, JPEG, PNG o GIF.',
-            'documento.max' => 'El archivo no debe superar los 2MB.',
-        ]);
-
-        DB::beginTransaction();
         try {
+            if (!auth()->user()->puedeAgregar('TareasDocumentales')) {
+                throw new \Exception('No tienes permisos para cargar documentos.');
+            }
+
+            $validated = $request->validate([
+                'id_tarea' => 'required|exists:tareas,id_tarea',
+                'documento' => 'required|file|mimes:pdf,jpg,jpeg,png,gif|max:2048',
+                'fk_id_tipo' => 'required|exists:tipo_documento,id_tipo',
+            ], [
+                'documento.mimes' => 'El documento debe ser PDF, JPG, PNG o GIF.',
+                'documento.max' => 'El archivo no debe superar los 2MB.',
+            ]);
+
+            DB::beginTransaction();
+
             $file = $request->file('documento');
             $path = $file->store('tareas_documentos', 'public');
 
@@ -239,105 +276,142 @@ class TareaController extends Controller
             $this->registrarBitacora('cargar_documento', 'Documento', $documento->id_documento, null, $documento->toArray());
             $this->registrarBitacora('asociar_documento', 'Tarea', $request->id_tarea, null, ['id_documento' => $documento->id_documento]);
 
-            return redirect()->route('tareas.index')->with('success', 'Documento cargado correctamente.');
+            return redirect()->route('tareas.index')
+                ->with('success', 'Documento cargado correctamente.');
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            Log::error('Error de validación en upload de TareaController: ' . json_encode($e->errors()));
+            return back()->withErrors($e->errors())->withInput();
+            
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors('Error al cargar el documento: ' . $e->getMessage());
+            Log::error('Error en upload de TareaController: ' . $e->getMessage());
+            return back()->with('error', 'Error al cargar el documento: ' . $e->getMessage());
         }
     }
 
     public function eliminarDocumento($id)
     {
-        if (!auth()->user()->puedeEliminar('TareasDocumentales')) {
-            abort(403, 'No tienes permisos para eliminar documentos.');
+        try {
+            if (!auth()->user()->puedeEliminar('TareasDocumentales')) {
+                throw new \Exception('No tienes permisos para eliminar documentos.');
+            }
+
+            $documento = DocumentoAdministrativo::findOrFail($id);
+            $datos_antes = $documento->toArray();
+
+            if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
+                Storage::disk('public')->delete($documento->ruta_archivo);
+            }
+
+            DB::table('tarea_documento')->where('fk_id_documento', $id)->delete();
+            $documento->delete();
+
+            $this->registrarBitacora('eliminar_documento', 'Documento', $id, $datos_antes, null);
+
+            return back()->with('success', 'Documento eliminado correctamente.');
+
+        } catch (\Exception $e) {
+            Log::error('Error en eliminarDocumento de TareaController: ' . $e->getMessage());
+            return back()->with('error', 'Error al eliminar el documento: ' . $e->getMessage());
         }
-
-        $documento = DocumentoAdministrativo::findOrFail($id);
-        $datos_antes = $documento->toArray();
-
-        if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
-            Storage::disk('public')->delete($documento->ruta_archivo);
-        }
-
-        DB::table('tarea_documento')->where('fk_id_documento', $id)->delete();
-
-        $documento->delete();
-
-        $this->registrarBitacora('eliminar_documento', 'Documento', $id, $datos_antes, null);
-
-        return back()->with('success', 'Documento eliminado correctamente.');
     }
 
     public function historialBitacora($id)
     {
-        $tarea = Tarea::with('documentos')->findOrFail($id);
-        $documentosIds = $tarea->documentos->pluck('id_documento')->toArray();
+        try {
+            $tarea = Tarea::with('documentos')->findOrFail($id);
+            $documentosIds = $tarea->documentos->pluck('id_documento')->toArray();
 
-        $historialTarea = Bitacora::where('modulo', 'Tarea')
-            ->where('registro_id', $id)
-            ->orderBy('created_at', 'asc')
-            ->get();
+            $historialTarea = Bitacora::where('modulo', 'Tarea')
+                ->where('registro_id', $id)
+                ->orderBy('created_at', 'asc')
+                ->get();
 
-        $historialDocs = Bitacora::where('modulo', 'Documento')
-            ->whereIn('registro_id', $documentosIds)
-            ->orderBy('created_at', 'asc')
-            ->get();
+            $historialDocs = Bitacora::where('modulo', 'Documento')
+                ->whereIn('registro_id', $documentosIds)
+                ->orderBy('created_at', 'asc')
+                ->get();
 
-        $eventos = [];
+            $eventos = [];
 
-        foreach ($historialTarea as $item) {
-            $usuario = $item->usuario_nombre ?? 'Sistema';
-            $fecha = $item->created_at ? date('d/m/Y H:i', strtotime($item->created_at)) : '';
-            switch ($item->accion) {
-                case 'crear':
-                    $eventos[] = "Tarea creada por $usuario el $fecha.";
-                    break;
-                case 'editar':
-                    $eventos[] = "Tarea editada por $usuario el $fecha.";
-                    break;
-                case 'cambiar_estado':
-                    $antes = $item->datos_antes['estado'] ?? '';
-                    $despues = $item->datos_despues['estado'] ?? '';
-                    $eventos[] = "Estado cambiado de '$antes' a '$despues' por $usuario el $fecha.";
-                    break;
-                case 'eliminar':
-                    $eventos[] = "Tarea eliminada por $usuario el $fecha.";
-                    break;
-                default:
-                    $eventos[] = ucfirst($item->accion) . " por $usuario el $fecha.";
+            foreach ($historialTarea as $item) {
+                $usuario = $item->usuario_nombre ?? 'Sistema';
+                $fecha = $item->created_at ? date('d/m/Y H:i', strtotime($item->created_at)) : '';
+                
+                switch ($item->accion) {
+                    case 'crear':
+                        $eventos[] = "Tarea creada por $usuario el $fecha.";
+                        break;
+                    case 'editar':
+                        $eventos[] = "Tarea editada por $usuario el $fecha.";
+                        break;
+                    case 'cambiar_estado':
+                        $antes = $item->datos_antes['estado'] ?? '';
+                        $despues = $item->datos_despues['estado'] ?? '';
+                        $eventos[] = "Estado cambiado de '$antes' a '$despues' por $usuario el $fecha.";
+                        break;
+                    case 'eliminar':
+                        $eventos[] = "Tarea eliminada por $usuario el $fecha.";
+                        break;
+                    default:
+                        $eventos[] = ucfirst($item->accion) . " por $usuario el $fecha.";
+                }
             }
+
+            foreach ($historialDocs as $item) {
+                $usuario = $item->usuario_nombre ?? 'Sistema';
+                $fecha = $item->created_at ? date('d/m/Y H:i', strtotime($item->created_at)) : '';
+                $tipo = '';
+                
+                if ($item->datos_despues && isset($item->datos_despues['fk_id_tipo'])) {
+                    $tipoDoc = TipoDocumento::find($item->datos_despues['fk_id_tipo']);
+                    $tipo = $tipoDoc ? $tipoDoc->nombre_tipo : '';
+                }
+                
+                switch ($item->accion) {
+                    case 'cargar_documento':
+                        $eventos[] = "Documento '$tipo' subido por $usuario el $fecha.";
+                        break;
+                    case 'eliminar_documento':
+                        $eventos[] = "Documento eliminado por $usuario el $fecha.";
+                        break;
+                    default:
+                        $eventos[] = ucfirst($item->accion) . " de documento por $usuario el $fecha.";
+                }
+            }
+
+            usort($eventos, function($a, $b) {
+                preg_match('/el (\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/', $a, $ma);
+                preg_match('/el (\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/', $b, $mb);
+                $fa = isset($ma[1]) ? \DateTime::createFromFormat('d/m/Y H:i', $ma[1]) : null;
+                $fb = isset($mb[1]) ? \DateTime::createFromFormat('d/m/Y H:i', $mb[1]) : null;
+                return $fa && $fb ? $fa <=> $fb : 0;
+            });
+
+            return response()->json(['historial' => $eventos]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en historialBitacora de TareaController: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al obtener el historial'], 500);
         }
+    }
 
-        foreach ($historialDocs as $item) {
-            $usuario = $item->usuario_nombre ?? 'Sistema';
-            $fecha = $item->created_at ? date('d/m/Y H:i', strtotime($item->created_at)) : '';
-            $tipo = '';
-            if ($item->datos_despues && isset($item->datos_despues['fk_id_tipo'])) {
-                $tipoDoc = \App\Models\TipoDocumento::find($item->datos_despues['fk_id_tipo']);
-                $tipo = $tipoDoc ? $tipoDoc->nombre_tipo : '';
-            }
-            switch ($item->accion) {
-                case 'cargar_documento':
-                    $eventos[] = "Documento '$tipo' subido por $usuario el $fecha.";
-                    break;
-                case 'eliminar_documento':
-                    $eventos[] = "Documento eliminado por $usuario el $fecha.";
-                    break;
-                default:
-                    $eventos[] = ucfirst($item->accion) . " de documento por $usuario el $fecha.";
-            }
+    protected function registrarBitacora($accion, $modulo, $registroId, $datosAntes, $datosDespues)
+    {
+        try {
+            Bitacora::create([
+                'accion' => $accion,
+                'modulo' => $modulo,
+                'registro_id' => $registroId,
+                'datos_antes' => $datosAntes,
+                'datos_despues' => $datosDespues,
+                'fk_id_usuario' => auth()->id(),
+                'usuario_nombre' => auth()->user()->nombre_completo,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al registrar en bitácora: ' . $e->getMessage());
         }
-
-        usort($eventos, function($a, $b) {
-            preg_match('/el (\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/', $a, $ma);
-            preg_match('/el (\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/', $b, $mb);
-            $fa = isset($ma[1]) ? \DateTime::createFromFormat('d/m/Y H:i', $ma[1]) : null;
-            $fb = isset($mb[1]) ? \DateTime::createFromFormat('d/m/Y H:i', $mb[1]) : null;
-            if ($fa && $fb) return $fa <=> $fb;
-            return 0;
-        });
-
-        return response()->json(['historial' => $eventos]);
     }
 }
