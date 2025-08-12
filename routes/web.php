@@ -128,24 +128,25 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    // Administrador de Terna
-    Route::prefix('terna/admin')->middleware(['auth', 'can:ver-Terna'])->group(function () {
-        Route::get('/', [TernaAdminController::class, 'index'])->name('terna.admin.index');
-        Route::get('/create', [TernaAdminController::class, 'create'])->name('terna.admin.create');
-        Route::post('/', [TernaAdminController::class, 'store'])->name('terna.admin.store');
-        Route::get('/{id}', [TernaAdminController::class, 'show'])->name('terna.admin.show');
-        Route::get('/{id}/edit', [TernaAdminController::class, 'edit'])->name('terna.admin.edit');
-        Route::put('/{id}', [TernaAdminController::class, 'update'])->name('terna.admin.update');
-        Route::delete('/{id}', [TernaAdminController::class, 'destroy'])->name('terna.admin.destroy');
-        Route::post('/{id}/marcar-pagado', [TernaAdminController::class, 'marcarPagado'])->name('terna.admin.marcar-pagado');
-    });
+    // Rutas para administrador de terna
+Route::prefix('terna/admin')->group(function () {
+    Route::get('/', [TernaAdminController::class, 'index'])->name('terna.admin.index');
+    Route::get('/create', [TernaAdminController::class, 'create'])->name('terna.admin.create');
+    Route::post('/', [TernaAdminController::class, 'store'])->name('terna.admin.store');
+    Route::get('/{id}', [TernaAdminController::class, 'show'])->name('terna.admin.show');
+    Route::get('/{id}/edit', [TernaAdminController::class, 'edit'])->name('terna.admin.edit');
+    Route::put('/{id}', [TernaAdminController::class, 'update'])->name('terna.admin.update');
+    Route::delete('/{id}', [TernaAdminController::class, 'destroy'])->name('terna.admin.destroy');
+    Route::post('/{id}/marcar-pagado', [TernaAdminController::class, 'marcarPagado'])->name('terna.admin.marcar-pagado');
+    Route::post('integrantes', [TernaAdminController::class, 'storeIntegrante'])->name('terna.integrantes.store');
+});
 
-    // Asistente de Terna
-    Route::prefix('terna/asistente')->middleware(['auth', 'can:ver-TernaAux'])->group(function () {
-        Route::get('/', [TernaAsistenteController::class, 'index'])->name('terna.asistente.index');
-        Route::get('/{id}', [TernaAsistenteController::class, 'show'])->name('terna.asistente.show');
-        Route::post('/{id}/completar', [TernaAsistenteController::class, 'completarProceso'])->name('terna.asistente.completar');
-    });
+// Rutas para asistente de terna
+Route::prefix('terna/asistente')->group(function () {
+    Route::get('/', [TernaAsistenteController::class, 'index'])->name('terna.asistente.index');
+    Route::get('/{id}', [TernaAsistenteController::class, 'show'])->name('terna.asistente.show');
+    Route::post('/{id}/completar', [TernaAsistenteController::class, 'completarProceso'])->name('terna.asistente.completar');
+});
 
     // Módulo de Acuses
     Route::prefix('acuses')->group(function () {

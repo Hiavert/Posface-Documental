@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DocumentoTerna extends Model
 {
@@ -12,10 +11,11 @@ class DocumentoTerna extends Model
     protected $fillable = [
         'pago_terna_id',
         'tipo',
-        'ruta_archivo'
+        'ruta_archivo',
+        'tipo_archivo'
     ];
 
-    public function pagoTerna(): BelongsTo
+    public function pagoTerna()
     {
         return $this->belongsTo(PagoTerna::class);
     }

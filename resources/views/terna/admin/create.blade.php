@@ -86,26 +86,130 @@
                 </div>
 
                 <div class="mt-4">
+                    <h5><i class="fas fa-user-graduate mr-2"></i> Información del Estudiante</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Nombre Completo</label>
+                                <input type="text" class="form-control" name="estudiante_nombre" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Número de Cuenta</label>
+                                <input type="text" class="form-control" name="estudiante_cuenta" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Carrera</label>
+                                <input type="text" class="form-control" name="estudiante_carrera" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h5><i class="fas fa-users mr-2"></i> Integrantes de Terna</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Metodólogo</label>
+                                <select class="form-control" name="metodologo_id" required>
+                                    <option value="">Seleccionar metodólogo</option>
+                                    @foreach($integrantes as $integrante)
+                                        <option value="{{ $integrante->id }}">
+                                            {{ $integrante->nombre }} - {{ $integrante->cuenta }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Técnico 1</label>
+                                <select class="form-control" name="tecnico1_id" required>
+                                    <option value="">Seleccionar técnico</option>
+                                    @foreach($integrantes as $integrante)
+                                        <option value="{{ $integrante->id }}">
+                                            {{ $integrante->nombre }} - {{ $integrante->cuenta }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Técnico 2</label>
+                                <select class="form-control" name="tecnico2_id" required>
+                                    <option value="">Seleccionar técnico</option>
+                                    @foreach($integrantes as $integrante)
+                                        <option value="{{ $integrante->id }}">
+                                            {{ $integrante->nombre }} - {{ $integrante->cuenta }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalAgregarIntegrante">
+                            <i class="fas fa-plus mr-1"></i> Agregar Nuevo Integrante
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4">
                     <h5><i class="fas fa-file-pdf mr-2"></i> Documentos Requeridos</h5>
-                    <div class="form-group">
-                        <label>Documento Físico</label>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" name="documento_fisico" required>
-                            <label class="custom-file-label">Seleccionar archivo</label>
+                    
+                    <div class="document-section mb-4">
+                        <h6 class="text-muted">Documento Físico</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="documento_fisico">
+                                    <label class="custom-file-label">Subir PDF</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="documento_fisico_enlace" placeholder="O ingresar enlace">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Solvencia de Cobranza</label>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" name="solvencia_cobranza" required>
-                            <label class="custom-file-label">Seleccionar archivo</label>
+                    
+                    <div class="document-section mb-4">
+                        <h6 class="text-muted">Solvencia de Cobranza</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="solvencia_cobranza">
+                                    <label class="custom-file-label">Subir PDF</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="solvencia_cobranza_enlace" placeholder="O ingresar enlace">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Acta de Graduación</label>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" name="acta_graduacion" required>
-                            <label class="custom-file-label">Seleccionar archivo</label>
+                    
+                    <div class="document-section mb-4">
+                        <h6 class="text-muted">Acta de Graduación</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="acta_graduacion">
+                                    <label class="custom-file-label">Subir PDF</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="acta_graduacion_enlace" placeholder="O ingresar enlace">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -122,6 +226,37 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalAgregarIntegrante" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar Nuevo Integrante</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" class="form-control" id="integrante_nombre">
+                </div>
+                <div class="form-group">
+                    <label>Número de Cuenta</label>
+                    <input type="text" class="form-control" id="integrante_cuenta">
+                </div>
+                <div class="form-group">
+                    <label>Identidad (PDF opcional)</label>
+                    <input type="file" class="form-control" id="integrante_identidad">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarIntegrante">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @stop
 
 @section('js')
@@ -132,18 +267,51 @@
             $(this).next('.custom-file-label').addClass("selected").html(fileName);
         });
         
-        // Prevenir doble envío
         $('form').submit(function() {
             $(this).find('button[type="submit"]').prop('disabled', true);
         });
         
-        // Establecer valores mínimos para fechas
         $('input[name="fecha_defensa"]').attr('min', new Date().toISOString().split('T')[0]);
         
         const now = new Date();
         const timezoneOffset = now.getTimezoneOffset() * 60000;
         const localISOTime = new Date(now - timezoneOffset).toISOString().slice(0, 16);
         $('input[name="fecha_limite"]').attr('min', localISOTime);
+
+        $('#btnGuardarIntegrante').click(function() {
+            const formData = new FormData();
+            formData.append('nombre', $('#integrante_nombre').val());
+            formData.append('cuenta', $('#integrante_cuenta').val());
+            formData.append('identidad', $('#integrante_identidad')[0].files[0]);
+            
+            $.ajax({
+                url: "{{ route('terna.integrantes.store') }}",
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    $('select[name="metodologo_id"], select[name="tecnico1_id"], select[name="tecnico2_id"]').append(
+                        `<option value="${response.id}">${response.nombre} - ${response.cuenta}</option>`
+                    );
+                    
+                    $('#modalAgregarIntegrante').modal('hide');
+                    resetModal();
+                },
+                error: function(xhr) {
+                    alert('Error: ' + xhr.responseJSON.message);
+                }
+            });
+        });
+
+        function resetModal() {
+            $('#integrante_nombre').val('');
+            $('#integrante_cuenta').val('');
+            $('#integrante_identidad').val('');
+        }
     });
 </script>
 @stop

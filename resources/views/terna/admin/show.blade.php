@@ -43,6 +43,14 @@
                         <label>Responsable:</label>
                         <p>{{ $pagoTerna->responsable }}</p>
                     </div>
+                    <div class="info-item">
+                        <label>Estudiante:</label>
+                        <p>{{ $pagoTerna->estudiante_nombre }} ({{ $pagoTerna->estudiante_cuenta }})</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Carrera:</label>
+                        <p>{{ $pagoTerna->estudiante_carrera }}</p>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <div class="info-item">
@@ -73,6 +81,18 @@
                         <p>{{ $pagoTerna->fecha_pago->format('d/m/Y H:i') }}</p>
                     </div>
                     @endif
+                    <div class="info-item">
+                        <label>Metodólogo:</label>
+                        <p>{{ $pagoTerna->metodologo->nombre }} ({{ $pagoTerna->metodologo->cuenta }})</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Técnico 1:</label>
+                        <p>{{ $pagoTerna->tecnico1->nombre }} ({{ $pagoTerna->tecnico1->cuenta }})</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Técnico 2:</label>
+                        <p>{{ $pagoTerna->tecnico2->nombre }} ({{ $pagoTerna->tecnico2->cuenta }})</p>
+                    </div>
                 </div>
             </div>
 
@@ -84,15 +104,30 @@
                         <div class="col-md-4 mb-3">
                             <div class="card document-card shadow-sm">
                                 <div class="card-body text-center">
-                                    <div class="document-icon mb-3">
+                                    @if($documento->tipo_archivo === 'archivo')
                                         <i class="fas fa-file-pdf fa-3x text-danger"></i>
-                                    </div>
-                                    <h6 class="document-title">{{ ucfirst(str_replace('_', ' ', $documento->tipo)) }}</h6>
+                                    @else
+                                        <i class="fas fa-link fa-3x text-primary"></i>
+                                    @endif
+                                    
+                                    <h6 class="document-title mt-2">
+                                        {{ ucfirst(str_replace('_', ' ', $documento->tipo)) }}
+                                    </h6>
+                                    
                                     <div class="mt-3">
-                                        <a href="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" target="_blank" class="btn btn-sm btn-outline-primary btn-download">
-                                            <i class="fas fa-download mr-1"></i> Descargar
-                                        </a>
-
+                                        @if($documento->tipo_archivo === 'archivo')
+                                            <a href="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download mr-1"></i> Descargar
+                                            </a>
+                                        @else
+                                            <a href="{{ $documento->ruta_archivo }}" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-external-link-alt mr-1"></i> Ver Enlace
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -111,15 +146,30 @@
                         <div class="col-md-4 mb-3">
                             <div class="card document-card shadow-sm">
                                 <div class="card-body text-center">
-                                    <div class="document-icon mb-3">
+                                    @if($documento->tipo_archivo === 'archivo')
                                         <i class="fas fa-file-pdf fa-3x text-danger"></i>
-                                    </div>
-                                    <h6 class="document-title">{{ ucfirst(str_replace('_', ' ', $documento->tipo)) }}</h6>
+                                    @else
+                                        <i class="fas fa-link fa-3x text-primary"></i>
+                                    @endif
+                                    
+                                    <h6 class="document-title mt-2">
+                                        {{ ucfirst(str_replace('_', ' ', $documento->tipo)) }}
+                                    </h6>
+                                    
                                     <div class="mt-3">
-                                        <a href="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" target="_blank" class="btn btn-sm btn-outline-primary btn-download">
-                                            <i class="fas fa-download mr-1"></i> Descargar
-                                        </a>
-
+                                        @if($documento->tipo_archivo === 'archivo')
+                                            <a href="{{ asset('storage/documentos_terna/' . $documento->ruta_archivo) }}" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download mr-1"></i> Descargar
+                                            </a>
+                                        @else
+                                            <a href="{{ $documento->ruta_archivo }}" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-external-link-alt mr-1"></i> Ver Enlace
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

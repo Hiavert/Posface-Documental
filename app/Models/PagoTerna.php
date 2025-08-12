@@ -21,7 +21,13 @@ class PagoTerna extends Model
         'fecha_pago',
         'id_administrador',
         'id_asistente',
-        'responsable'
+        'responsable',
+        'estudiante_nombre',
+        'estudiante_cuenta',
+        'estudiante_carrera',
+        'metodologo_id',
+        'tecnico1_id',
+        'tecnico2_id'
     ];
 
     protected $casts = [
@@ -45,5 +51,20 @@ class PagoTerna extends Model
     public function asistente(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_asistente', 'id_usuario');
+    }
+    
+    public function metodologo(): BelongsTo
+    {
+        return $this->belongsTo(IntegranteTerna::class, 'metodologo_id');
+    }
+
+    public function tecnico1(): BelongsTo
+    {
+        return $this->belongsTo(IntegranteTerna::class, 'tecnico1_id');
+    }
+
+    public function tecnico2(): BelongsTo
+    {
+        return $this->belongsTo(IntegranteTerna::class, 'tecnico2_id');
     }
 }
