@@ -14,69 +14,119 @@
             <div class="notifications-dropdown ml-3">
                 <button class="btn btn-notification" type="button" id="notifDropdown" data-toggle="dropdown">
                     <i class="fas fa-bell"></i>
-                    <span class="badge badge-danger" id="notifCounter">3</span>
+                    <span class="badge badge-danger" id="notifCounter">{{ auth()->user()->notificacionesNoLeidas->count() }}</span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notifDropdown">
-                    <div class="dropdown-header">Notificaciones Recientes</div>
-                    <a class="dropdown-item d-flex justify-content-between align-items-center unread" href="#">
-                        <div>
-                            <div class="font-weight-bold">Nueva tarea asignada</div>
-                            <small class="text-muted">De: José Villalobos</small>
-                            <div class="small text-muted">Hace 2 minutos</div>
-                        </div>
-                        <span class="badge badge-danger">Nuevo</span>
-                    </a>
-                    <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                        <div>
-                            <div class="font-weight-bold">Tarea completada</div>
-                            <small class="text-muted">De: Hola Mundo</small>
-                            <div class="small text-muted">Hace 1 hora</div>
-                        </div>
-                    </a>
+                    <!-- Contenido de notificaciones -->
                 </div>
             </div>
             <div class="header-icon ml-3">
-                <i class="fas fa-clipboard-list"></i>
+                <i class="fas fa-file-alt"></i>
             </div>
         </div>
     </div>
 </div>
+@stop
 
-@if (session('success'))
-    <div class="alert-container">
+@section('content')
+<div class="container-fluid">
+    <!-- Alertas -->
+    @if (session('success'))
         <div class="alert alert-elegant-success alert-dismissible fade show">
             <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-    </div>
-@endif
-
-@if (session('error'))
-    <div class="alert-container">
+    @endif
+    @if ($errors->any())
         <div class="alert alert-elegant-danger alert-dismissible fade show">
-            <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-    </div>
-@endif
-@stop
+    @endif
 
-@section('content')
-<div class="container-fluid">
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-bg bg-secondary">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h5 class="card-title">Pendientes</h5>
+                            <h2 class="card-value">{{ $estadisticas['pendientes'] ?? 0 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-bg bg-info">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h5 class="card-title">En Proceso</h5>
+                            <h2 class="card-value">{{ $estadisticas['en_proceso'] ?? 0 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-bg bg-success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h5 class="card-title">Completadas</h5>
+                            <h2 class="card-value">{{ $estadisticas['completadas'] ?? 0 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-bg bg-primary">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h5 class="card-title">Rechazadas</h5>
+                            <h2 class="card-value">{{ $estadisticas['rechazadas'] ?? 0 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Filtros -->
     <div class="card card-elegant mb-4">
         <div class="card-header">
-            <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i>Filtros de Búsqueda</h5>
+            <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i>Filtros</h5>
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('tareas.index') }}" id="filtroTareas">
                 <div class="row">
-                    <div class="col-md-2 mb-3">
-                        <label class="form-label">Estado de la Tarea</label>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Estado</label>
                         <select class="form-control form-control-elegant" name="estado">
                             <option value="">Todos</option>
                             <option value="Pendiente" {{ request('estado') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
@@ -85,112 +135,59 @@
                             <option value="Rechazada" {{ request('estado') == 'Rechazada' ? 'selected' : '' }}>Rechazada</option>
                         </select>
                     </div>
-                    <div class="col-md-2 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">Responsable</label>
                         <select class="form-control form-control-elegant" name="responsable">
                             <option value="">Todos</option>
-                            @if($responsables && $responsables->count() > 0)
-                                @foreach($responsables as $responsable)
-                                    <option value="{{ $responsable->id_usuario }}" {{ request('responsable') == $responsable->id_usuario ? 'selected' : '' }}>
-                                        {{ $responsable->nombres }} {{ $responsable->apellidos }}
-                                    </option>
-                                @endforeach
-                            @endif
+                            @foreach($responsables as $responsable)
+                                <option value="{{ $responsable->id_usuario }}" {{ request('responsable') == $responsable->id_usuario ? 'selected' : '' }}>
+                                    {{ $responsable->nombres }} {{ $responsable->apellidos }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">Tipo de Documento</label>
                         <select class="form-control form-control-elegant" name="tipo_documento">
                             <option value="">Todos</option>
-                            @if($tiposDocumento && $tiposDocumento->count() > 0)
-                                @foreach($tiposDocumento as $tipo)
-                                    <option value="{{ $tipo->id_tipo }}" {{ request('tipo_documento') == $tipo->id_tipo ? 'selected' : '' }}>{{ $tipo->nombre_tipo }}</option>
-                                @endforeach
-                            @endif
+                            @foreach($tiposDocumento as $tipo)
+                                <option value="{{ $tipo->id_tipo }}" {{ request('tipo_documento') == $tipo->id_tipo ? 'selected' : '' }}>{{ $tipo->nombre_tipo }}</option>
+                            @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">Fecha Inicio</label>
                         <input type="date" class="form-control form-control-elegant" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
                     </div>
-                    <div class="col-md-2 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">Fecha Fin</label>
                         <input type="date" class="form-control form-control-elegant" name="fecha_fin" value="{{ request('fecha_fin') }}">
                     </div>
-                    <div class="col-md-2 mb-3 d-flex align-items-end">
-                        <div class="w-100">
-                            <button class="btn btn-primary btn-elegant mr-2 mb-2" type="submit">
-                                <i class="fas fa-filter mr-1"></i> Filtrar
+                    <div class="col-md-3 mb-3 d-flex align-items-end">
+                        <div class="btn-group w-100" role="group">
+                            <button type="submit" class="btn btn-primary btn-elegant">
+                                <i class="fas fa-filter mr-1"></i> Aplicar
                             </button>
-                            <a href="{{ route('tareas.index') }}" class="btn btn-outline-secondary btn-elegant mb-2">
-                                <i class="fas fa-redo mr-1"></i> Restablecer
+                            <a href="{{ route('tareas.index') }}" class="btn btn-outline-secondary btn-elegant">
+                                <i class="fas fa-redo mr-1"></i> Limpiar
                             </a>
                         </div>
                     </div>
-                </div>
-                <div class="d-flex justify-content-end mt-2">
-                    <button type="button" class="btn btn-success btn-elegant" data-toggle="modal" data-target="#modalNuevaTarea">
-                        <i class="fas fa-plus mr-1"></i> Nueva Tarea
-                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Estadísticas elegantes -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stats-card stats-pending">
-                <div class="stats-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stats-content">
-                    <div class="stats-number">{{ $estadisticas['pendientes'] ?? 0 }}</div>
-                    <div class="stats-label">Pendientes</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card stats-process">
-                <div class="stats-icon">
-                    <i class="fas fa-spinner"></i>
-                </div>
-                <div class="stats-content">
-                    <div class="stats-number">{{ $estadisticas['en_proceso'] ?? 0 }}</div>
-                    <div class="stats-label">En Proceso</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card stats-completed">
-                <div class="stats-icon">
-                    <i class="fas fa-check"></i>
-                </div>
-                <div class="stats-content">
-                    <div class="stats-number">{{ $estadisticas['completadas'] ?? 0 }}</div>
-                    <div class="stats-label">Completadas</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card stats-rejected">
-                <div class="stats-icon">
-                    <i class="fas fa-times"></i>
-                </div>
-                <div class="stats-content">
-                    <div class="stats-number">{{ $estadisticas['rechazadas'] ?? 0 }}</div>
-                    <div class="stats-label">Rechazadas</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabla de tareas -->
+    <!-- Listado de tareas -->
     <div class="card card-elegant">
         <div class="card-header d-flex align-items-center">
             <h5 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted"></i> Tareas Documentales</h5>
             <div class="ml-auto">
-                <span class="badge badge-light">{{ $tareas ? $tareas->count() : 0 }} registros</span>
+                @if(Auth::user()->puedeAgregar('TareasDocumentales'))
+                <button class="btn btn-success btn-elegant" type="button" data-toggle="modal" data-target="#modalNuevaTarea" id="btnNuevaTarea">
+                    <i class="fas fa-plus mr-1"></i> Nueva Tarea
+                </button>
+                @endif
             </div>
         </div>
         <div class="card-body">
@@ -202,111 +199,27 @@
                             <th>Nombre</th>
                             <th>Responsable</th>
                             <th>Estado</th>
-                            <th>Fecha de Creación</th>
+                            <th>Fecha Creación</th>
                             <th>Documentos</th>
-                            <th>Tipo de Documento</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if($tareas && $tareas->count() > 0)
-                            @foreach($tareas as $tarea)
-                                <tr class="table-row">
-                                    <td class="font-weight-bold">TD-{{ str_pad($tarea->id_tarea ?? 0, 5, '0', STR_PAD_LEFT) }}</td>
-                                    <td>{{ $tarea->nombre ?? 'Sin nombre' }}</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm mr-2">
-                                                <div class="avatar-initials bg-primary text-white">
-                                                    {{ substr($tarea->responsable->nombres ?? 'N', 0, 1) }}{{ substr($tarea->responsable->apellidos ?? 'D', 0, 1) }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                {{ $tarea->responsable->nombres ?? 'No' }} {{ $tarea->responsable->apellidos ?? 'asignado' }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-state-{{ strtolower(str_replace(' ', '-', $tarea->estado ?? 'pendiente')) }}">
-                                            {{ $tarea->estado ?? 'Pendiente' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if($tarea->fecha_creacion)
-                                            {{ \Carbon\Carbon::parse($tarea->fecha_creacion)->format('d/m/Y H:i') }}
-                                        @else
-                                            N/A
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if(($tarea->total_documentos ?? 0) > 0)
-                                            <i class="fas fa-file-pdf text-danger" title="{{ $tarea->total_documentos }} documento(s)"></i>
-                                            <span class="ml-1">{{ $tarea->total_documentos }}</span>
-                                        @else
-                                            <i class="fas fa-file-times text-muted" title="Sin documentos"></i>
-                                            <span class="ml-1 text-muted">0</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-info">{{ $tarea->tipo_documento ?? 'Sin documento' }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-actions" role="group">
-                                            <button class="btn btn-sm btn-action btn-ver-detalle" 
-                                                    data-id="{{ $tarea->id_tarea }}"
-                                                    data-nombre="{{ $tarea->nombre }}"
-                                                    data-responsable="{{ ($tarea->responsable->nombres ?? 'No') . ' ' . ($tarea->responsable->apellidos ?? 'asignado') }}"
-                                                    data-estado="{{ $tarea->estado }}"
-                                                    data-fecha="{{ $tarea->fecha_creacion ? \Carbon\Carbon::parse($tarea->fecha_creacion)->format('d/m/Y') : 'N/A' }}"
-                                                    data-descripcion="{{ $tarea->descripcion ?? 'Sin descripción' }}"
-                                                    title="Ver detalles">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            
-                                            <button class="btn btn-sm btn-action btn-editar" 
-                                                    data-id="{{ $tarea->id_tarea }}"
-                                                    data-nombre="{{ $tarea->nombre }}"
-                                                    data-responsable="{{ $tarea->fk_id_usuario_asignado }}"
-                                                    data-estado="{{ $tarea->estado }}"
-                                                    data-fecha="{{ $tarea->fecha_creacion }}"
-                                                    data-descripcion="{{ $tarea->descripcion }}"
-                                                    title="Editar">
-                                                <i class="fas fa-edit text-warning"></i>
-                                            </button>
-                                            
-                                            <button class="btn btn-sm btn-action btn-cargar-documento" 
-                                                    data-id="{{ $tarea->id_tarea }}" title="Cargar documento">
-                                                <i class="fas fa-upload text-success"></i>
-                                            </button>
-                                            
-                                            <form action="{{ route('tareas.destroy', $tarea->id_tarea) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-action" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
-                                                    <i class="fas fa-trash-alt text-danger"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @else
-                            <tr>
-                                <td colspan="8" class="text-center py-5">
-                                    <div class="empty-state">
-                                        <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
-                                        <h5>No se encontraron tareas</h5>
-                                        <p class="text-muted">Parece que aún no hay tareas registradas en el sistema</p>
-                                        <button type="button" class="btn btn-primary mt-2" data-toggle="modal" data-target="#modalNuevaTarea">
-                                            <i class="fas fa-plus mr-1"></i> Crear primera tarea
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endif
+                        @include('tareas.tabla', ['tareas' => $tareas])
                     </tbody>
                 </table>
             </div>
+            
+            @if($tareas->hasPages())
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="text-muted">
+                    Mostrando {{ $tareas->firstItem() }} - {{ $tareas->lastItem() }} de {{ $tareas->total() }} registros
+                </div>
+                <div class="pagination-custom">
+                    {{ $tareas->appends(request()->query())->links() }}
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>
@@ -314,104 +227,89 @@
 <!-- Modal para nueva/editar tarea -->
 <div class="modal fade" id="modalNuevaTarea" tabindex="-1" role="dialog" aria-labelledby="modalNuevaTareaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <form method="POST" id="formTarea" action="{{ route('tareas.store') }}">
-            @csrf
-            <div class="modal-content">
-                <div class="modal-header" style="background: #0b2e59; color: white;" id="modalTareaHeader">
-                    <h5 class="modal-title" id="modalNuevaTareaLabel">
-                        <i class="fas fa-plus mr-2"></i> Nueva Tarea
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0b2e59; color: white;">
+                <h5 class="modal-title" id="modalNuevaTareaLabel">
+                    <i class="fas fa-plus-circle mr-2"></i> <span id="modalTareaTitle">Nueva Tarea Documental</span>
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" id="formTarea" action="{{ route('tareas.store') }}" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="tarea_id" id="tareaId">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="nombreTarea">Nombre de la tarea *</label>
-                        <input type="text" class="form-control form-control-elegant" id="nombreTarea" name="nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="responsableTarea">Responsable *</label>
-                        <select class="form-control form-control-elegant" id="responsableTarea" name="fk_id_usuario_asignado" required>
-                            <option value="">Seleccione</option>
-                            @if($responsables && $responsables->count() > 0)
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="nombreTarea">Nombre de la tarea *</label>
+                            <input type="text" class="form-control" id="nombreTarea" name="nombre" required maxlength="100">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="responsableTarea">Responsable *</label>
+                            <select class="form-control" id="responsableTarea" name="fk_id_usuario_asignado" required>
+                                <option value="">Seleccionar responsable</option>
                                 @foreach($responsables as $responsable)
                                     <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
                                 @endforeach
-                            @endif
-                        </select>
+                            </select>
+                        </div>
                     </div>
+                    
                     <input type="hidden" name="fk_id_usuario_creador" value="{{ auth()->id() }}">
+                    
                     <div class="form-group">
                         <label for="descripcionTarea">Descripción</label>
-                        <textarea class="form-control form-control-elegant" id="descripcionTarea" name="descripcion" rows="3"></textarea>
+                        <textarea class="form-control" id="descripcionTarea" name="descripcion" rows="3" maxlength="500"></textarea>
+                        <small class="form-text text-muted">Máximo 500 caracteres</small>
                     </div>
-                    <div class="form-group">
-                        <label for="estadoTarea">Estado *</label>
-                        <select class="form-control form-control-elegant" id="estadoTarea" name="estado" required>
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="En Proceso">En Proceso</option>
-                            <option value="Completada">Completada</option>
-                            <option value="Rechazada">Rechazada</option>
-                        </select>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="estadoTarea">Estado *</label>
+                            <select class="form-control" id="estadoTarea" name="estado" required>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En Proceso">En Proceso</option>
+                                <option value="Completada">Completada</option>
+                                <option value="Rechazada">Rechazada</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="fechaCreacionTarea">Fecha de Creación *</label>
+                            <input type="date" class="form-control" id="fechaCreacionTarea" name="fecha_creacion" value="{{ date('Y-m-d') }}" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="fechaCreacionTarea">Fecha de Creación *</label>
-                        <input type="date" class="form-control form-control-elegant" id="fechaCreacionTarea" name="fecha_creacion" value="{{ date('Y-m-d') }}" required>
-                    </div>
+                    
                     <div class="form-group">
                         <label for="fechaVencimientoTarea">Fecha de Vencimiento</label>
-                        <input type="date" class="form-control form-control-elegant" id="fechaVencimientoTarea" name="fecha_vencimiento">
+                        <input type="date" class="form-control" id="fechaVencimientoTarea" name="fecha_vencimiento">
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" id="btnGuardarTarea">Crear Tarea</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal para cargar documento -->
-<div class="modal fade" id="modalCargarDocumento" tabindex="-1" role="dialog" aria-labelledby="modalCargarDocumentoLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <form method="POST" action="{{ route('tareas.upload') }}" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" name="id_tarea" id="idTareaDocumento">
-            <div class="modal-content">
-                <div class="modal-header" style="background: #0b2e59; color: white;">
-                    <h5 class="modal-title" id="modalCargarDocumentoLabel">
-                        <i class="fas fa-upload mr-2"></i> Cargar Documento
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
+                    
                     <div class="form-group">
+                        <label for="documentoTarea">Documento adjunto (PDF, JPG, PNG)</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="documentoTarea" name="documento" accept="application/pdf,image/*">
+                            <label class="custom-file-label" for="documentoTarea" id="documentoLabel">Seleccionar archivo</label>
+                        </div>
+                        <small class="form-text text-muted">Tamaño máximo: 2MB</small>
+                    </div>
+                    
+                    <div class="form-group" id="tipoDocumentoContainer">
                         <label for="fk_id_tipo">Tipo de Documento *</label>
-                        <select name="fk_id_tipo" id="fk_id_tipo" class="form-control form-control-elegant" required>
-                            <option value="">Seleccione...</option>
-                            @if($tiposDocumento && $tiposDocumento->count() > 0)
-                                @foreach($tiposDocumento as $tipo)
-                                    <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
-                                @endforeach
-                            @endif
+                        <select name="fk_id_tipo" id="fk_id_tipo" class="form-control" required>
+                            <option value="">Seleccionar tipo...</option>
+                            @foreach($tiposDocumento as $tipo)
+                                <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
+                            @endforeach
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="documento">Archivo (PDF o imagen) *</label>
-                        <input type="file" class="form-control form-control-elegant" id="documento" name="documento" accept="application/pdf,image/*" required>
-                        <small class="form-text text-muted">Tamaño máximo: 10MB</small>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Subir Documento</button>
+                    <button type="submit" class="btn btn-primary" id="btnGuardarTarea">Guardar Tarea</button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -423,39 +321,87 @@
                 <h5 class="modal-title" id="modalDetalleTareaLabel">
                     <i class="fas fa-info-circle mr-2"></i> Detalle de Tarea
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <dl class="row">
-                    <dt class="col-sm-4">Nombre</dt>
-                    <dd class="col-sm-8" id="detalle-nombre">-</dd>
-                    <dt class="col-sm-4">Responsable</dt>
-                    <dd class="col-sm-8" id="detalle-responsable">-</dd>
-                    <dt class="col-sm-4">Estado</dt>
-                    <dd class="col-sm-8">
-                        <span id="detalle-estado" class="badge badge-pill">-</span>
-                    </dd>
-                    <dt class="col-sm-4">Fecha de Creación</dt>
-                    <dd class="col-sm-8" id="detalle-fecha">-</dd>
-                    <dt class="col-sm-4">Descripción</dt>
-                    <dd class="col-sm-8" id="detalle-descripcion">-</dd>
-                </dl>
+                <div class="row">
+                    <div class="col-md-8">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Nombre</dt>
+                            <dd class="col-sm-8" id="detalle-nombre"></dd>
+                            
+                            <dt class="col-sm-4">Responsable</dt>
+                            <dd class="col-sm-8" id="detalle-responsable"></dd>
+                            
+                            <dt class="col-sm-4">Estado</dt>
+                            <dd class="col-sm-8">
+                                <span id="detalle-estado" class="badge badge-pill"></span>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Fecha Creación</dt>
+                            <dd class="col-sm-8" id="detalle-fecha"></dd>
+                            
+                            <dt class="col-sm-4">Fecha Vencimiento</dt>
+                            <dd class="col-sm-8" id="detalle-vencimiento"></dd>
+                            
+                            <dt class="col-sm-4">Descripción</dt>
+                            <dd class="col-sm-8" id="detalle-descripcion"></dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-4 border-left">
+                        <h6><i class="fas fa-file-alt mr-2"></i> Documentos</h6>
+                        <div id="detalle-documentos" class="mb-3">
+                            <div class="text-center text-muted py-3">Sin documentos adjuntos</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Historial -->
+                <div class="card mt-4">
+                    <div class="card-header p-2 bg-light">
+                        <strong><i class="fas fa-history mr-1"></i> Historial de acciones</strong>
+                    </div>
+                    <div class="card-body p-2 historial-scroll" style="max-height: 250px; overflow-y: auto;" id="historial-bitacora">
+                        <div class="text-center text-muted py-3">Cargando historial...</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+<!-- Modal para visualizar documento -->
+<div class="modal fade" id="modalVerDocumento" tabindex="-1" role="dialog" aria-labelledby="modalVerDocumentoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="iconoDocumento" style="font-size:2.5rem; margin-right:10px;"></span>
+                <h5 class="modal-title" id="modalVerDocumentoLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center" id="contenedorDocumento">
+                <!-- Aquí se carga el documento dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <form id="formEliminarDocumento" method="POST" style="display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger" id="btnEliminarDocumento" onclick="return confirm('¿Seguro que desea eliminar este documento?')">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </form>
+                <a href="#" id="descargarDocumento" class="btn btn-primary" download target="_blank">
+                    <i class="fas fa-download"></i> Descargar
+                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
     </div>
-@endif
+</div>
 @stop
 
 @section('css')
@@ -466,7 +412,7 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    /* Encabezado elegante */
+    /* Encabezado */
     .elegant-header {
         background: linear-gradient(135deg, #0b2e59, #1a5a8d);
         padding: 20px;
@@ -493,7 +439,49 @@
         opacity: 0.9;
     }
     
-    /* Tarjetas elegantes */
+    /* Tarjetas de estadísticas */
+    .card-stats {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .card-stats .card-body {
+        padding: 15px;
+    }
+    
+    .icon-bg {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .bg-secondary { background-color: #6c757d; }
+    .bg-info { background-color: #17a2b8; }
+    .bg-success { background-color: #28a745; }
+    .bg-primary { background-color: #007bff; }
+    
+    .card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .card-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+    
+    /* Tarjetas */
     .card-elegant {
         border: none;
         border-radius: 12px;
@@ -524,88 +512,7 @@
         padding: 25px;
     }
     
-    /* Estadísticas elegantes */
-    .stats-card {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 20px;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-    
-    .stats-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        border-radius: 15px 15px 0 0;
-    }
-    
-    .stats-pending::before {
-        background: linear-gradient(135deg, #ff9800, #ffb74d);
-    }
-    
-    .stats-process::before {
-        background: linear-gradient(135deg, #2196f3, #64b5f6);
-    }
-    
-    .stats-completed::before {
-        background: linear-gradient(135deg, #4caf50, #81c784);
-    }
-    
-    .stats-rejected::before {
-        background: linear-gradient(135deg, #f44336, #e57373);
-    }
-    
-    .stats-icon {
-        font-size: 2.5rem;
-        margin-bottom: 15px;
-        opacity: 0.8;
-    }
-    
-    .stats-pending .stats-icon {
-        color: #ff9800;
-    }
-    
-    .stats-process .stats-icon {
-        color: #2196f3;
-    }
-    
-    .stats-completed .stats-icon {
-        color: #4caf50;
-    }
-    
-    .stats-rejected .stats-icon {
-        color: #f44336;
-    }
-    
-    .stats-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #2c3e50;
-        line-height: 1;
-        margin-bottom: 5px;
-    }
-    
-    .stats-label {
-        font-weight: 600;
-        color: #6c757d;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    /* Botones elegantes */
+    /* Botones */
     .btn-elegant {
         border-radius: 8px;
         font-weight: 500;
@@ -618,68 +525,17 @@
         border: none;
     }
     
-    .btn-primary.btn-elegant:hover {
-        background: linear-gradient(135deg, #2968c4, #00bfef);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(58, 123, 213, 0.3);
-    }
-    
     .btn-success.btn-elegant {
         background: linear-gradient(135deg, #00b09b, #96c93d);
         border: none;
     }
     
-    .btn-success.btn-elegant:hover {
-        background: linear-gradient(135deg, #009d8a, #85b82c);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 176, 155, 0.3);
-    }
-    
     .btn-outline-secondary.btn-elegant {
         border: 1px solid #dee2e6;
         color: #6c757d;
-        background: white;
     }
     
-    .btn-outline-secondary.btn-elegant:hover {
-        background: #f8f9fa;
-        border-color: #6c757d;
-        color: #495057;
-        transform: translateY(-2px);
-    }
-    
-    .btn-notification {
-        background: #f8f9fc;
-        border: 1px solid #eaeef5;
-        border-radius: 50%;
-        width: 42px;
-        height: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-notification:hover {
-        background: #eef2f7;
-        transform: rotate(10deg);
-    }
-    
-    .btn-notification .badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        min-width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        font-size: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    /* Tabla elegante */
+    /* Tabla */
     .table-borderless {
         border-collapse: separate;
         border-spacing: 0 8px;
@@ -718,66 +574,24 @@
         border-bottom: 1px solid #f0f4f8;
     }
     
-    .table-row td:first-child {
+    .table-row:first-child td:first-child {
         border-radius: 10px 0 0 10px;
     }
     
-    .table-row td:last-child {
+    .table-row:first-child td:last-child {
         border-radius: 0 10px 10px 0;
     }
     
     /* Badges de estado */
-    .badge-state-pendiente {
-        background-color: #fff8e1;
-        color: #f57c00;
-        padding: 6px 12px;
-        border-radius: 50px;
+    .badge-pill {
+        padding: 0.5em 1em;
         font-weight: 500;
     }
     
-    .badge-state-en-proceso {
-        background-color: #e3f2fd;
-        color: #1976d2;
-        padding: 6px 12px;
-        border-radius: 50px;
-        font-weight: 500;
-    }
-    
-    .badge-state-completada {
-        background-color: #e8f5e9;
-        color: #388e3c;
-        padding: 6px 12px;
-        border-radius: 50px;
-        font-weight: 500;
-    }
-    
-    .badge-state-rechazada {
-        background-color: #ffebee;
-        color: #d32f2f;
-        padding: 6px 12px;
-        border-radius: 50px;
-        font-weight: 500;
-    }
-    
-    /* Avatar de usuarios */
-    .avatar-sm {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .avatar-initials {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 14px;
-    }
+    .badge-warning { background-color: #ffc107; color: #343a40; }
+    .badge-info { background-color: #17a2b8; }
+    .badge-success { background-color: #28a745; }
+    .badge-primary { background-color: #007bff; }
     
     /* Botones de acción */
     .btn-action {
@@ -791,7 +605,6 @@
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
-        margin: 0 2px;
     }
     
     .btn-action:hover {
@@ -800,28 +613,13 @@
         transform: scale(1.1);
     }
     
-    .btn-group-actions {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    /* Alertas elegantes */
-    .alert-container {
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        z-index: 1050;
-        width: 350px;
-    }
-    
+    /* Alertas */
     .alert-elegant-success {
         background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
         color: #388e3c;
         border: none;
         border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        animation: slideInRight 0.5s ease-out;
     }
     
     .alert-elegant-danger {
@@ -830,249 +628,306 @@
         border: none;
         border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        animation: slideInRight 0.5s ease-out;
     }
     
-    @keyframes slideInRight {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+    /* Paginación */
+    .pagination-custom .pagination {
+        margin: 0;
     }
     
-    /* Estado vacío */
-    .empty-state {
-        padding: 40px 0;
-        text-align: center;
-    }
-    
-    .empty-state i {
-        font-size: 4rem;
-        opacity: 0.3;
-        margin-bottom: 20px;
+    .pagination-custom .page-item .page-link {
+        border: none;
+        border-radius: 8px;
+        margin: 0 3px;
         color: #6c757d;
+        transition: all 0.3s ease;
     }
     
-    .empty-state h5 {
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 10px;
+    .pagination-custom .page-item.active .page-link {
+        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        color: white;
+        box-shadow: 0 4px 10px rgba(58, 123, 213, 0.25);
     }
     
-    .empty-state p {
-        color: #6c757d;
+    .pagination-custom .page-item .page-link:hover {
+        background-color: #f0f4f8;
+        color: #3a7bd5;
     }
     
-    /* Formularios elegantes */
+    /* Formularios */
     .form-control-elegant {
         border: 1px solid #eaeef5;
         border-radius: 8px;
         padding: 10px 15px;
         transition: all 0.3s ease;
         height: calc(1.5em + 1rem + 2px);
-        background-color: white;
     }
     
     .form-control-elegant:focus {
         border-color: #3a7bd5;
         box-shadow: 0 0 0 0.2rem rgba(58, 123, 213, 0.15);
-        background-color: white;
     }
     
-    .form-label {
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 5px;
-        font-size: 0.9rem;
-    }
-    
-    /* Notificaciones dropdown */
-    .notifications-dropdown .dropdown-menu {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        width: 350px;
-        max-height: 400px;
-        overflow-y: auto;
-        padding: 0;
-    }
-    
-    .dropdown-header {
+    /* Documentos en detalle */
+    .documento-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 8px;
         background-color: #f8f9fc;
-        padding: 12px 20px;
-        font-weight: 600;
-        color: #2c3e50;
-        border-radius: 12px 12px 0 0;
-        border-bottom: 1px solid #eaeef5;
+        transition: all 0.3s ease;
     }
     
-    .dropdown-item {
-        padding: 12px 20px;
-        border-bottom: 1px solid #f0f4f8;
-        transition: all 0.2s ease;
+    .documento-item:hover {
+        background-color: #eef2f7;
     }
     
-    .dropdown-item.unread {
-        background-color: #f0f8ff;
-        border-left: 3px solid #3a7bd5;
+    .documento-icon {
+        font-size: 1.8rem;
+        margin-right: 12px;
     }
     
-    .dropdown-item:hover {
-        background-color: #f8f9fc;
+    .documento-info {
+        flex-grow: 1;
     }
     
-    /* Modales elegantes */
-    .modal-content {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    .documento-info h6 {
+        margin-bottom: 2px;
+        font-weight: 500;
     }
     
-    .modal-header {
-        border-bottom: 1px solid #eaeef5;
-        border-radius: 12px 12px 0 0;
+    .documento-info p {
+        margin-bottom: 0;
+        font-size: 0.85rem;
+        color: #6c757d;
     }
     
-    .modal-footer {
-        border-top: 1px solid #eaeef5;
-        border-radius: 0 0 12px 12px;
+    /* Historial */
+    .historial-scroll {
+        padding-right: 18px !important;
     }
     
-    /* Animaciones */
-    .table-row {
-        animation: fadeInUp 0.3s ease-out;
+    .historial-scroll::-webkit-scrollbar {
+        width: 8px;
     }
     
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .historial-scroll::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
     }
     
-    .stats-card {
-        animation: fadeInUp 0.5s ease-out;
+    .historial-scroll::-webkit-scrollbar-track {
+        background: #f8f9fa;
     }
     
-    .card-elegant {
-        animation: fadeInUp 0.4s ease-out;
+    .historial-item {
+        padding: 8px 0;
+        border-bottom: 1px dashed #eaeef5;
+    }
+    
+    .historial-item:last-child {
+        border-bottom: none;
+    }
+    
+    .historial-item .badge {
+        font-size: 0.75em;
+        margin-right: 8px;
     }
 </style>
 @stop
 
 @section('js')
 <script>
-$(document).ready(function() {
-    // Manejar modal de nueva tarea
-    $('#modalNuevaTarea').on('show.bs.modal', function(event) {
-        var button = $(event.relatedTarget);
-        var modal = $(this);
+    $(document).ready(function() {
+        // Ocultar notificación de éxito después de 5 segundos
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
         
-        // Limpiar formulario
-        modal.find('form')[0].reset();
-        modal.find('#fechaCreacionTarea').val(new Date().toISOString().split('T')[0]);
+        // Actualizar nombre de archivo en input file
+        $('.custom-file-input').on('change', function() {
+            let fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
+        });
         
-        // Verificar si es edición
-        if (button.data('id')) {
-            // Modo edición
-            modal.find('.modal-title').html('<i class="fas fa-edit mr-2"></i> Editar Tarea');
-            modal.find('#btnGuardarTarea').text('Actualizar Tarea');
-            modal.find('form').attr('action', '/tareas/' + button.data('id'));
-            modal.find('form').append('<input type="hidden" name="_method" value="PUT">');
+        // Modal Detalle
+        $('#modalDetalleTarea').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var tareaId = button.data('id');
             
-            // Llenar campos
-            modal.find('#nombreTarea').val(button.data('nombre'));
-            modal.find('#responsableTarea').val(button.data('responsable'));
-            modal.find('#estadoTarea').val(button.data('estado'));
-            modal.find('#fechaCreacionTarea').val(button.data('fecha'));
-            modal.find('#descripcionTarea').val(button.data('descripcion'));
-        } else {
-            // Modo creación
-            modal.find('.modal-title').html('<i class="fas fa-plus mr-2"></i> Nueva Tarea');
-            modal.find('#btnGuardarTarea').text('Crear Tarea');
-            modal.find('form').attr('action', '{{ route("tareas.store") }}');
-            modal.find('input[name="_method"]').remove();
-        }
-    });
-    
-    // Manejar modal de cargar documento
-    $('.btn-cargar-documento').click(function() {
-        var tareaId = $(this).data('id');
-        $('#idTareaDocumento').val(tareaId);
-        $('#modalCargarDocumento').modal('show');
-    });
-    
-    // Manejar modal de detalle
-    $('.btn-ver-detalle').click(function() {
-        var nombre = $(this).data('nombre');
-        var responsable = $(this).data('responsable');
-        var estado = $(this).data('estado');
-        var fecha = $(this).data('fecha');
-        var descripcion = $(this).data('descripcion');
-        
-        $('#detalle-nombre').text(nombre);
-        $('#detalle-responsable').text(responsable);
-        $('#detalle-estado').text(estado).attr('class', 'badge badge-pill badge-state-' + estado.toLowerCase().replace(' ', '-'));
-        $('#detalle-fecha').text(fecha);
-        $('#detalle-descripcion').text(descripcion);
-        
-        $('#modalDetalleTarea').modal('show');
-    });
-    
-    // Manejar botón de editar
-    $('.btn-editar').click(function() {
-        // Simular click en botón de nueva tarea con datos
-        $('#modalNuevaTarea').modal('show');
-        
-        setTimeout(() => {
-            var modal = $('#modalNuevaTarea');
-            modal.find('.modal-title').html('<i class="fas fa-edit mr-2"></i> Editar Tarea');
-            modal.find('#btnGuardarTarea').text('Actualizar Tarea');
-            modal.find('form').attr('action', '/tareas/' + $(this).data('id'));
+            $('#detalle-nombre').text(button.data('nombre'));
+            $('#detalle-responsable').text(button.data('responsable'));
+            $('#detalle-fecha').text(button.data('fecha'));
+            $('#detalle-vencimiento').text(button.data('vencimiento') || 'No definida');
+            $('#detalle-descripcion').text(button.data('descripcion') || 'Sin descripción');
             
-            // Agregar método PUT si no existe
-            if (modal.find('input[name="_method"]').length === 0) {
-                modal.find('form').append('<input type="hidden" name="_method" value="PUT">');
+            // Estado destacado
+            var estado = button.data('estado');
+            var badgeClass = '';
+            switch(estado) {
+                case 'Pendiente': badgeClass = 'badge-warning'; break;
+                case 'En Proceso': badgeClass = 'badge-info'; break;
+                case 'Completada': badgeClass = 'badge-success'; break;
+                case 'Rechazada': badgeClass = 'badge-primary'; break;
+                default: badgeClass = 'badge-secondary';
+            }
+            $('#detalle-estado').attr('class', 'badge badge-pill ' + badgeClass).text(estado);
+            
+            // Documentos
+            var documentos = button.data('documentos');
+            var documentosHtml = '';
+            
+            if(documentos && documentos.length > 0) {
+                documentos.forEach(function(doc) {
+                    var icono = '';
+                    if(doc.tipo === 'imagen') {
+                        icono = '<i class="fas fa-file-image text-info documento-icon"></i>';
+                    } else if(doc.tipo === 'pdf') {
+                        icono = '<i class="fas fa-file-pdf text-danger documento-icon"></i>';
+                    } else {
+                        icono = '<i class="fas fa-file text-secondary documento-icon"></i>';
+                    }
+                    
+                    documentosHtml += `
+                        <div class="documento-item">
+                            ${icono}
+                            <div class="documento-info">
+                                <h6>${doc.nombre}</h6>
+                                <p>Tipo: ${doc.tipo_documento}</p>
+                            </div>
+                            <button class="btn btn-sm btn-link ver-documento" 
+                                data-url="${doc.url}" 
+                                data-tipo="${doc.tipo}"
+                                data-nombre="${doc.nombre}"
+                                data-id="${doc.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+            } else {
+                documentosHtml = '<div class="text-center text-muted py-3">Sin documentos adjuntos</div>';
             }
             
-            // Llenar campos
-            modal.find('#nombreTarea').val($(this).data('nombre'));
-            modal.find('#responsableTarea').val($(this).data('responsable'));
-            modal.find('#estadoTarea').val($(this).data('estado'));
-            modal.find('#fechaCreacionTarea').val($(this).data('fecha'));
-            modal.find('#descripcionTarea').val($(this).data('descripcion'));
-        }, 100);
-    });
-    
-    // Auto-ocultar alertas después de 5 segundos
-    setTimeout(function() {
-        $('.alert').fadeOut();
-    }, 5000);
-    
-    // Validación de formularios
-    $('form').submit(function() {
-        var requiredFields = $(this).find('[required]');
-        var valid = true;
-        
-        requiredFields.each(function() {
-            if (!$(this).val()) {
-                $(this).addClass('is-invalid');
-                valid = false;
+            $('#detalle-documentos').html(documentosHtml);
+            
+            // Cargar historial por AJAX
+            var historialDiv = $('#historial-bitacora');
+            historialDiv.html('<div class="text-center text-muted py-3">Cargando historial...</div>');
+            
+            $.get('/tareas/' + tareaId + '/historial', function(data) {
+                if (data.historial.length === 0) {
+                    historialDiv.html('<div class="text-center text-muted py-3">Sin acciones registradas.</div>');
+                } else {
+                    var html = '';
+                    data.historial.forEach(function(item) {
+                        html += `<div class="historial-item">${item}</div>`;
+                    });
+                    historialDiv.html(html);
+                }
+            }).fail(function() {
+                historialDiv.html('<div class="text-center text-danger py-3">Error al cargar el historial.</div>');
+            });
+        });
+
+        // Modal Nueva/Editar Tarea
+        $('#modalNuevaTarea').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var modal = $(this);
+            var form = modal.find('form');
+            var isEdit = button.data('id') ? true : false;
+
+            // Reset form
+            form.trigger('reset');
+            form.find('input[name="_method"]').remove();
+            modal.find('#documentoLabel').text('Seleccionar archivo');
+            $('#modalTareaTitle').text('Nueva Tarea Documental');
+            $('#btnGuardarTarea').text('Crear Tarea');
+            $('#tareaId').val('');
+            
+            // Mostrar campo de documento solo para crear
+            $('#tipoDocumentoContainer').show();
+
+            if (isEdit) {
+                // Editar
+                $('#modalTareaTitle').text('Editar Tarea Documental');
+                $('#btnGuardarTarea').text('Actualizar Tarea');
+                form.attr('action', '/tareas/' + button.data('id'));
+                form.append('<input type="hidden" name="_method" value="PUT">');
+                $('#tareaId').val(button.data('id'));
+                $('#nombreTarea').val(button.data('nombre'));
+                $('#responsableTarea').val(button.data('responsable'));
+                $('#estadoTarea').val(button.data('estado'));
+                $('#fechaCreacionTarea').val(button.data('fecha'));
+                $('#fechaVencimientoTarea').val(button.data('vencimiento'));
+                $('#descripcionTarea').val(button.data('descripcion'));
+                
+                // Ocultar campo de documento para edición
+                $('#tipoDocumentoContainer').hide();
+            }
+        });
+
+        // Visualizar documento en modal
+        $(document).on('click', '.ver-documento', function(e) {
+            e.preventDefault();
+            var url = $(this).data('url');
+            var tipo = $(this).data('tipo');
+            var nombre = $(this).data('nombre');
+            var id = $(this).data('id');
+            var icono = '';
+            var html = '';
+
+            if(tipo === 'imagen') {
+                icono = '<i class="fas fa-file-image text-info"></i>';
+                html = '<img src="' + url + '" alt="' + nombre + '" class="img-fluid">';
+            } else if(tipo === 'pdf') {
+                icono = '<i class="fas fa-file-pdf text-danger"></i>';
+                html = '<iframe src="' + url + '" width="100%" height="500px" style="border:none;"></iframe>';
             } else {
-                $(this).removeClass('is-invalid');
+                icono = '<i class="fas fa-file text-secondary"></i>';
+                html = '<p>No es posible visualizar este tipo de archivo.</p>';
+            }
+
+            $('#iconoDocumento').html(icono);
+            $('#modalVerDocumentoLabel').text(nombre);
+            $('#contenedorDocumento').html(html);
+            $('#descargarDocumento').attr('href', url);
+
+            // Actualiza la acción del formulario de eliminar
+            var action = "{{ route('tareas.documento.eliminar', ':id') }}";
+            $('#formEliminarDocumento').attr('action', action.replace(':id', id));
+            
+            $('#modalVerDocumento').modal('show');
+        });
+        
+        // Validación de fechas
+        $('#fechaVencimientoTarea').on('change', function() {
+            var fechaInicio = new Date($('#fechaCreacionTarea').val());
+            var fechaFin = new Date($(this).val());
+            
+            if(fechaFin < fechaInicio) {
+                alert('La fecha de vencimiento no puede ser anterior a la fecha de creación');
+                $(this).val('');
             }
         });
         
-        return valid;
+        // Filtrar tabla con AJAX
+        $('#filtroTareas').on('submit', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                url: form.attr('action'),
+                type: 'GET',
+                data: form.serialize(),
+                success: function(data) {
+                    $(".table tbody").html(data);
+                },
+                error: function() {
+                    alert('Error al filtrar las tareas.');
+                }
+            });
+        });
     });
-});
 </script>
 @stop

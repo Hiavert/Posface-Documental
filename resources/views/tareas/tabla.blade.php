@@ -1,82 +1,93 @@
+{{-- tabla.blade.php --}}
 @php use Carbon\Carbon; @endphp
 @forelse($tareas as $tarea)
-    <tr>
-        <td>{{ $tarea->id_tarea }}</td>
+    <tr class="table-row" data-id="{{ $tarea->id_tarea }}">
+        <td class="font-weight-bold">T-{{ str_pad($tarea->id_tarea, 5, '0', STR_PAD_LEFT) }}</td>
         <td>{{ $tarea->nombre }}</td>
         <td>
-            {{ $tarea->usuarioAsignado ? $tarea->usuarioAsignado->nombres . ' ' . $tarea->usuarioAsignado->apellidos : 'Sin asignar' }}
+            <div class="d-flex align-items-center">
+                <div class="avatar-sm mr-2">
+                    <div class="avatar-initials bg-info text-white">
+                        {{ substr($tarea->usuarioAsignado->nombres ?? 'N', 0, 1) }}{{ substr($tarea->usuarioAsignado->apellidos ?? 'A', 0, 1) }}
+                    </div>
+                </div>
+                <div>
+                    {{ $tarea->usuarioAsignado ? $tarea->usuarioAsignado->nombres . ' ' . $tarea->usuarioAsignado->apellidos : 'Sin asignar' }}
+                </div>
+            </div>
         </td>
         <td>
             @php
                 $badge = [
-                    'Pendiente' => 'bg-warning',
-                    'En Proceso' => 'bg-info',
-                    'Completada' => 'bg-success',
-                    'Rechazada' => 'bg-primary'
-                ][$tarea->estado] ?? 'bg-secondary';
+                    'Pendiente' => 'badge-warning',
+                    'En Proceso' => 'badge-info',
+                    'Completada' => 'badge-success',
+                    'Rechazada' => 'badge-primary'
+                ][$tarea->estado] ?? 'badge-secondary';
             @endphp
             <span class="badge {{ $badge }}">{{ $tarea->estado }}</span>
         </td>
         <td>{{ Carbon::parse($tarea->fecha_creacion)->format('d/m/Y') }}</td>
         <td>
             @if($tarea->documentos->count())
-                @foreach($tarea->documentos as $doc)
-                    @php
-                        $ext = strtolower(pathinfo($doc->nombre_documento, PATHINFO_EXTENSION));
-                        $isImage = in_array($ext, ['jpg','jpeg','png','gif','bmp','webp']);
-                        $isPdf = $ext === 'pdf';
-                    @endphp
-                    <a href="#"
-                       class="ver-documento"
-                       data-toggle="modal"
-                       data-target="#modalVerDocumento"
-                       data-url="{{ asset('storage/' . $doc->ruta_archivo) }}"
-                       data-tipo="{{ $isImage ? 'imagen' : ($isPdf ? 'pdf' : 'otro') }}"
-                       data-nombre="{{ $doc->nombre_documento }}"
-                       data-id="{{ $doc->id_documento }}">
-                        @if($isImage)
-                            <i class="fas fa-file-image text-info" style="font-size:2rem"></i>
-                        @elseif($isPdf)
-                            <i class="fas fa-file-pdf text-danger" style="font-size:2rem"></i>
-                        @else
-                            <i class="fas fa-file text-secondary" style="font-size:2rem"></i>
-                        @endif
-                    </a>
-                @endforeach
+                <div class="d-flex">
+                    @foreach($tarea->documentos as $doc)
+                        @php
+                            $ext = strtolower(pathinfo($doc->nombre_documento, PATHINFO_EXTENSION));
+                            $isImage = in_array($ext, ['jpg','jpeg','png','gif','bmp','webp']);
+                            $isPdf = $ext === 'pdf';
+                        @endphp
+                        <a href="#" class="ver-documento mr-2"
+                           data-toggle="tooltip" title="{{ $doc->nombre_documento }}"
+                           data-url="{{ asset('storage/' . $doc->ruta_archivo) }}"
+                           data-tipo="{{ $isImage ? 'imagen' : ($isPdf ? 'pdf' : 'otro') }}"
+                           data-nombre="{{ $doc->nombre_documento }}"
+                           data-id="{{ $doc->id_documento }}">
+                            @if($isImage)
+                                <i class="fas fa-file-image text-info" style="font-size:1.5rem"></i>
+                            @elseif($isPdf)
+                                <i class="fas fa-file-pdf text-danger" style="font-size:1.5rem"></i>
+                            @else
+                                <i class="fas fa-file text-secondary" style="font-size:1.5rem"></i>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
             @else
-                <i class="fas fa-ban text-muted" style="font-size:2rem"></i>
+                <i class="fas fa-ban text-muted" style="font-size:1.5rem"></i>
             @endif
         </td>
-        <td>
-            @if($tarea->documentos->count())
-                @foreach($tarea->documentos as $doc)
-                    <span class="badge badge-info">{{ $doc->tipo->nombre_tipo ?? 'Sin tipo' }}</span><br>
-                @endforeach
-            @else
-                <span class="text-muted">Sin documento</span>
-            @endif
-        </td>
-        <td>
+        <td class="text-center">
             @php
                 $user = Auth::user();
             @endphp
             <!-- Ver detalles -->
-            @if($user->puedeVer('TareasDocumentales'))
-                <button class="btn btn-sm btn-outline-primary" title="Ver detalles"
-                    data-toggle="modal"
-                    data-target="#modalDetalleTarea"
-                    data-id="{{ $tarea->id_tarea }}"
-                    data-nombre="{{ $tarea->nombre }}"
-                    data-responsable="{{ $tarea->usuarioAsignado ? $tarea->usuarioAsignado->nombres . ' ' . $tarea->usuarioAsignado->apellidos : 'Sin asignar' }}"
-                    data-estado="{{ $tarea->estado }}"
-                    data-fecha="{{ $tarea->fecha_creacion }}"
-                    data-descripcion="{{ $tarea->descripcion }}">
-                    <i class="fas fa-eye"></i>
-                </button>
-            @endif
+            <button class="btn btn-sm btn-action" title="Ver detalles"
+                data-toggle="modal"
+                data-target="#modalDetalleTarea"
+                data-id="{{ $tarea->id_tarea }}"
+                data-nombre="{{ $tarea->nombre }}"
+                data-responsable="{{ $tarea->usuarioAsignado ? $tarea->usuarioAsignado->nombres . ' ' . $tarea->usuarioAsignado->apellidos : 'Sin asignar' }}"
+                data-estado="{{ $tarea->estado }}"
+                data-fecha="{{ Carbon::parse($tarea->fecha_creacion)->format('d/m/Y') }}"
+                data-vencimiento="{{ $tarea->fecha_vencimiento ? Carbon::parse($tarea->fecha_vencimiento)->format('d/m/Y') : '' }}"
+                data-descripcion="{{ $tarea->descripcion }}"
+                data-documentos="{{ $tarea->documentos->map(function($doc) {
+                    $ext = strtolower(pathinfo($doc->nombre_documento, PATHINFO_EXTENSION));
+                    return [
+                        'id' => $doc->id_documento,
+                        'nombre' => $doc->nombre_documento,
+                        'url' => asset('storage/' . $doc->ruta_archivo),
+                        'tipo' => in_array($ext, ['jpg','jpeg','png','gif','bmp','webp']) ? 'imagen' : ($ext === 'pdf' ? 'pdf' : 'otro'),
+                        'tipo_documento' => $doc->tipo->nombre_tipo ?? 'Sin tipo'
+                    ];
+                })->toJson() }}">
+                <i class="fas fa-eye"></i>
+            </button>
+            
             <!-- Editar -->
             @if($user->puedeEditar('TareasDocumentales'))
-                <button class="btn btn-sm btn-outline-warning" title="Editar"
+                <button class="btn btn-sm btn-action" title="Editar"
                     data-toggle="modal"
                     data-target="#modalNuevaTarea"
                     data-id="{{ $tarea->id_tarea }}"
@@ -84,27 +95,19 @@
                     data-responsable="{{ $tarea->fk_id_usuario_asignado }}"
                     data-estado="{{ $tarea->estado }}"
                     data-fecha="{{ $tarea->fecha_creacion }}"
-                    data-descripcion="{{ $tarea->descripcion }}"
-                    data-editar="1">
+                    data-vencimiento="{{ $tarea->fecha_vencimiento }}"
+                    data-descripcion="{{ $tarea->descripcion }}">
                     <i class="fas fa-edit"></i>
                 </button>
             @endif
-            <!-- Cargar Documentos -->
-            @if($user->puedeAgregar('TareasDocumentales'))
-                <button class="btn btn-sm btn-outline-success" title="Cargar Documentos"
-                    data-toggle="modal"
-                    data-target="#modalCargarDocumento"
-                    data-id="{{ $tarea->id_tarea }}">
-                    <i class="fas fa-upload"></i>
-                </button>
-            @endif
+            
             <!-- Eliminar -->
             @if($user->puedeEliminar('TareasDocumentales'))
                 <form action="{{ route('tareas.destroy', $tarea->id_tarea) }}" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
-                    <button class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
-                        <i class="fas fa-trash"></i>
+                    <button class="btn btn-sm btn-action" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </form>
             @endif
@@ -112,6 +115,17 @@
     </tr>
 @empty
     <tr>
-        <td colspan="8" class="text-center">No hay tareas registradas.</td>
+        <td colspan="7" class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                <h5>No se encontraron tareas documentales</h5>
+                <p class="text-muted">Parece que aún no hay tareas registradas en el sistema</p>
+                @if(Auth::user()->puedeAgregar('TareasDocumentales'))
+                <button type="button" class="btn btn-primary mt-2" data-toggle="modal" data-target="#modalNuevaTarea">
+                    <i class="fas fa-plus mr-1"></i> Crear primera tarea
+                </button>
+                @endif
+            </div>
+        </td>
     </tr>
 @endforelse
