@@ -51,7 +51,7 @@
                                    placeholder="Nombre del remitente" required value="{{ $documento->remitente }}">
                         </div>
                     </div>
-                    <极狐col-md-6">
+                    <col-md-6">
                         <div class="form-group">
                             <label>Destinatario</label>
                             <input type="text" class="form-control form-control-elegant" name="destinatario" 
