@@ -95,6 +95,12 @@ Route::middleware('granular.permission:TareasDocumentales,eliminar')->group(func
     Route::delete('/tareas/{id}', [TareaController::class, 'destroy'])->name('tareas.destroy');
     Route::delete('/tareas/documento/{id}', [TareaController::class, 'eliminarDocumento'])->name('tareas.documento.eliminar');
 });
+// Tareas Documentales
+Route::resource('tareas', 'TareaController');
+Route::post('tareas/{id}/estado', 'TareaController@cambiarEstado')->name('tareas.estado');
+Route::post('tareas/{id}/delegar', 'TareaController@delegar')->name('tareas.delegar');
+Route::post('tareas/documento/upload', 'TareaController@upload')->name('tareas.documento.upload');
+Route::delete('tareas/documento/{id}', 'TareaController@eliminarDocumento')->name('tareas.documento.eliminar');
 
 Route::get('/notificaciones/leer-todas', function () {
     $user = Auth::user();
