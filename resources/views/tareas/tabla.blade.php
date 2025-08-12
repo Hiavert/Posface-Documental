@@ -93,7 +93,6 @@
                     data-id="{{ $tarea->id_tarea }}"
                     data-nombre="{{ $tarea->nombre }}"
                     data-responsable="{{ $tarea->fk_id_usuario_asignado }}"
-                    data-estado="{{ $tarea->estado }}"
                     data-fecha="{{ $tarea->fecha_creacion }}"
                     data-vencimiento="{{ $tarea->fecha_vencimiento }}"
                     data-descripcion="{{ $tarea->descripcion }}">
@@ -110,6 +109,28 @@
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </form>
+            @endif
+
+            <!-- Cambiar estado -->
+            @if($tarea->fk_id_usuario_asignado == auth()->id() || auth()->user()->tieneRol('SuperAdmin'))
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-action dropdown-toggle" data-toggle="dropdown" title="Cambiar estado">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item cambiar-estado" href="#" data-estado="Pendiente">Pendiente</a>
+                        <a class="dropdown-item cambiar-estado" href="#" data-estado="En Proceso">En Proceso</a>
+                        <a class="dropdown-item cambiar-estado" href="#" data-estado="Completada">Completada</a>
+                        <a class="dropdown-item cambiar-estado" href="#" data-estado="Rechazada">Rechazada</a>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Delegar tarea -->
+            @if($tarea->fk_id_usuario_asignado == auth()->id() || auth()->user()->tieneRol('SuperAdmin'))
+                <button class="btn btn-sm btn-action" title="Delegar tarea" data-toggle="modal" data-target="#modalDelegarTarea" data-id="{{ $tarea->id_tarea }}">
+                    <i class="fas fa-user-friends"></i>
+                </button>
             @endif
         </td>
     </tr>

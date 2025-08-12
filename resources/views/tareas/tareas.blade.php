@@ -10,16 +10,6 @@
             <p class="subtitle">Universidad Nacional Autónoma de Honduras - Posgrado en Informática Administrativa</p>
         </div>
         <div class="d-flex align-items-center">
-            <!-- Notificaciones -->
-            <div class="notifications-dropdown ml-3">
-                <button class="btn btn-notification" type="button" id="notifDropdown" data-toggle="dropdown">
-                    <i class="fas fa-bell"></i>
-                    <span class="badge badge-danger" id="notifCounter">{{ auth()->user()->notificacionesNoLeidas->count() }}</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notifDropdown">
-                    <!-- Contenido de notificaciones -->
-                </div>
-            </div>
             <div class="header-icon ml-3">
                 <i class="fas fa-file-alt"></i>
             </div>
@@ -195,11 +185,79 @@
                 <table class="table table-hover table-borderless">
                     <thead class="thead-elegant">
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
+                            <th>
+                                <a href="{{ route('tareas.index', [
+                                    'sort' => 'id_tarea',
+                                    'direction' => ($sort == 'id_tarea' && $direction == 'asc') ? 'desc' : 'asc',
+                                    'estado' => request('estado'),
+                                    'responsable' => request('responsable'),
+                                    'fecha_inicio' => request('fecha_inicio'),
+                                    'fecha_fin' => request('fecha_fin'),
+                                    'tipo_documento' => request('tipo_documento')
+                                ]) }}" class="sort-link">
+                                    ID
+                                    @if ($sort == 'id_tarea')
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort"></i>
+                                    @endif
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('tareas.index', [
+                                    'sort' => 'nombre',
+                                    'direction' => ($sort == 'nombre' && $direction == 'asc') ? 'desc' : 'asc',
+                                    'estado' => request('estado'),
+                                    'responsable' => request('responsable'),
+                                    'fecha_inicio' => request('fecha_inicio'),
+                                    'fecha_fin' => request('fecha_fin'),
+                                    'tipo_documento' => request('tipo_documento')
+                                ]) }}" class="sort-link">
+                                    Nombre
+                                    @if ($sort == 'nombre')
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort"></i>
+                                    @endif
+                                </a>
+                            </th>
                             <th>Responsable</th>
-                            <th>Estado</th>
-                            <th>Fecha Creación</th>
+                            <th>
+                                <a href="{{ route('tareas.index', [
+                                    'sort' => 'estado',
+                                    'direction' => ($sort == 'estado' && $direction == 'asc') ? 'desc' : 'asc',
+                                    'estado' => request('estado'),
+                                    'responsable' => request('responsable'),
+                                    'fecha_inicio' => request('fecha_inicio'),
+                                    'fecha_fin' => request('fecha_fin'),
+                                    'tipo_documento' => request('tipo_documento')
+                                ]) }}" class="sort-link">
+                                    Estado
+                                    @if ($sort == 'estado')
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort"></i>
+                                    @endif
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('tareas.index', [
+                                    'sort' => 'fecha_creacion',
+                                    'direction' => ($sort == 'fecha_creacion' && $direction == 'asc') ? 'desc' : 'asc',
+                                    'estado' => request('estado'),
+                                    'responsable' => request('responsable'),
+                                    'fecha_inicio' => request('fecha_inicio'),
+                                    'fecha_fin' => request('fecha_fin'),
+                                    'tipo_documento' => request('tipo_documento')
+                                ]) }}" class="sort-link">
+                                    Fecha Creación
+                                    @if ($sort == 'fecha_creacion')
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort"></i>
+                                    @endif
+                                </a>
+                            </th>
                             <th>Documentos</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -259,39 +317,29 @@
                     <input type="hidden" name="fk_id_usuario_creador" value="{{ auth()->id() }}">
                     
                     <div class="form-group">
-                        <label for="descripcionTarea">Descripción</label>
+                        <label for="descripcionTarea">Descripción (opcional)</label>
                         <textarea class="form-control" id="descripcionTarea" name="descripcion" rows="3" maxlength="500"></textarea>
                         <small class="form-text text-muted">Máximo 500 caracteres</small>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="estadoTarea">Estado *</label>
-                            <select class="form-control" id="estadoTarea" name="estado" required>
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="En Proceso">En Proceso</option>
-                                <option value="Completada">Completada</option>
-                                <option value="Rechazada">Rechazada</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-6">
                             <label for="fechaCreacionTarea">Fecha de Creación *</label>
                             <input type="date" class="form-control" id="fechaCreacionTarea" name="fecha_creacion" value="{{ date('Y-m-d') }}" required>
                         </div>
+                        <div class="form-group col-md-6">
+                            <label for="fechaVencimientoTarea">Fecha de Vencimiento (opcional)</label>
+                            <input type="date" class="form-control" id="fechaVencimientoTarea" name="fecha_vencimiento">
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="fechaVencimientoTarea">Fecha de Vencimiento</label>
-                        <input type="date" class="form-control" id="fechaVencimientoTarea" name="fecha_vencimiento">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="documentoTarea">Documento adjunto (PDF, JPG, PNG)</label>
+                        <label for="documentoTarea">Documento adjunto (opcional)</label>
                         <div class="custom-file">
                             <input type="file" class="custom-file-input" id="documentoTarea" name="documento" accept="application/pdf,image/*">
                             <label class="custom-file-label" for="documentoTarea" id="documentoLabel">Seleccionar archivo</label>
                         </div>
-                        <small class="form-text text-muted">Tamaño máximo: 2MB</small>
+                        <small class="form-text text-muted">Tamaño máximo: 10MB</small>
                     </div>
                     
                     <div class="form-group" id="tipoDocumentoContainer">
@@ -357,16 +405,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Historial -->
-                <div class="card mt-4">
-                    <div class="card-header p-2 bg-light">
-                        <strong><i class="fas fa-history mr-1"></i> Historial de acciones</strong>
-                    </div>
-                    <div class="card-body p-2 historial-scroll" style="max-height: 250px; overflow-y: auto;" id="historial-bitacora">
-                        <div class="text-center text-muted py-3">Cargando historial...</div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -399,6 +437,41 @@
                 </a>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para delegar tarea -->
+<div class="modal fade" id="modalDelegarTarea" tabindex="-1" role="dialog" aria-labelledby="modalDelegarTareaLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0b2e59; color: white;">
+                <h5 class="modal-title" id="modalDelegarTareaLabel">
+                    <i class="fas fa-user-friends mr-2"></i> Delegar Tarea
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" id="formDelegarTarea">
+                @csrf
+                <input type="hidden" name="tarea_id" id="tareaIdDelegar">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="nuevoResponsable">Seleccionar nuevo responsable</label>
+                        <select class="form-control" id="nuevoResponsable" name="nuevo_responsable" required>
+                            <option value="">Seleccionar responsable</option>
+                            @foreach($responsables as $responsable)
+                                <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Delegar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -811,24 +884,6 @@
             }
             
             $('#detalle-documentos').html(documentosHtml);
-            
-            // Cargar historial por AJAX
-            var historialDiv = $('#historial-bitacora');
-            historialDiv.html('<div class="text-center text-muted py-3">Cargando historial...</div>');
-            
-            $.get('/tareas/' + tareaId + '/historial', function(data) {
-                if (data.historial.length === 0) {
-                    historialDiv.html('<div class="text-center text-muted py-3">Sin acciones registradas.</div>');
-                } else {
-                    var html = '';
-                    data.historial.forEach(function(item) {
-                        html += `<div class="historial-item">${item}</div>`;
-                    });
-                    historialDiv.html(html);
-                }
-            }).fail(function() {
-                historialDiv.html('<div class="text-center text-danger py-3">Error al cargar el historial.</div>');
-            });
         });
 
         // Modal Nueva/Editar Tarea
@@ -858,7 +913,6 @@
                 $('#tareaId').val(button.data('id'));
                 $('#nombreTarea').val(button.data('nombre'));
                 $('#responsableTarea').val(button.data('responsable'));
-                $('#estadoTarea').val(button.data('estado'));
                 $('#fechaCreacionTarea').val(button.data('fecha'));
                 $('#fechaVencimientoTarea').val(button.data('vencimiento'));
                 $('#descripcionTarea').val(button.data('descripcion'));
@@ -927,6 +981,39 @@
                     alert('Error al filtrar las tareas.');
                 }
             });
+        });
+
+        // Cambiar estado de tarea
+        $(document).on('click', '.cambiar-estado', function(e) {
+            e.preventDefault();
+            var estado = $(this).data('estado');
+            var tareaId = $(this).closest('tr').data('id');
+            var url = "{{ route('tareas.estado', ['id' => ':id']) }}";
+            url = url.replace(':id', tareaId);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    estado: estado
+                },
+                success: function(response) {
+                    location.reload();
+                },
+                error: function() {
+                    alert('Error al cambiar el estado');
+                }
+            });
+        });
+
+        // Modal Delegar Tarea
+        $('#modalDelegarTarea').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var tareaId = button.data('id');
+            var form = $(this).find('form');
+            form.attr('action', "{{ route('tareas.delegar', ['id' => ':id']) }}".replace(':id', tareaId));
+            $('#tareaIdDelegar').val(tareaId);
         });
     });
 </script>
