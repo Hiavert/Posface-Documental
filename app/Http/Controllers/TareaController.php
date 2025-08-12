@@ -453,4 +453,28 @@ class TareaController extends Controller
             ], 500);
         }
     }
+
+    // Método nuevo para historial de bitácora con creación incluida
+    public function historialBitacora($id)
+    {
+        // Aquí debes ajustar la consulta según tu modelo Bitacora
+        $historialTarea = \App\Models\Bitacora::where('modulo', 'Tarea')
+            ->where('registro_id', $id)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $eventos = [];
+
+        // Evento de creación
+        if ($historialTarea->where('accion', 'crear')->count() > 0) {
+            $creacion = $historialTarea->where('accion', 'crear')->first();
+            $usuario = $creacion->usuario_nombre ?? 'Sistema';
+            $fecha = $creacion->created_at ? $creacion->created_at->format('d/m/Y H:i') : '';
+            $eventos[] = "Tarea creada por $usuario el $fecha.";
+        }
+
+        // Aquí puedes agregar más eventos y lógica según el historial
+
+        return response()->json(['historial' => $eventos]);
+    }
 }
