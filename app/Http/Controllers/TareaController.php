@@ -59,7 +59,7 @@ class TareaController extends Controller
             $query->where('fk_id_usuario_asignado', auth()->id());
         }
 
-        $tareas = $query->orderBy('fecha_vencimiento', 'asc')->get();
+        $tareas = $query->orderBy('fecha_vencimiento', 'asc')->paginate(10);
         $responsables = User::all();
         $estadisticas = [
             'pendientes' => Tarea::where('estado', 'Pendiente')->count(),
