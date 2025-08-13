@@ -3,23 +3,26 @@
 @section('title', 'Dashboard de Rendimiento')
 
 @section('content_header')
-<div class="d-flex justify-content-between align-items-center">
-    <h1 class="mb-0"><i class="fas fa-chart-line mr-2 text-primary"></i> Dashboard de Rendimiento</h1>
-    <div class="d-flex">
-        <div class="dropdown mr-3">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="periodoDropdown" data-toggle="dropdown">
-                <i class="far fa-calendar-alt mr-1"></i> Últimos 30 días
-            </button>
-            <div class="dropdown-menu" aria-labelledby="periodoDropdown">
-                <a class="dropdown-item" href="#" data-periodo="7">Últimos 7 días</a>
-                <a class="dropdown-item active" href="#" data-periodo="30">Últimos 30 días</a>
-                <a class="dropdown-item" href="#" data-periodo="90">Últimos 90 días</a>
-                <a class="dropdown-item" href="#" data-periodo="365">Este año</a>
+
+<div class="elegant-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-0"><i class="fas fa-chart-line mr-2 text-primary"></i> Dashboard de Rendimiento</h1>
+        <div class="d-flex">
+            <div class="dropdown mr-3">
+               <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="periodoDropdown" data-toggle="dropdown">
+                   <i class="far fa-calendar-alt mr-1"></i> Últimos 30 días
+                </button>
+                <div class="dropdown-menu" aria-labelledby="periodoDropdown">
+                    <a class="dropdown-item" href="#" data-periodo="7">Últimos 7 días</a>
+                    <a class="dropdown-item active" href="#" data-periodo="30">Últimos 30 días</a>
+                    <a class="dropdown-item" href="#" data-periodo="90">Últimos 90 días</a>
+                    <a class="dropdown-item" href="#" data-periodo="365">Este año</a>
+                </div>
             </div>
+            <button class="btn btn-primary" id="btnActualizar">
+                <i class="fas fa-sync-alt mr-1"></i> Actualizar
+            </button>
         </div>
-        <button class="btn btn-primary" id="btnActualizar">
-            <i class="fas fa-sync-alt mr-1"></i> Actualizar
-        </button>
     </div>
 </div>
 @stop
@@ -303,6 +306,7 @@
 
 @section('css')
 <style>
+
     .elegant-header {
         background: linear-gradient(135deg, #0b2e59, #1a5a8d);
         padding: 20px;
@@ -328,6 +332,7 @@
         font-size: 2.5rem;
         opacity: 0.9;
     }
+    
     .card-performance {
         border-radius: 10px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
