@@ -7,7 +7,7 @@
     <div class="d-flex align-items-center justify-content-between">
         <div>
             <h1 class="mb-0"><i class="fas fa-file-contract mr-2 text-primary"></i> Gestión de Acuses de Recibo</h1>
-            <p class="subtitle">Universidad Nacional Autónoma de Honduras</p>
+            <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
         </div>
         <div class="d-flex align-items-center">
             <!-- Notificaciones movidas aquí -->
