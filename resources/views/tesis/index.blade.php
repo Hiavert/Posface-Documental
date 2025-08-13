@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="elegant-header">
         <h1><i class="fas fa-book mr-2"></i> Gestión Documental de Tesis</h1>
-        <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p</p>
+        <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
     </div>
 @stop
 
