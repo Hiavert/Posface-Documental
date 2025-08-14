@@ -18,38 +18,41 @@ class BackupController extends Controller
     }
 
     public function createBackup()
-    {
-        try {
-            $filename = 'backup-' . date('Y-m-d-His') . '.sql';
-            $filePath = storage_path('app/backups/' . $filename);
-            
-            // Crear directorio si no existe
-            if (!Storage::exists('backups')) {
-                Storage::makeDirectory('backups');
-            }
-            
-            // Comando para generar el backup
-            $command = sprintf(
-                'mysqldump --user=%s --password=%s --host=%s %s > %s',
-                config('database.connections.mysql.username'),
-                config('database.connections.mysql.password'),
-                config('database.connections.mysql.host'),
-                config('database.connections.mysql.database'),
-                $filePath
-            );
+{
+    try {
+        $filename = 'backup-' . date('Y-m-d-His') . '.sql';
+        $filePath = storage_path('app/backups/' . $filename);
 
-            $process = Process::fromShellCommandline($command);
-            $process->run();
-
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
-            }
-
-            return redirect()->route('backup.index')->with('success', 'Backup creado correctamente: ' . $filename);
-        } catch (\Exception $e) {
-            return redirect()->route('backup.index')->with('error', 'Error al crear backup: ' . $e->getMessage());
+        // Crear directorio si no existe
+        if (!Storage::exists('backups')) {
+            Storage::makeDirectory('backups');
         }
+
+        // Comando para generar el backup con comillas para contraseñas especiales
+        $command = sprintf(
+            'mysqldump --user="%s" --password="%s" --host="%s" "%s" > "%s"',
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.database'),
+            $filePath
+        );
+
+        $process = Process::fromShellCommandline($command);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new \Exception($process->getErrorOutput() ?: $process->getOutput());
+        }
+
+        return redirect()->route('backup.index')
+                         ->with('success', 'Backup creado correctamente: ' . $filename);
+    } catch (\Exception $e) {
+        return redirect()->route('backup.index')
+                         ->with('error', 'Error al crear backup: ' . $e->getMessage());
     }
+}
+
 
     public function downloadBackup($filename)
     {
