@@ -139,8 +139,8 @@
                     <input type="hidden" id="id-tesis">
                     <div class="form-group">
                         <label for="titulo" class="form-label">Título *</label>
-                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="255">
-                        <small class="form-text text-muted">Máximo 255 caracteres</small>
+                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="35">
+                        <small class="form-text text-muted">Máximo 35 caracteres</small>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -1126,6 +1126,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+// Validación en tiempo real para título de tesis
+const titulo = document.getElementById('titulo');
+if (titulo) {
+    titulo.addEventListener('input', function () {
+        const error = document.getElementById('titulo-error');
+        const regexTitulo = /^[a-zA-ZÀ-ÿ0-9\s.,;:!?()'"-]+$/; // letras, números y signos básicos
+        if (titulo.value.length > 50) {
+            titulo.value = titulo.value.slice(0, 50);
+        }
+        if (!regexTitulo.test(titulo.value) && titulo.value.trim() !== "") {
+            error.textContent = 'El título contiene caracteres no permitidos.';
+        } else {
+            error.textContent = '';
+        }
+    });
+}
+
 </script>
 
 @stop

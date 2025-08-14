@@ -85,9 +85,9 @@
                         </div>
                         <div class="ml-3">
                             <h5 class="card-title">Completadas</h5>
-                            <h2 class="card-value">{{ $极
                             <h2 class="card-value">{{ $estadisticas['completadas'] ?? 0 }}</h2>
                         </div>
+
                     </div>
                 </div>
             </div>
