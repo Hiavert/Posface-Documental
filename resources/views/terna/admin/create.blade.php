@@ -30,10 +30,9 @@
                         <div class="form-group">
                             <label>Descripción</label>
                             <input type="text" class="form-control" name="descripcion" 
-                            pattern="[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,;:¿?¡!()\-]{1,30}"
-                            title="Máximo 30 caracteres. Solo letras, números y signos de puntuación" 
-                            maxlength="30"
-                            required>
+                                maxlength="100"
+                                oninput="sanitizeTitulo(this)"
+                                required>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -52,10 +51,9 @@
                         <div class="form-group">
                             <label>Responsable</label>
                             <input type="text" class="form-control" name="responsable"
-                            pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]{1,30}"
-                            title="Máximo 30 caracteres. Solo letras y espacios" 
-                            maxlength="30"
-                            required>
+                                maxlength="50"
+                                oninput="sanitizeAutor(this)"
+                                required>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -92,8 +90,8 @@
                             <div class="form-group">
                                 <label>Nombre Completo</label>
                                 <input type="text" class="form-control" name="estudiante_nombre" 
-                                    pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+"
-                                    title="Solo letras y espacios"
+                                    maxlength="50"
+                                    oninput="sanitizeAutor(this)"
                                     required>
                             </div>
                         </div>
@@ -101,8 +99,10 @@
                             <div class="form-group">
                                 <label>Número de Cuenta</label>
                                 <input type="text" class="form-control" name="estudiante_cuenta" 
-                                    pattern="[0-9]+"
-                                    title="Solo números"
+                                    pattern="[0-9]{1,20}"
+                                    title="Solo números (máximo 20 dígitos)"
+                                    maxlength="20"
+                                    oninput="sanitizeNumeroCuenta(this)"
                                     required>
                             </div>
                         </div>
@@ -248,11 +248,17 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Nombre Completo</label>
-                    <input type="text" class="form-control" id="integrante_nombre" pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios">
+                    <input type="text" class="form-control" id="integrante_nombre" 
+                        maxlength="50"
+                        oninput="sanitizeAutor(this)">
                 </div>
                 <div class="form-group">
                     <label>Número de Cuenta</label>
-                    <input type="text" class="form-control" id="integrante_cuenta" pattern="[0-9]+" title="Solo números">
+                    <input type="text" class="form-control" id="integrante_cuenta" 
+                        pattern="[0-9]{1,20}"
+                        title="Solo números (máximo 20 dígitos)"
+                        maxlength="20"
+                        oninput="sanitizeNumeroCuenta(this)">
                 </div>
                 <div class="form-group">
                     <label>Identidad (PDF opcional)</label>
@@ -308,6 +314,48 @@
 
 @section('js')
 <script>
+    // Función para sanitizar campos de título y descripción
+    function sanitizeTitulo(input) {
+        let value = input.value;
+        
+        // 1. Eliminar caracteres no permitidos (solo guiones, puntos y comas)
+        value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ\-.,]/g, '');
+        
+        // 2. Eliminar repeticiones de letras más de 3 veces consecutivas
+        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // 3. Limitar a 100 caracteres
+        if (value.length > 100) {
+            value = value.substring(0, 100);
+        }
+        
+        input.value = value;
+    }
+
+    // Función para sanitizar campos de autor
+    function sanitizeAutor(input) {
+        let value = input.value;
+        
+        // 1. Eliminar caracteres no permitidos (solo guiones, puntos y comas)
+        value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ\-.,]/g, '');
+        
+        // 2. Eliminar repeticiones de letras más de 3 veces consecutivas
+        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // 3. Limitar a 50 caracteres
+        if (value.length > 50) {
+            value = value.substring(0, 50);
+        }
+        
+        input.value = value;
+    }
+
+    // Función para sanitizar número de cuenta
+    function sanitizeNumeroCuenta(input) {
+        // Solo permitir números y limitar a 20 dígitos
+        input.value = input.value.replace(/\D/g, '').substring(0, 20);
+    }
+
     $(document).ready(function() {
         $('.custom-file-input').on('change', function() {
             let fileName = $(this).val().split('\\').pop();
