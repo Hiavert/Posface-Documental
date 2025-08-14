@@ -408,6 +408,12 @@ return [
                     'icon' => 'fas fa-clipboard-list',
                     'can' => 'ver-Bitacora',
                 ],
+                [
+                    'text' => 'Objetos',
+                    'url' => '/objetos',
+                    'icon' => 'fas fa-clipboard-list',
+                    'can' => 'ver-objeto',
+                ],
             ],
         ],
     ],

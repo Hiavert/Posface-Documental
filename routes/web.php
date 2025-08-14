@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TesisController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\AcuseController;
+use App\Http\Controllers\ObjetoController;
 use App\Http\Controllers\RendimientoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TernaAsistenteController;
