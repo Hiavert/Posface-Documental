@@ -134,9 +134,12 @@
                     {{ $retrasados }} retrasados
                 </span>
                 @endif
+                @if(auth()->user()->puedeAgregar('Terna'))
+
                 <a href="{{ route('terna.admin.create') }}" class="btn btn-success btn-elegant">
                     <i class="fas fa-plus mr-1"></i> Nuevo Proceso
                 </a>
+                @endif
             </div>
         </div>
         <div class="card-body">
@@ -192,15 +195,19 @@
                                         <a href="{{ route('terna.admin.show', $proceso->id) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Ver detalles">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        @if(auth()->user()->puedeEditar('Terna'))
                                         <a href="{{ route('terna.admin.edit', $proceso->id) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        @endif
                                         <form action="{{ route('terna.admin.destroy', $proceso->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
+                                            @if(auth()->user()->puedeEliminar('Terna'))
                                             <button type="submit" class="btn btn-sm btn-action" data-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este proceso?')">
                                                 <i class="fas fa-trash-alt text-danger"></i>
                                             </button>
+                                            @endif
                                         </form>
                                     </div>
                                 </td>

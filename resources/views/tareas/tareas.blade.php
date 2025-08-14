@@ -290,9 +290,12 @@
                 <h5 class="modal-title" id="modalNuevaTareaLabel">
                     <i class="fas fa-plus-circle mr-2"></i> <span id="modalTareaTitle">Nueva Tarea Documental</span>
                 </h5>
+                @if(auth()->user()->puedeEditar('TareasDocumentales'))
+
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
+                @endif
             </div>
             <form method="POST" id="formTarea" action="{{ route('tareas.store') }}" enctype="multipart/form-data">
                 @csrf
@@ -428,9 +431,11 @@
                 <form id="formEliminarDocumento" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
+                    @if(auth()->user()->puedeEliminar('TareasDocumentales'))
                     <button type="submit" class="btn btn-danger" id="btnEliminarDocumento" onclick="return confirm('¿Seguro que desea eliminar este documento?')">
                         <i class="fas fa-trash"></i> Eliminar
                     </button>
+                    @endif
                 </form>
                 <a href="#" id="descargarDocumento" class="btn btn-primary" download target="_blank">
                     <i class="fas fa-download"></i> Descargar

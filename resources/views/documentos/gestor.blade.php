@@ -10,9 +10,12 @@
             <p class="subtitle">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
         </div>
         <div>
+            @if(auth()->user()->puedeAgregar('Documentos'))
+
             <a href="{{ route('documentos.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus mr-1"></i> Nuevo Documento
             </a>
+            @endif
         </div>
     </div>
 </div>
@@ -145,15 +148,21 @@
                                     <a href="{{ route('documentos.descargar', $documento) }}" class="btn btn-sm btn-action" title="Descargar">
                                         <i class="fas fa-download text-success"></i>
                                     </a>
+                                    @if(auth()->user()->puedeEditar('Documentos'))
+
                                     <a href="{{ route('documentos.edit', $documento) }}" class="btn btn-sm btn-action" title="Editar">
                                         <i class="fas fa-edit text-warning"></i>
                                     </a>
+                                    @endif
                                     <form action="{{ route('documentos.destroy', $documento) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
+                                         @if(auth()->user()->puedeEliminar('Documentos'))
+
                                         <button type="submit" class="btn btn-sm btn-action" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este documento?')">
                                             <i class="fas fa-trash-alt text-danger"></i>
                                         </button>
+                                        @endif
                                     </form>
                                 </div>
                             </td>
