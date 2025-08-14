@@ -15,6 +15,7 @@
     <!-- Filtros -->
     <div class="card card-elegant mb-4">
         <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-filter mr极
             <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i> Filtros</h5>
         </div>
         <div class="card-body">
@@ -39,7 +40,7 @@
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Autor</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-responsable" placeholder="Nombre del autor" maxlength="255">
+                    <input type="text" class="form-control form-control-elegant" id="filtro-responsable" placeholder="Nombre del autor" maxlength="30">
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Número de Cuenta</label>
@@ -55,6 +56,7 @@
                 </button>
                 @if(auth()->user()->puedeAgregar('GestionTesis'))
                 <button class="btn btn-success btn-elegant" id="btn-subir-tesis">
+                    <i class="fas fa-upload mr-1"></极
                     <i class="fas fa-upload mr-1"></i> Subir Tesis
                 </button>
                 @endif
@@ -72,7 +74,7 @@
                 <div class="col-md-6">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control form-control-elegant" id="busqueda" placeholder="Buscar por título, autor o cuenta..." maxlength="255">
+                        <input type="text" class="form-control form-control-elegant" id="busqueda" placeholder="Buscar por título, autor o cuenta..." maxlength="50">
                     </div>
                 </div>
                 <div class="col-md-6 text-right">
@@ -127,6 +129,7 @@
 <div class="modal fade" id="modal-tesis" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
+            <div class极
             <div class="modal-header bg-elegant">
                 <h5 class="modal-title text-white" id="modal-titulo">Subir Nueva Tesis</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
@@ -139,8 +142,8 @@
                     <input type="hidden" id="id-tesis">
                     <div class="form-group">
                         <label for="titulo" class="form-label">Título *</label>
-                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="255">
-                        <small class="form-text text-muted">Máximo 255 caracteres</small>
+                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="50">
+                        <small class="form-text text-muted">Máximo 50 caracteres</small>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -169,8 +172,8 @@
                             <div class="form-group">
                                 <label for="autor" class="form-label">Autor *</label>
                                 <input type="text" class="form-control form-control-elegant" id="autor" name="autor" 
-                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required maxlength="255">
-                                <small class="form-text text-muted">Solo letras y espacios, máximo 255 caracteres</small>
+                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required maxlength="30">
+                                <small class="form-text text-muted">Solo letras y espacios, máximo 30 caracteres</small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -232,6 +235,7 @@
 </div>
 
 <!-- Modal para Vista Previa del PDF -->
+<div class="modal fade" id="modal-preview" tabindex="-1" role="dialog" aria-hidden极
 <div class="modal fade" id="modal-preview" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -379,6 +383,7 @@
     /* Formularios */
     .form-control-elegant {
         border: 1px solid #eaeef5;
+        border-radius: 8极
         border-radius: 8px;
         padding: 10px 15px;
         transition: all 0.3s ease;
@@ -477,6 +482,19 @@
 
     .embed-responsive {
         height: 100%;
+    }
+
+    /* Nuevos estilos para truncar texto */
+    .truncate {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    /* Tooltip para mostrar texto completo */
+    [data-toggle="tooltip"] {
+        cursor: pointer;
     }
 
     /* Responsive */
@@ -597,9 +615,19 @@ $(document).ready(function() {
             const tr = $('<tr class="fade-in">');
             tr.append(`<td><input type="checkbox" class="select-item" value="${tesis.id_tesis}"></td>`);
             tr.append(`<td>${tesis.id_tesis}</td>`);
-            tr.append(`<td title="${tesis.titulo}">${tesis.titulo}</td>`);
+            
+            // Título truncado con tooltip
+            tr.append(`<td class="truncate" data-toggle="tooltip" title="${tesis.titulo}">
+                ${tesis.titulo.substring(0, 50)}${tesis.titulo.length > 50 ? '...' : ''}
+            </td>`);
+            
             tr.append(`<td>${tesis.tipo ? tesis.tipo.nombre : 'N/A'}</td>`);
-            tr.append(`<td>${tesis.autor}</td>`);
+            
+            // Autor truncado con tooltip
+            tr.append(`<td class="truncate" data-toggle="tooltip" title="${tesis.autor}">
+                ${tesis.autor.substring(0, 30)}${tesis.autor.length > 30 ? '...' : ''}
+            </td>`);
+            
             tr.append(`<td>${tesis.numero_cuenta}</td>`);
             tr.append(`<td>${tesis.region ? tesis.region.nombre : 'N/A'}</td>`);
             tr.append(`<td>${fechaDefensa}</td>`);
@@ -648,6 +676,9 @@ $(document).ready(function() {
             tbody.append(tr);
         });
 
+        // Inicializar tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+        
         renderPaginacion();
         updateSortIcons();
     }
