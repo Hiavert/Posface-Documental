@@ -414,6 +414,12 @@ return [
                     'icon' => 'fas fa-clipboard-list',
                     'can' => 'ver-objeto',
                 ],
+                [
+                    'text' => 'backup',
+                    'url' => '/backup',
+                    'icon' => 'fas fa-clipboard-list',
+                    'can' => 'ver-backup',
+                ],
             ],
         ],
     ],

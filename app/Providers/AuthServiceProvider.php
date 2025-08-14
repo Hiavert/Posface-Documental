@@ -36,6 +36,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('ver-objeto', function ($user) {
             return $user->tienePermiso('objeto');
         });
+        Gate::define('ver-backup', function ($user) {
+            return $user->tienePermiso('backup');
+        });
         Gate::define('ver-TareasDocumentales', function ($user) {
             \Log::info('Gate ver-TareasDocumentales', [
                 'user_id' => $user->id_usuario,

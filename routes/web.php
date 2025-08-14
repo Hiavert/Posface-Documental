@@ -13,6 +13,7 @@ use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\DocumentoEnvioController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\BackupController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
@@ -135,6 +136,13 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [TesisController::class, 'destroy'])->name('tesis.destroy');
             Route::post('/limpiar-exportacion', [TesisController::class, 'limpiarExportacion'])->name('tesis.limpiar-exportacion');
         });
+    });
+    // Backup routes
+    Route::prefix('backup')->group(function () {
+        Route::get('/', [BackupController::class, 'index'])->name('backup.index');
+        Route::get('/create', [BackupController::class, 'createBackup'])->name('backup.create');
+        Route::get('/download/{filename}', [BackupController::class, 'downloadBackup'])->name('backup.download');
+        Route::get('/delete/{filename}', [BackupController::class, 'deleteBackup'])->name('backup.delete');
     });
 
     // Rutas para administrador de terna
