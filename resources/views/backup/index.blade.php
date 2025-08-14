@@ -255,7 +255,7 @@ $(document).ready(function() {
         $('#modal-carga').modal('show');
         
         $.ajax({
-            url: "{{ route('backup.delete', '') }}/" + filename,
+            url: "{{ url('backup/delete') }}/" + filename,
             type: 'GET',
             success: function(response) {
                 if (response.success) {
