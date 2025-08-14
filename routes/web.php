@@ -57,7 +57,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])
         ->name('profile.show')
         ->middleware('can:ver-Perfil');
-        Route::resource('objetos', 'ObjetoController')->except(['show']);
 
     Route::get('/profile/editar', [ProfileController::class, 'edit'])
         ->name('profile.edit')
@@ -75,7 +74,7 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy')
         ->middleware('can:eliminar-Perfil');
 
-
+    Route::resource('objetos', 'ObjetoController')->except(['show']);
     
     // Rutas de tareas con permisos granulares - VERSIÓN CORREGIDA
     Route::prefix('tareas')->group(function () {
