@@ -352,7 +352,7 @@
                         <label for="fk_id_tipo">Tipo de Documento *</label>
                         <select name="fk_id_tipo" id="fk_id_tipo" class="form-control" required>
                             <option value="">Seleccionar tipo...</option>
-                            @foreach$tiposDocumento as $tipo)
+                            @foreach($tiposDocumento as $tipo)
                                 <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
                             @endforeach
                         </select>
@@ -469,7 +469,7 @@
                         <label for="nuevoResponsable">Seleccionar nuevo responsable</label>
                         <select class="form-control" id="nuevoResponsable" name="nuevo_responsable" required>
                             <option value="">Seleccionar responsable</option>
-                            @foreach$responsables as $responsable)
+                            @foreach($responsables as $responsable)
                                 <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
                             @endforeach
                         </select>
