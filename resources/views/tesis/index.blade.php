@@ -972,4 +972,160 @@ $(document).ready(function() {
     }
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const maxLen = 50;
+
+    // helper to set maxlength and trim value
+    function enforceMaxLength(el) {
+        if (!el) return;
+        el.setAttribute('maxlength', maxLen);
+        if (el.value && el.value.length > maxLen) {
+            el.value = el.value.slice(0, maxLen);
+        }
+    }
+
+    // text-only (letters, accents, spaces)
+    function lettersOnly(e) {
+        const el = e.target;
+        el.value = el.value.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ\s]/g, '').slice(0, maxLen);
+        if (el.value.trim().length < 2) {
+            el.setCustomValidity('Por favor ingresa al menos 2 letras.');
+        } else {
+            el.setCustomValidity('');
+        }
+    }
+
+    // alphanumeric username (no spaces)
+    function usernameOnly(e) {
+        const el = e.target;
+        el.value = el.value.replace(/[^A-Za-z0-9_.-]/g, '').slice(0, maxLen);
+        if (el.value.trim().length < 3) {
+            el.setCustomValidity('Usuario muy corto (mínimo 3 caracteres).');
+        } else {
+            el.setCustomValidity('');
+        }
+    }
+
+    // digits only
+    function digitsOnly(e) {
+        const el = e.target;
+        el.value = el.value.replace(/[^0-9]/g, '').slice(0, maxLen);
+        if (el.value.trim().length === 0) {
+            el.setCustomValidity('Este campo no puede quedar vacío.');
+        } else {
+            el.setCustomValidity('');
+        }
+    }
+
+    // email simple validation
+    function emailCheck(e) {
+        const el = e.target;
+        el.value = el.value.slice(0, maxLen);
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (el.value && !re.test(el.value)) {
+            el.setCustomValidity('Correo electrónico inválido.');
+        } else {
+            el.setCustomValidity('');
+        }
+    }
+
+    // password and confirm match
+    function passwordCheck() {
+        const pass = document.getElementById('clave');
+        const conf = document.getElementById('confirma_clave');
+        if (!pass || !conf) return;
+        enforceMaxLength(pass);
+        enforceMaxLength(conf);
+        if (pass.value && pass.value.length < 8) {
+            pass.setCustomValidity('La clave debe tener mínimo 8 caracteres.');
+        } else {
+            pass.setCustomValidity('');
+        }
+        if (conf.value && conf.value !== pass.value) {
+            conf.setCustomValidity('Las claves no coinciden.');
+        } else {
+            conf.setCustomValidity('');
+        }
+    }
+
+    // Apply to common inputs if they exist in the page
+    const nombres = document.getElementById('nombres');
+    const apellidos = document.getElementById('apellidos');
+    const usuario = document.getElementById('usuario');
+    const ci = document.getElementById('ci');
+    const clave = document.getElementById('clave');
+    const confirma = document.getElementById('confirma_clave');
+    const telefono = document.getElementById('telefono');
+    const correo = document.getElementById('correo');
+    const numero_cuenta = document.getElementById('numero_cuenta');
+    const documento = document.getElementById('documento'); // file input
+
+    [nombres, apellidos].forEach(el => {
+        if (el) {
+            enforceMaxLength(el);
+            el.addEventListener('input', lettersOnly);
+        }
+    });
+
+    if (usuario) {
+        enforceMaxLength(usuario);
+        usuario.addEventListener('input', usernameOnly);
+    }
+
+    [ci, telefono, numero_cuenta].forEach(el => {
+        if (el) {
+            enforceMaxLength(el);
+            el.addEventListener('input', digitsOnly);
+        }
+    });
+
+    if (correo) {
+        enforceMaxLength(correo);
+        correo.addEventListener('input', emailCheck);
+    }
+
+    if (clave || confirma) {
+        if (clave) clave.addEventListener('input', passwordCheck);
+        if (confirma) confirma.addEventListener('input', passwordCheck);
+    }
+
+    // file input: change label text (works with Bootstrap custom-file or input file next label)
+    if (documento) {
+        documento.addEventListener('change', function () {
+            const fileName = this.value.split('\\').pop().split('/').pop();
+            // try Bootstrap custom file label
+            const nextLabel = this.nextElementSibling;
+            if (nextLabel && nextLabel.classList.contains('custom-file-label')) {
+                nextLabel.innerText = fileName;
+            } else {
+                // else set title attribute
+                this.setAttribute('title', fileName);
+            }
+        });
+    }
+
+    // Add CSS to prevent long strings from breaking layout
+    const style = document.createElement('style');
+    style.innerHTML = `
+    /* Prevent long strings from breaking layout; use ellipsis where appropriate */
+    .prevent-break { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; word-break: normal; }
+    td, th { word-break: break-word; }
+    `;
+    document.head.appendChild(style);
+
+    // Optional: sanitize existing table/text content to truncate very long words
+    document.querySelectorAll('td, th, p, span, label').forEach(el => {
+        if (el && el.textContent && el.textContent.length > maxLen * 3) {
+            // truncate visual display but keep full text in title attribute
+            const full = el.textContent.trim();
+            el.setAttribute('title', full);
+            el.textContent = full.slice(0, maxLen) + '…';
+            el.classList.add('prevent-break');
+        }
+    });
+});
+</script>
+
 @stop
