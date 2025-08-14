@@ -17,18 +17,19 @@ class BackupController extends Controller
         return view('backup.index', compact('backupFiles'));
     }
 
-    public function createBackup()
+   public function createBackup()
 {
     try {
         $filename = 'backup-' . date('Y-m-d-His') . '.sql';
-        $filePath = storage_path('app/backups/' . $filename);
+        $backupDir = storage_path('app/backups');
 
-        // Crear directorio si no existe
-        if (!Storage::exists('backups')) {
-            Storage::makeDirectory('backups');
+        // Crear directorio si no existe y dar permisos
+        if (!is_dir($backupDir)) {
+            mkdir($backupDir, 0775, true);
         }
 
         // Comando para generar el backup con comillas para contraseñas especiales
+        $filePath = $backupDir . DIRECTORY_SEPARATOR . $filename;
         $command = sprintf(
             'mysqldump --user="%s" --password="%s" --host="%s" "%s" > "%s"',
             config('database.connections.mysql.username'),
@@ -47,6 +48,7 @@ class BackupController extends Controller
 
         return redirect()->route('backup.index')
                          ->with('success', 'Backup creado correctamente: ' . $filename);
+
     } catch (\Exception $e) {
         return redirect()->route('backup.index')
                          ->with('error', 'Error al crear backup: ' . $e->getMessage());
