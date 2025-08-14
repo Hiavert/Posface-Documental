@@ -144,6 +144,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/download/{filename}', [BackupController::class, 'downloadBackup'])->name('backup.download');
         Route::get('/delete/{filename}', [BackupController::class, 'deleteBackup'])->name('backup.delete');
     });
+    
 
     // Rutas para administrador de terna
     Route::prefix('terna/admin')->group(function () {
