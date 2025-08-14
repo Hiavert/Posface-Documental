@@ -135,7 +135,112 @@
 @stop
 
 @section('css')
-<!-- Incluir el mismo CSS que en index -->
+<style>
+/* Estilos generales */
+    body {
+        background-color: #f8f9fc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* Encabezado */
+    .elegant-header {
+        background: linear-gradient(135deg, #0b2e59, #1a5a8d);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        color: white;
+        margin-bottom: 25px;
+    }
+    
+    .elegant-header h1 {
+        font-weight: 600;
+        font-size: 1.8rem;
+        margin-bottom: 0.2rem;
+        letter-spacing: -0.5px;
+    }
+    
+    .elegant-header .subtitle {
+        font-size: 1rem;
+        opacity: 0.85;
+    }
+    
+    .elegant-header .header-icon {
+        font-size: 2.5rem;
+        opacity: 0.9;
+    }
+    
+    /* Tarjetas */
+    .card-elegant {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card-elegant:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .card-header {
+        background-color: white;
+        border-bottom: 1px solid #eaeef5;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 18px 25px;
+    }
+    
+    .card-title {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+    }
+    
+    .card-body {
+        padding: 25px;
+    }
+    
+    /* Botones */
+    .btn-elegant {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary.btn-elegant {
+        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        border: none;
+    }
+    
+    .btn-success.btn-elegant {
+        background: linear-gradient(135deg, #00b09b, #96c93d);
+        border: none;
+    }
+    
+    .btn-outline-secondary.btn-elegant {
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+    }
+    
+    .btn-notification {
+        background: #f8f9fc;
+        border: 1px solid #eaeef5;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-notification:hover {
+        background: #eef2f7;
+        transform: rotate(10deg);
+    }
+</style>
 @stop
 
 @section('js')
