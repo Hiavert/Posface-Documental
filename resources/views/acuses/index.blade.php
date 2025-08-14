@@ -286,166 +286,170 @@
 <!-- Modal para nuevo acuse -->
 <div class="modal fade" id="modalEnviarAcuse" tabindex="-1" role="dialog" aria-labelledby="modalEnviarAcuseLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header" style="background: #0b2e59; color: white;">
-                    <h5 class="modal-title" id="modalEnviarAcuseLabel">
-                        <i class="fas fa-paper-plane mr-2"></i> Nuevo Acuse de Recibo
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('acuses.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Destinatario</label>
-                            <select class="form-control" name="destinatario" required>
-                                <option value="">Seleccionar destinatario</option>
-                                @foreach($usuarios as $usuario)
-                                    @if($usuario->id_usuario != auth()->user()->id_usuario)
-                                        <option value="{{ $usuario->id_usuario }}">
-                                            {{ $usuario->nombres }} {{ $usuario->apellidos }}
-                                        </option>
-                                    @endif
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Título</label>
-                            <input type="text" class="form-control" name="titulo" required 
-                                   placeholder="Título del acuse" maxlength="30"
-                                   pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                                   title="Solo letras, números y caracteres como . , - (máximo 30 caracteres)">
-                        </div>
-                        <div class="form-group">
-                            <label>Descripción</label>
-                            <textarea class="form-control" name="descripcion" rows="3" 
-                                      placeholder="Descripción del acuse" maxlength="255"></textarea>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-                            <h5 class="mb-0">
-                                <i class="fas fa-file-alt mr-2"></i> Elementos
-                            </h5>
-                            <div>
-                                <button type="button" class="btn btn-sm btn-success" id="addElement">
-                                    <i class="fas fa-plus mr-1"></i> Agregar
-                                </button>
-                                <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalNuevoTipo">
-                                    <i class="fas fa-plus-circle mr-1"></i> Nuevo Tipo
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div id="elementosContainer">
-                            <div class="elemento-item mb-3 border p-3 rounded">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label>Tipo</label>
-                                        <select class="form-control tipo-select" name="elementos[0][fk_id_tipo]" required>
-                                            <option value="">Seleccionar tipo</option>
-                                            @foreach($tiposElemento as $tipo)
-                                                <option value="{{ $tipo->id_tipo }}">
-                                                    {{ $tipo->nombre }} ({{ $tipo->categoria }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label>Nombre</label>
-                                        <input type="text" class="form-control" name="elementos[0][nombre]" required 
-                                               placeholder="Nombre del elemento" maxlength="30"
-                                               pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                                               title="Solo letras, números y caracteres como . , - (máximo 30 caracteres)">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label>Cantidad</label>
-                                        <input type="number" class="form-control" name="elementos[0][cantidad]" 
-                                               value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                    </div>
-                                    <div class="col-md-2 d-flex align-items-end">
-                                        <button type="button" class="btn btn-danger btn-block remove-element">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-md-12">
-                                        <label>Descripción</label>
-                                        <textarea class="form-control" name="elementos[0][descripcion]" rows="2" 
-                                                  placeholder="Descripción del elemento" maxlength="255"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Sección para adjuntos -->
-                        <div class="mt-4">
-                            <h5><i class="fas fa-paperclip mr-2"></i> Documentos Adjuntos (PDF, Word, Excel)</h5>
-                            <div class="form-group">
-                                <input type="file" class="form-control-file" name="adjuntos_documentos[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx">
-                                <small class="form-text text-muted">Solo para elementos de tipo documento</small>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3">
-                            <h5><i class="fas fa-image mr-2"></i> Imágenes Adjuntas (JPG, PNG, GIF)</h5>
-                            <div class="form-group">
-                                <input type="file" class="form-control-file" name="adjuntos_imagenes[]" multiple accept="image/*">
-                                <small class="form-text text-muted">Solo para elementos de tipo objeto o kit</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Enviar Acuse</button>
-                    </div>
-                </form>
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0b2e59; color: white;">
+                <h5 class="modal-title" id="modalEnviarAcuseLabel">
+                    <i class="fas fa-paper-plane mr-2"></i> Nuevo Acuse de Recibo
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <form action="{{ route('acuses.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Destinatario</label>
+                        <select class="form-control" name="destinatario" required>
+                            <option value="">Seleccionar destinatario</option>
+                            @foreach($usuarios as $usuario)
+                                @if($usuario->id_usuario != auth()->user()->id_usuario)
+                                    <option value="{{ $usuario->id_usuario }}">
+                                        {{ $usuario->nombres }} {{ $usuario->apellidos }}
+                                    </option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Título</label>
+                        <input type="text" class="form-control" name="titulo" required 
+                               placeholder="Título del acuse" maxlength="50"
+                               oninput="sanitizeTitulo(this)">
+                        <small class="form-text text-muted">Máximo 50 caracteres. Solo letras, números, espacios, puntos, comas y guiones.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea class="form-control" name="descripcion" rows="3" 
+                                  placeholder="Descripción del acuse" maxlength="100"
+                                  oninput="sanitizeDescripcion(this)"></textarea>
+                        <small class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-alt mr-2"></i> Elementos
+                        </h5>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-success" id="addElement">
+                                <i class="fas fa-plus mr-1"></i> Agregar
+                            </button>
+                            <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalNuevoTipo">
+                                <i class="fas fa-plus-circle mr-1"></i> Nuevo Tipo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="elementosContainer">
+                        <div class="elemento-item mb-3 border p-3 rounded">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Tipo</label>
+                                    <select class="form-control tipo-select" name="elementos[0][fk_id_tipo]" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        @foreach($tiposElemento as $tipo)
+                                            <option value="{{ $tipo->id_tipo }}">
+                                                {{ $tipo->nombre }} ({{ $tipo->categoria }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Nombre</label>
+                                    <input type="text" class="form-control" name="elementos[0][nombre]" required 
+                                           placeholder="Nombre del elemento" maxlength="50"
+                                           oninput="sanitizeNombreElemento(this)">
+                                    <small class="form-text text-muted">Máximo 50 caracteres. Solo letras, números y espacios.</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Cantidad</label>
+                                    <input type="number" class="form-control" name="elementos[0][cantidad]" 
+                                           value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger btn-block remove-element">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-12">
+                                    <label>Descripción</label>
+                                    <textarea class="form-control" name="elementos[0][descripcion]" rows="2" 
+                                              placeholder="Descripción del elemento" maxlength="100"
+                                              oninput="sanitizeDescripcionElemento(this)"></textarea>
+                                    <small class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sección para adjuntos -->
+                    <div class="mt-4">
+                        <h5><i class="fas fa-paperclip mr-2"></i> Documentos Adjuntos (PDF, Word, Excel)</h5>
+                        <div class="form-group">
+                            <input type="file" class="form-control-file" name="adjuntos_documentos[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx">
+                            <small class="form-text text-muted">Solo para elementos de tipo documento</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h5><i class="fas fa-image mr-2"></i> Imágenes Adjuntas (JPG, PNG, GIF)</h5>
+                        <div class="form-group">
+                            <input type="file" class="form-control-file" name="adjuntos_imagenes[]" multiple accept="image/*">
+                            <small class="form-text text-muted">Solo para elementos de tipo objeto o kit</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Enviar Acuse</button>
+                </div>
+            </form>
         </div>
+    </div>
 </div>
 
 <!-- Modal para nuevo tipo de elemento -->
 <div class="modal fade" id="modalNuevoTipo" tabindex="-1" role="dialog" aria-labelledby="modalNuevoTipoLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header" style="background: #0b2e59; color: white;">
-                    <h5 class="modal-title" id="modalNuevoTipoLabel">
-                        <i class="fas fa-plus-circle mr-2"></i> Nuevo Tipo de Elemento
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('tipos.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Nombre</label>
-                            <input type="text" class="form-control" name="nombre" required 
-                                   placeholder="Nombre del tipo" maxlength="30"
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
-                                   title="Solo letras y espacios (máximo 30 caracteres)">
-                        </div>
-                        <div class="form-group">
-                            <label>Categoría</label>
-                            <select class="form-control" name="categoria" required>
-                                <option value="">Seleccionar categoría</option>
-                                <option value="documento">Documento</option>
-                                <option value="objeto">Objeto</option>
-                                <option value="kit">Kit</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Tipo</button>
-                    </div>
-                </form>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0b2e59; color: white;">
+                <h5 class="modal-title" id="modalNuevoTipoLabel">
+                    <i class="fas fa-plus-circle mr-2"></i> Nuevo Tipo de Elemento
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <form action="{{ route('tipos.store') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" class="form-control" name="nombre" required 
+                               placeholder="Nombre del tipo" maxlength="50"
+                               oninput="sanitizeNombreTipo(this)">
+                        <small class="form-text text-muted">Máximo 50 caracteres. Solo letras y espacios.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select class="form-control" name="categoria" required>
+                            <option value="">Seleccionar categoría</option>
+                            <option value="documento">Documento</option>
+                            <option value="objeto">Objeto</option>
+                            <option value="kit">Kit</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Tipo</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 @stop
 
 @section('css')
@@ -833,9 +837,9 @@
                         <div class="col-md-4">
                             <label>Nombre</label>
                             <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" required 
-                                   placeholder="Nombre del elemento" maxlength="30"
-                                   pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                                   title="Solo letras, números y caracteres como . , - (máximo 30 caracteres)">
+                                   placeholder="Nombre del elemento" maxlength="50"
+                                   oninput="sanitizeNombreElemento(this)">
+                            <small class="form-text text-muted">Máximo 50 caracteres. Solo letras, números y espacios.</small>
                         </div>
                         <div class="col-md-2">
                             <label>Cantidad</label>
@@ -852,7 +856,9 @@
                         <div class="col-md-12">
                             <label>Descripción</label>
                             <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" rows="2" 
-                                      placeholder="Descripción del elemento" maxlength="255"></textarea>
+                                      placeholder="Descripción del elemento" maxlength="100"
+                                      oninput="sanitizeDescripcionElemento(this)"></textarea>
+                            <small class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
                         </div>
                     </div>
                 </div>
@@ -871,5 +877,91 @@
             this.value = this.value.replace(/[^0-9]/g, '');
         });
     });
+
+    // Funciones de sanitización
+    function sanitizeTitulo(input) {
+        let value = input.value;
+        
+        // Eliminar caracteres no permitidos
+        value = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+        
+        // Limitar repeticiones consecutivas a 3
+        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // Limitar a 50 caracteres
+        if (value.length > 50) {
+            value = value.substring(0, 50);
+        }
+        
+        input.value = value;
+    }
+
+    function sanitizeDescripcion(input) {
+        let value = input.value;
+        
+        // Eliminar caracteres no permitidos (solo letras, números, espacios, puntos, comas y guiones)
+        value = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+        
+        // Limitar repeticiones consecutivas a 3
+        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // Limitar a 100 caracteres
+        if (value.length > 100) {
+            value = value.substring(0, 100);
+        }
+        
+        input.value = value;
+    }
+
+    function sanitizeNombreTipo(input) {
+        let value = input.value;
+        
+        // Eliminar caracteres no permitidos (solo letras y espacios)
+        value = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        
+        // Limitar repeticiones consecutivas a 3
+        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // Limitar a 50 caracteres
+        if (value.length > 50) {
+            value = value.substring(0, 50);
+        }
+        
+        input.value = value;
+    }
+
+    function sanitizeNombreElemento(input) {
+        let value = input.value;
+        
+        // Eliminar caracteres no permitidos (solo letras, números y espacios)
+        value = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '');
+        
+        // Limitar repeticiones consecutivas a 3
+        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // Limitar a 50 caracteres
+        if (value.length > 50) {
+            value = value.substring(0, 50);
+        }
+        
+        input.value = value;
+    }
+
+    function sanitizeDescripcionElemento(input) {
+        let value = input.value;
+        
+        // Eliminar caracteres no permitidos (solo letras, números, espacios, puntos, comas y guiones)
+        value = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+        
+        // Limitar repeticiones consecutivas a 3
+        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // Limitar a 100 caracteres
+        if (value.length > 100) {
+            value = value.substring(0, 100);
+        }
+        
+        input.value = value;
+    }
 </script>
 @stop
