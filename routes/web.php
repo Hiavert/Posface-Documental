@@ -73,6 +73,8 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy')
         ->middleware('can:eliminar-Perfil');
 
+
+    Route::resource('objetos', 'ObjetoController')->except(['show']);
     // Rutas de tareas con permisos granulares - VERSIÓN CORREGIDA
     Route::prefix('tareas')->group(function () {
         // Rutas con permisos granulares
