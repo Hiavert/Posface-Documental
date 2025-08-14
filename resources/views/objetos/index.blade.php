@@ -84,9 +84,12 @@
         </div>
         <div class="card-body">
             <div class="d-flex justify-content-end mb-4">
+                @if(auth()->user()->puedeAgregar('objeto'))
+
                 <a href="{{ route('objetos.create') }}" class="btn btn-success btn-elegant">
                     <i class="fas fa-plus mr-1"></i> Nuevo Objeto
                 </a>
+                @endif
             </div>
             <div class="table-responsive">
                 <table class="table table-hover table-borderless">
