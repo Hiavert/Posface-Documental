@@ -23,7 +23,6 @@
     <!-- Alertas -->
     @if (session('success'))
         <div class="alert alert-elegant-success alert-dismissible fade show">
-            <i class="fas fa-check-circle mr-极
             <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -87,7 +86,6 @@
                             <h5 class="card-title">Completadas</h5>
                             <h2 class="card-value">{{ $estadisticas['completadas'] ?? 0 }}</h2>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -102,7 +100,6 @@
                         <div class="ml-3">
                             <h5 class="card-title">Rechazadas</h5>
                             <h2 class="card-value">{{ $estadisticas['rechazadas'] ?? 0 }}</h2>
-                        </极
                         </div>
                     </div>
                 </div>
@@ -308,7 +305,6 @@
                         <div class="form-group col-md-6">
                             <label for="nombreTarea">Nombre de la tarea *</label>
                             <input type="text" class="form-control" id="nombreTarea" name="nombre" required maxlength="100">
-                            <small class="form-text text-muted float-right"><span id="contadorNombre">0</span>/100 caracteres</small>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="responsableTarea">Responsable *</label>
@@ -326,7 +322,7 @@
                     <div class="form-group">
                         <label for="descripcionTarea">Descripción (opcional)</label>
                         <textarea class="form-control" id="descripcionTarea" name="descripcion" rows="3" maxlength="500"></textarea>
-                        <small class="form-text text-muted float-right"><span id="contadorDescripcion">0</span>/500 caracteres</small>
+                        <small class="form-text text-muted">Máximo 500 caracteres</small>
                     </div>
                     
                     <div class="form-row">
@@ -351,7 +347,6 @@
                     
                     <div class="form-group" id="tipoDocumentoContainer">
                         <label for="fk_id_tipo">Tipo de Documento *</label>
-                        <select name="fk_id_tipo" id="fk_id极
                         <select name="fk_id_tipo" id="fk_id_tipo" class="form-control" required>
                             <option value="">Seleccionar tipo...</option>
                             @foreach($tiposDocumento as $tipo)
@@ -911,10 +906,6 @@
             $('#btnGuardarTarea').text('Crear Tarea');
             $('#tareaId').val('');
             
-            // Reset contadores
-            $('#contadorNombre').text('0');
-            $('#contadorDescripcion').text('0');
-            
             // Mostrar campo de documento solo para crear
             $('#tipoDocumentoContainer').show();
 
@@ -930,10 +921,6 @@
                 $('#fechaCreacionTarea').val(button.data('fecha'));
                 $('#fechaVencimientoTarea').val(button.data('vencimiento'));
                 $('#descripcionTarea').val(button.data('descripcion'));
-                
-                // Actualizar contadores
-                $('#contadorNombre').text($('#nombreTarea').val().length);
-                $('#contadorDescripcion').text($('#descripcionTarea').val().length);
                 
                 // Ocultar campo de documento para edición
                 $('#tipoDocumentoContainer').hide();
@@ -1032,34 +1019,6 @@
             var form = $(this).find('form');
             form.attr('action', "{{ route('tareas.delegar', ['id' => ':id']) }}".replace(':id', tareaId));
             $('#tareaIdDelegar').val(tareaId);
-        });
-
-        // Validación en tiempo real para Nombre de la tarea
-        $('#nombreTarea').on('input', function() {
-            // Permitir letras, espacios, acentos y caracteres especiales comunes
-            this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s.,;:¿?¡!()\-_/@#&%$]/g, '');
-            
-            // Limitar a 100 caracteres
-            if (this.value.length > 100) {
-                this.value = this.value.substring(0, 100);
-            }
-            
-            // Actualizar contador
-            $('#contadorNombre').text(this.value.length);
-        });
-
-        // Validación en tiempo real para Descripción
-        $('#descripcionTarea').on('input', function() {
-            // Permitir letras, espacios, acentos y caracteres especiales comunes
-            this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s.,;:¿?¡!()\-_/@#&%$\n\r]/g, '');
-            
-            // Limitar a 500 caracteres
-            if (this.value.length > 500) {
-                this.value = this.value.substring(0, 500);
-            }
-            
-            // Actualizar contador
-            $('#contadorDescripcion').text(this.value.length);
         });
     });
 </script>

@@ -139,8 +139,8 @@
                     <input type="hidden" id="id-tesis">
                     <div class="form-group">
                         <label for="titulo" class="form-label">Título *</label>
-                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="35">
-                        <small class="form-text text-muted">Máximo 35 caracteres</small>
+                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="80">
+                        <small class="form-text text-muted">Máximo 80 caracteres</small>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -169,16 +169,16 @@
                             <div class="form-group">
                                 <label for="autor" class="form-label">Autor *</label>
                                 <input type="text" class="form-control form-control-elegant" id="autor" name="autor" 
-                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required maxlength="255">
-                                <small class="form-text text-muted">Solo letras y espacios, máximo 255 caracteres</small>
+                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required maxlength="80">
+                                <small class="form-text text-muted">Solo letras y espacios, máximo 80 caracteres</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="numero_cuenta" class="form-label">Número de Cuenta *</label>
                                 <input type="text" class="form-control form-control-elegant" id="numero_cuenta" name="numero_cuenta" 
-                                       pattern="[0-9]+" title="Solo números" required maxlength="20">
-                                <small class="form-text text-muted">Solo números, máximo 20 dígitos</small>
+                                       pattern="[0-9]+" title="Solo números" required maxlength="13">
+                                <small class="form-text text-muted">Solo números, máximo 13 dígitos</small>
                             </div>
                         </div>
                     </div>
