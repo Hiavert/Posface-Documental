@@ -121,15 +121,19 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-actions" role="group">
-                                        <a href="{{ route('objetos.edit', $objeto->id_objeto) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+                                        @if(auth()->user()->puedeEditar('objeto'))
+                                            <a href="{{ route('objetos.edit', $objeto->id_objeto) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        @endif
                                         <form action="{{ route('objetos.destroy', $objeto->id_objeto) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-action" data-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este objeto?')">
-                                                <i class="fas fa-trash-alt text-danger"></i>
-                                            </button>
+                                            @if(auth()->user()->puedeEliminar('objeto'))
+                                                <button type="submit" class="btn btn-sm btn-action" data-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este objeto?')">
+                                                    <i class="fas fa-trash-alt text-danger"></i>
+                                                </button>
+                                            @endif
                                         </form>
                                     </div>
                                 </td>
