@@ -304,7 +304,9 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="nombreTarea">Nombre de la tarea *</label>
-                            <input type="text" class="form-control" id="nombreTarea" name="nombre" required maxlength="100">
+                            <input type="text" class="form-control" id="nombreTarea" name="nombre" required 
+                                   maxlength="50" oninput="sanitizeNombreTarea(this)">
+                            <small class="form-text text-muted">Máximo 50 caracteres. Solo letras, números, espacios, puntos, comas y guiones.</small>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="responsableTarea">Responsable *</label>
@@ -321,8 +323,9 @@
                     
                     <div class="form-group">
                         <label for="descripcionTarea">Descripción (opcional)</label>
-                        <textarea class="form-control" id="descripcionTarea" name="descripcion" rows="3" maxlength="500"></textarea>
-                        <small class="form-text text-muted">Máximo 500 caracteres</small>
+                        <textarea class="form-control" id="descripcionTarea" name="descripcion" rows="3" 
+                                  maxlength="100" oninput="sanitizeDescripcionTarea(this)"></textarea>
+                        <small class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
                     </div>
                     
                     <div class="form-row">
@@ -349,7 +352,7 @@
                         <label for="fk_id_tipo">Tipo de Documento *</label>
                         <select name="fk_id_tipo" id="fk_id_tipo" class="form-control" required>
                             <option value="">Seleccionar tipo...</option>
-                            @foreach($tiposDocumento as $tipo)
+                            @foreach$tiposDocumento as $tipo)
                                 <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
                             @endforeach
                         </select>
@@ -466,7 +469,7 @@
                         <label for="nuevoResponsable">Seleccionar nuevo responsable</label>
                         <select class="form-control" id="nuevoResponsable" name="nuevo_responsable" required>
                             <option value="">Seleccionar responsable</option>
-                            @foreach($responsables as $responsable)
+                            @foreach$responsables as $responsable)
                                 <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
                             @endforeach
                         </select>
@@ -817,6 +820,41 @@
 
 @section('js')
 <script>
+    // Funciones de sanitización
+    function sanitizeNombreTarea(input) {
+        let value = input.value;
+        
+        // Eliminar caracteres no permitidos
+        value = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+        
+        // Limitar repeticiones consecutivas a 3
+        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // Limitar a 50 caracteres
+        if (value.length > 50) {
+            value = value.substring(0, 50);
+        }
+        
+        input.value = value;
+    }
+
+    function sanitizeDescripcionTarea(input) {
+        let value = input.value;
+        
+        // Eliminar caracteres no permitidos (solo letras, números, espacios, puntos, comas, guiones y dos puntos)
+        value = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-:]/g, '');
+        
+        // Limitar repeticiones consecutivas a 3
+        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+        
+        // Limitar a 100 caracteres
+        if (value.length > 100) {
+            value = value.substring(0, 100);
+        }
+        
+        input.value = value;
+    }
+
     $(document).ready(function() {
         // Ocultar notificación de éxito después de 5 segundos
         setTimeout(function() {
