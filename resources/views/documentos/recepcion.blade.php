@@ -114,7 +114,9 @@
                             <td>{{ $envio->id }}</td>
                             <td>{{ ucfirst($envio->documento->tipo) }}</td>
                             <td>{{ $envio->documento->asunto }}</td>
-                            <td>{{ $envio->enviadoPor->nombres }} {{ $envio->enviadoPor->apellidos }}</td>
+                            <td>
+                                {{ optional($envio->enviadoPor)->nombres }} {{ optional($envio->enviadoPor)->apellidos }}
+                            </td>
                             <td>{{ $envio->documento->fecha_documento->format('d/m/Y') }}</td>
                             <td>
                                 @if($envio->leido)
@@ -131,8 +133,8 @@
                                     <i class="fas fa-eye text-info"></i>
                                 </button>
                                 <a href="{{ route('documentos.descargar', $envio->documento) }}" 
-                                   class="btn btn-sm btn-action" 
-                                   title="Descargar">
+                                class="btn btn-sm btn-action" 
+                                title="Descargar">
                                     <i class="fas fa-download text-success"></i>
                                 </a>
                             </td>
@@ -148,6 +150,7 @@
                             </td>
                         </tr>
                         @endforelse
+
                     </tbody>
                 </table>
             </div>
