@@ -1,49 +1,17 @@
 @extends('adminlte::page')
 
-@section('title', 'Gestión de Acuses de Recibo')
+@section('title', 'Gestión de Tareas Documentales')
 
 @section('content_header')
 <div class="elegant-header">
     <div class="d-flex align-items-center justify-content-between">
         <div>
-            <h1 class="mb-0"><i class="fas fa-file-contract mr-2 text-primary"></i> Gestión de Acuses de Recibo</h1>
-            <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
+            <h1 class="mb-0"><i class="fas fa-tasks mr-2 text-primary"></i> Gestión de Tareas Documentales</h1>
+           <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
         </div>
         <div class="d-flex align-items-center">
-            <!-- Notificaciones movidas aquí -->
-            <div class="notifications-dropdown ml-3">
-                <button class="btn btn-notification" type="button" id="notifDropdown" data-toggle="dropdown">
-                    <i class="fas fa-bell"></i>
-                    <span class="badge badge-danger" id="notifCounter">{{ auth()->user()->notificacionesNoLeidas->count() }}</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notifDropdown">
-                    <div class="dropdown-header">Notificaciones Recientes</div>
-                    @if(auth()->user()->notificaciones->count() > 0)
-                        @foreach(auth()->user()->notificaciones as $notificacion)
-                            <a class="dropdown-item d-flex justify-content-between align-items-center {{ $notificacion->estado == 'no_leida' ? 'unread' : '' }}" 
-                            href="{{ route('notificaciones.show', $notificacion->id_notificacion) }}">
-                                <div>
-                                    <div class="font-weight-bold">{{ $notificacion->titulo }}</div>
-                                    <small class="text-muted">
-                                        De: {{ optional(optional($notificacion->acuse)->remitente)->nombres ?? 'N/A' }} {{ optional(optional($notificacion->acuse)->remitente)->apellidos ?? '' }}
-                                    </small>
-                                    <div class="small text-muted">{{ $notificacion->fecha ? $notificacion->fecha->format('d/m/Y H:i') : now()->format('d/m/Y H:i') }}</div>
-                                </div>
-                                @if($notificacion->estado == 'no_leida')
-                                    <span class="badge badge-danger">Nuevo</span>
-                                @endif
-                            </a>
-                        @endforeach
-                    @else
-                        <div class="text-center py-3">
-                            <i class="fas fa-bell-slash fa-2x mb-2 text-muted"></i>
-                            <p class="text-muted">No hay notificaciones</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
             <div class="header-icon ml-3">
-                <i class="fas fa-envelope-open-text"></i>
+                <i class="fas fa-file-alt"></i>
             </div>
         </div>
     </div>
@@ -52,27 +20,92 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Notificaciones -->
-    @if(session('success') || session('error'))
-    <div class="alert-container">
-        @if(session('success'))
+    <!-- Alertas -->
+    @if (session('success'))
         <div class="alert alert-elegant-success alert-dismissible fade show">
             <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        @endif
-        @if(session('error'))
+    @endif
+    @if ($errors->any())
         <div class="alert alert-elegant-danger alert-dismissible fade show">
-            <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        @endif
-    </div>
     @endif
+
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-bg bg-secondary">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h5 class="card-title">Pendientes</h5>
+                            <h2 class="card-value">{{ $estadisticas['pendientes'] ?? 0 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-bg bg-info">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h5 class="card-title">En Proceso</h5>
+                            <h2 class="card-value">{{ $estadisticas['en_proceso'] ?? 0 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-bg bg-success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h5 class="card-title">Completadas</h5>
+                            <h2 class="card-value">{{ $estadisticas['completadas'] ?? 0 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-bg bg-primary">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h5 class="card-title">Rechazadas</h5>
+                            <h2 class="card-value">{{ $estadisticas['rechazadas'] ?? 0 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Filtros -->
     <div class="card card-elegant mb-4">
@@ -80,62 +113,71 @@
             <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i>Filtros</h5>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('acuses.index') }}">
+            <form method="GET" action="{{ route('tareas.index') }}" id="filtroTareas">
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Estado</label>
                         <select class="form-control form-control-elegant" name="estado">
                             <option value="">Todos</option>
-                            <option value="enviado" {{ request('estado') == 'enviado' ? 'selected' : '' }}>Enviado</option>
-                            <option value="recibido" {{ request('estado') == 'recibido' ? 'selected' : '' }}>Recibido</option>
-                            <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                            <option value="Pendiente" {{ request('estado') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+                            <option value="En Proceso" {{ request('estado') == 'En Proceso' ? 'selected' : '' }}>En Proceso</option>
+                            <option value="Completada" {{ request('estado') == 'Completada' ? 'selected' : '' }}>Completada</option>
+                            <option value="Rechazada" {{ request('estado') == 'Rechazada' ? 'selected' : '' }}>Rechazada</option>
                         </select>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Remitente</label>
-                        <input type="text" class="form-control form-control-elegant" name="remitente" 
-                               placeholder="Nombre del remitente" value="{{ request('remitente') }}"
-                               maxlength="30" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                               title="Solo letras, espacios y caracteres como . , - (máximo 30 caracteres)">
+                        <label class="form-label">Responsable</label>
+                        <select class="form-control form-control-elegant" name="responsable">
+                            <option value="">Todos</option>
+                            @foreach($responsables as $responsable)
+                                <option value="{{ $responsable->id_usuario }}" {{ request('responsable') == $responsable->id_usuario ? 'selected' : '' }}>
+                                    {{ $responsable->nombres }} {{ $responsable->apellidos }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Destinatario</label>
-                        <input type="text" class="form-control form-control-elegant" name="destinatario" 
-                               placeholder="Nombre del destinatario" value="{{ request('destinatario') }}"
-                               maxlength="30" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                               title="Solo letras, espacios y caracteres como . , - (máximo 30 caracteres)">
+                        <label class="form-label">Tipo de Documento</label>
+                        <select class="form-control form-control-elegant" name="tipo_documento">
+                            <option value="">Todos</option>
+                            @foreach($tiposDocumento as $tipo)
+                                <option value="{{ $tipo->id_tipo }}" {{ request('tipo_documento') == $tipo->id_tipo ? 'selected' : '' }}>{{ $tipo->nombre_tipo }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Elemento</label>
-                        <input type="text" class="form-control form-control-elegant" name="elemento" 
-                               placeholder="Nombre del elemento" value="{{ request('elemento') }}"
-                               maxlength="30" pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                               title="Solo letras, números y caracteres como . , - (máximo 30 caracteres)">
+                        <label class="form-label">Fecha Inicio</label>
+                        <input type="date" class="form-control form-control-elegant" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
                     </div>
-                </div>
-                <div class="d-flex justify-content-end mt-2">
-                    <a href="{{ route('acuses.index') }}" class="btn btn-outline-secondary btn-elegant mr-2">
-                        <i class="fas fa-redo mr-1"></i> Restablecer
-                    </a>
-                    <button type="submit" class="btn btn-primary btn-elegant mr-2">
-                        <i class="fas fa-filter mr-1"></i> Aplicar Filtros
-                    </button>
-                    @if(Auth::user()->puedeAgregar('GestionAcuses'))
-                    <button type="button" class="btn btn-success btn-elegant" data-toggle="modal" data-target="#modalEnviarAcuse">
-                        <i class="fas fa-plus mr-1"></i> Nuevo Acuse
-                    </button>
-                    @endif
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Fecha Fin</label>
+                        <input type="date" class="form-control form-control-elegant" name="fecha_fin" value="{{ request('fecha_fin') }}">
+                    </div>
+                    <div class="col-md-3 mb-3 d-flex align-items-end">
+                        <div class="btn-group w-100" role="group">
+                            <button type="submit" class="btn btn-primary btn-elegant">
+                                <i class="fas fa-filter mr-1"></i> Aplicar
+                            </button>
+                            <a href="{{ route('tareas.index') }}" class="btn btn-outline-secondary btn-elegant">
+                                <i class="fas fa-redo mr-1"></i> Limpiar
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Tabla de acuses -->
+    <!-- Listado de tareas -->
     <div class="card card-elegant">
         <div class="card-header d-flex align-items-center">
-            <h5 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted"></i> Acuses de Recibo</h5>
+            <h5 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted"></i> Tareas Documentales</h5>
             <div class="ml-auto">
-                <span class="badge badge-light">{{ $acuses->total() }} registros</span>
+                @if(Auth::user()->puedeAgregar('TareasDocumentales'))
+                <button class="btn btn-success btn-elegant" type="button" data-toggle="modal" data-target="#modalNuevaTarea" id="btnNuevaTarea">
+                    <i class="fas fa-plus mr-1"></i> Nueva Tarea
+                </button>
+                @endif
             </div>
         </div>
         <div class="card-body">
@@ -144,138 +186,95 @@
                     <thead class="thead-elegant">
                         <tr>
                             <th>
-                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'id_acuse', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
-                                    ID {!! request('sort') == 'id_acuse' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                <a href="{{ route('tareas.index', [
+                                    'sort' => 'id_tarea',
+                                    'direction' => ($sort == 'id_tarea' && $direction == 'asc') ? 'desc' : 'asc',
+                                    'estado' => request('estado'),
+                                    'responsable' => request('responsable'),
+                                    'fecha_inicio' => request('fecha_inicio'),
+                                    'fecha_fin' => request('fecha_fin'),
+                                    'tipo_documento' => request('tipo_documento')
+                                ]) }}" class="sort-link">
+                                    ID
+                                    @if ($sort == 'id_tarea')
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort"></i>
+                                    @endif
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'titulo', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
-                                    Título {!! request('sort') == 'titulo' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                <a href="{{ route('tareas.index', [
+                                    'sort' => 'nombre',
+                                    'direction' => ($sort == 'nombre' && $direction == 'asc') ? 'desc' : 'asc',
+                                    'estado' => request('estado'),
+                                    'responsable' => request('responsable'),
+                                    'fecha_inicio' => request('fecha_inicio'),
+                                    'fecha_fin' => request('fecha_fin'),
+                                    'tipo_documento' => request('tipo_documento')
+                                ]) }}" class="sort-link">
+                                    Nombre
+                                    @if ($sort == 'nombre')
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort"></i>
+                                    @endif
                                 </a>
                             </th>
-                            <th>Remitente</th>
-                            <th>Destinatario</th>
+                            <th>Responsable</th>
                             <th>
-                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'estado', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
-                                    Estado {!! request('sort') == 'estado' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                <a href="{{ route('tareas.index', [
+                                    'sort' => 'estado',
+                                    'direction' => ($sort == 'estado' && $direction == 'asc') ? 'desc' : 'asc',
+                                    'estado' => request('estado'),
+                                    'responsable' => request('responsable'),
+                                    'fecha_inicio' => request('fecha_inicio'),
+                                    'fecha_fin' => request('fecha_fin'),
+                                    'tipo_documento' => request('tipo_documento')
+                                ]) }}" class="sort-link">
+                                    Estado
+                                    @if ($sort == 'estado')
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort"></i>
+                                    @endif
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'fecha_envio', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
-                                    Fecha Envío {!! request('sort') == 'fecha_envio' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
+                                <a href="{{ route('tareas.index', [
+                                    'sort' => 'fecha_creacion',
+                                    'direction' => ($sort == 'fecha_creacion' && $direction == 'asc') ? 'desc' : 'asc',
+                                    'estado' => request('estado'),
+                                    'responsable' => request('responsable'),
+                                    'fecha_inicio' => request('fecha_inicio'),
+                                    'fecha_fin' => request('fecha_fin'),
+                                    'tipo_documento' => request('tipo_documento')
+                                ]) }}" class="sort-link">
+                                    Fecha Creación
+                                    @if ($sort == 'fecha_creacion')
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort"></i>
+                                    @endif
                                 </a>
                             </th>
+                            <th>Documentos</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($acuses as $acuse)
-                            <tr class="table-row">
-                                <td class="font-weight-bold">AR-{{ str_pad($acuse->id_acuse, 5, '0', STR_PAD_LEFT) }}</td>
-                                <td>{{ $acuse->titulo }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm mr-2">
-                                            @if($acuse->remitente)
-                                                <div class="avatar-initials bg-primary text-white">
-                                                    {{ substr($acuse->remitente->nombres, 0, 1) }}{{ substr($acuse->remitente->apellidos, 0, 1) }}
-                                                </div>
-                                            @else
-                                                ND
-                                            @endif
-                                        </div>
-                                        <div>
-                                            {{ $acuse->remitente->nombres ?? 'No disponible' }} {{ $acuse->remitente->apellidos ?? '' }}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm mr-2">
-                                            @if($acuse->destinatario)
-                                                <div class="avatar-initials bg-info text-white">
-                                                    {{ substr($acuse->destinatario->nombres, 0, 1) }}{{ substr($acuse->destinatario->apellidos, 0, 1) }}
-                                                </div>
-                                            @else
-                                                ND
-                                            @endif
-                                        </div>
-                                        <div>
-                                            {{ $acuse->destinatario->nombres ?? 'No disponible' }} {{ $acuse->destinatario->apellidos ?? '' }}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge badge-state-{{ $acuse->estado }}">
-                                        {{ ucfirst($acuse->estado) }}
-                                    </span>
-                                </td>
-                                <td>{{ $acuse->fecha_envio->format('d/m/Y H:i') }}</td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-actions" role="group">
-                                        <a href="{{ route('acuses.show', $acuse->id_acuse) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        
-                                        @if($acuse->estado == 'pendiente' && $acuse->fk_id_usuario_destinatario == auth()->user()->id_usuario)
-                                            <form action="{{ route('acuses.aceptar', $acuse->id_acuse) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-sm btn-action" data-toggle="tooltip" title="Aceptar acuse">
-                                                    <i class="fas fa-check text-success"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                        
-                                        @if($acuse->estado == 'recibido' && $acuse->fk_id_usuario_destinatario == auth()->user()->id_usuario)
-                                            <a href="{{ route('acuses.reenviar.form', $acuse->id_acuse) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Reenviar">
-                                                <i class="fas fa-share text-warning"></i>
-                                            </a>
-                                        @endif
-                                        
-                                        <a href="{{ route('acuses.rastrear', $acuse->id_acuse) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Rastrear">
-                                            <i class="fas fa-search-location text-info"></i>
-                                        </a>
-                                        
-                                        @if(auth()->user()->puedeEliminar('GestionAcuses'))
-                                            <form action="{{ route('acuses.destroy', $acuse->id_acuse) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-action" data-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este acuse?')">
-                                                    <i class="fas fa-trash-alt text-danger"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center py-5">
-                                    <div class="empty-state">
-                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                        <h5>No se encontraron acuses de recibo</h5>
-                                        <p class="text-muted">Parece que aún no hay acuses registrados en el sistema</p>
-                                        @if(Auth::user()->puedeAgregar('GestionAcuses'))
-                                        <button type="button" class="btn btn-primary mt-2" data-toggle="modal" data-target="#modalEnviarAcuse">
-                                            <i class="fas fa-plus mr-1"></i> Crear primer acuse
-                                        </button>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
+                        @include('tareas.tabla', ['tareas' => $tareas])
                     </tbody>
                 </table>
             </div>
             
-            @if($acuses->hasPages())
+            @if($tareas->hasPages())
             <div class="d-flex justify-content-between align-items-center mt-4">
                 <div class="text-muted">
-                    Mostrando {{ $acuses->firstItem() }} - {{ $acuses->lastItem() }} de {{ $acuses->total() }} registros
+                    Mostrando {{ $tareas->firstItem() }} - {{ $tareas->lastItem() }} de {{ $tareas->total() }} registros
                 </div>
                 <div class="pagination-custom">
-                    {{ $acuses->appends(request()->query())->links() }}
+                    {{ $tareas->appends(request()->query())->links() }}
                 </div>
             </div>
             @endif
@@ -283,168 +282,202 @@
     </div>
 </div>
 
-<!-- Modal para nuevo acuse -->
-<div class="modal fade" id="modalEnviarAcuse" tabindex="-1" role="dialog" aria-labelledby="modalEnviarAcuseLabel" aria-hidden="true">
+<!-- Modal para nueva/editar tarea -->
+<div class="modal fade" id="modalNuevaTarea" tabindex="-1" role="dialog" aria-labelledby="modalNuevaTareaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #0b2e59; color: white;">
-                <h5 class="modal-title" id="modalEnviarAcuseLabel">
-                    <i class="fas fa-paper-plane mr-2"></i> Nuevo Acuse de Recibo
+                <h5 class="modal-title" id="modalNuevaTareaLabel">
+                    <i class="fas fa-plus-circle mr-2"></i> <span id="modalTareaTitle">Nueva Tarea Documental</span>
                 </h5>
+                @if(auth()->user()->puedeEditar('TareasDocumentales'))
+
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
+                @endif
             </div>
-            <form action="{{ route('acuses.store') }}" method="POST" enctype="multipart/form-data">
+            <form method="POST" id="formTarea" action="{{ route('tareas.store') }}" enctype="multipart/form-data">
                 @csrf
+                <input type="hidden" name="tarea_id" id="tareaId">
                 <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="nombreTarea">Nombre de la tarea *</label>
+                            <input type="text" class="form-control" id="nombreTarea" name="nombre" required 
+                                   maxlength="50" oninput="sanitizeNombreTarea(this)">
+                            <small class="form-text text-muted">Máximo 50 caracteres. Solo letras, números, espacios, puntos, comas y guiones.</small>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="responsableTarea">Responsable *</label>
+                            <select class="form-control" id="responsableTarea" name="fk_id_usuario_asignado" required>
+                                <option value="">Seleccionar responsable</option>
+                                @foreach($responsables as $responsable)
+                                    <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" name="fk_id_usuario_creador" value="{{ auth()->id() }}">
+                    
                     <div class="form-group">
-                        <label>Destinatario</label>
-                        <select class="form-control" name="destinatario" required>
-                            <option value="">Seleccionar destinatario</option>
-                            @foreach($usuarios as $usuario)
-                                @if($usuario->id_usuario != auth()->user()->id_usuario)
-                                    <option value="{{ $usuario->id_usuario }}">
-                                        {{ $usuario->nombres }} {{ $usuario->apellidos }}
-                                    </option>
-                                @endif
+                        <label for="descripcionTarea">Descripción (opcional)</label>
+                        <textarea class="form-control" id="descripcionTarea" name="descripcion" rows="3" 
+                                  maxlength="100" oninput="sanitizeDescripcionTarea(this)"></textarea>
+                        <small class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="fechaCreacionTarea">Fecha de Creación *</label>
+                            <input type="date" class="form-control" id="fechaCreacionTarea" name="fecha_creacion" value="{{ date('Y-m-d') }}" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="fechaVencimientoTarea">Fecha de Vencimiento (opcional)</label>
+                            <input type="date" class="form-control" id="fechaVencimientoTarea" name="fecha_vencimiento">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="documentoTarea">Documento adjunto (opcional)</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="documentoTarea" name="documento" accept="application/pdf,image/*">
+                            <label class="custom-file-label" for="documentoTarea" id="documentoLabel">Seleccionar archivo</label>
+                        </div>
+                        <small class="form-text text-muted">Tamaño máximo: 10MB</small>
+                    </div>
+                    
+                    <div class="form-group" id="tipoDocumentoContainer">
+                        <label for="fk_id_tipo">Tipo de Documento *</label>
+                        <select name="fk_id_tipo" id="fk_id_tipo" class="form-control" required>
+                            <option value="">Seleccionar tipo...</option>
+                            @foreach$tiposDocumento as $tipo)
+                                <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
                             @endforeach
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Título</label>
-                        <input type="text" class="form-control" name="titulo" required 
-                               placeholder="Título del acuse" maxlength="50"
-                               oninput="sanitizeTitulo(this)">
-                        <small class="text-muted">Máx. 50 caracteres. Solo letras, números, espacios, puntos, comas y guiones.</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Descripción</label>
-                        <textarea class="form-control" name="descripcion" rows="3" 
-                                  placeholder="Descripción del acuse" maxlength="100"
-                                  oninput="sanitizeDescripcion(this)"></textarea>
-                        <small class="text-muted">Máx. 100 caracteres. Solo letras, números, espacios, puntos, comas, guiones y dos puntos (:).</small>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-                        <h5 class="mb-0">
-                            <i class="fas fa-file-alt mr-2"></i> Elementos
-                        </h5>
-                        <div>
-                            <button type="button" class="btn btn-sm btn-success" id="addElement">
-                                <i class="fas fa-plus mr-1"></i> Agregar
-                            </button>
-                            <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalNuevoTipo">
-                                <i class="fas fa-plus-circle mr-1"></i> Nuevo Tipo
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="elementosContainer">
-                        <div class="elemento-item mb-3 border p-3 rounded">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <label>Tipo</label>
-                                    <select class="form-control tipo-select" name="elementos[0][fk_id_tipo]" required>
-                                        <option value="">Seleccionar tipo</option>
-                                        @foreach($tiposElemento as $tipo)
-                                            <option value="{{ $tipo->id_tipo }}">
-                                                {{ $tipo->nombre }} ({{ $tipo->categoria }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Nombre</label>
-                                    <input type="text" class="form-control" name="elementos[0][nombre]" required 
-                                           placeholder="Nombre del elemento" maxlength="50"
-                                           oninput="sanitizeElementoNombre(this)">
-                                    <small class="text-muted">Máx. 50 caracteres. Solo letras, números, espacios y puntos.</small>
-                                </div>
-                                <div class="col-md-2">
-                                    <label>Cantidad</label>
-                                    <input type="number" class="form-control" name="elementos[0][cantidad]" 
-                                           value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                </div>
-                                <div class="col-md-2 d-flex align-items-end">
-                                    <button type="button" class="btn btn-danger btn-block remove-element">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-md-12">
-                                    <label>Descripción</label>
-                                    <textarea class="form-control" name="elementos[0][descripcion]" rows="2" 
-                                              placeholder="Descripción del elemento" maxlength="100"
-                                              oninput="sanitizeElementoDescripcion(this)"></textarea>
-                                    <small class="text-muted">Máx. 100 caracteres. Solo letras, números, espacios, puntos, comas, guiones y dos puntos (:).</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Sección para adjuntos -->
-                    <div class="mt-4">
-                        <h5><i class="fas fa-paperclip mr-2"></i> Documentos Adjuntos (PDF, Word, Excel)</h5>
-                        <div class="form-group">
-                            <input type="file" class="form-control-file" name="adjuntos_documentos[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx">
-                            <small class="form-text text-muted">Solo para elementos de tipo documento</small>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-3">
-                        <h5><i class="fas fa-image mr-2"></i> Imágenes Adjuntas (JPG, PNG, GIF)</h5>
-                        <div class="form-group">
-                            <input type="file" class="form-control-file" name="adjuntos_imagenes[]" multiple accept="image/*">
-                            <small class="form-text text-muted">Solo para elementos de tipo objeto o kit</small>
-                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Enviar Acuse</button>
+                    <button type="submit" class="btn btn-primary" id="btnGuardarTarea">Guardar Tarea</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Modal para nuevo tipo de elemento -->
-<div class="modal fade" id="modalNuevoTipo" tabindex="-1" role="dialog" aria-labelledby="modalNuevoTipoLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<!-- Modal Detalle Tarea -->
+<div class="modal fade" id="modalDetalleTarea" tabindex="-1" role="dialog" aria-labelledby="modalDetalleTareaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #0b2e59; color: white;">
-                <h5 class="modal-title" id="modalNuevoTipoLabel">
-                    <i class="fas fa-plus-circle mr-2"></i> Nuevo Tipo de Elemento
+                <h5 class="modal-title" id="modalDetalleTareaLabel">
+                    <i class="fas fa-info-circle mr-2"></i> Detalle de Tarea
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('tipos.store') }}" method="POST">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Nombre</dt>
+                            <dd class="col-sm-8" id="detalle-nombre"></dd>
+                            
+                            <dt class="col-sm-4">Responsable</dt>
+                            <dd class="col-sm-8" id="detalle-responsable"></dd>
+                            
+                            <dt class="col-sm-4">Estado</dt>
+                            <dd class="col-sm-8">
+                                <span id="detalle-estado" class="badge badge-pill"></span>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Fecha Creación</dt>
+                            <dd class="col-sm-8" id="detalle-fecha"></dd>
+                            
+                            <dt class="col-sm-4">Fecha Vencimiento</dt>
+                            <dd class="col-sm-8" id="detalle-vencimiento"></dd>
+                            
+                            <dt class="col-sm-4">Descripción</dt>
+                            <dd class="col-sm-8" id="detalle-descripcion"></dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-4 border-left">
+                        <h6><i class="fas fa-file-alt mr-2"></i> Documentos</h6>
+                        <div id="detalle-documentos" class="mb-3">
+                            <div class="text-center text-muted py-3">Sin documentos adjuntos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para visualizar documento -->
+<div class="modal fade" id="modalVerDocumento" tabindex="-1" role="dialog" aria-labelledby="modalVerDocumentoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="iconoDocumento" style="font-size:2.5rem; margin-right:10px;"></span>
+                <h5 class="modal-title" id="modalVerDocumentoLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center" id="contenedorDocumento">
+                <!-- Aquí se carga el documento dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <form id="formEliminarDocumento" method="POST" style="display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    @if(auth()->user()->puedeEliminar('TareasDocumentales'))
+                    <button type="submit" class="btn btn-danger" id="btnEliminarDocumento" onclick="return confirm('¿Seguro que desea eliminar este documento?')">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                    @endif
+                </form>
+                <a href="#" id="descargarDocumento" class="btn btn-primary" download target="_blank">
+                    <i class="fas fa-download"></i> Descargar
+                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para delegar tarea -->
+<div class="modal fade" id="modalDelegarTarea" tabindex="-1" role="dialog" aria-labelledby="modalDelegarTareaLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0b2e59; color: white;">
+                <h5 class="modal-title" id="modalDelegarTareaLabel">
+                    <i class="fas fa-user-friends mr-2"></i> Delegar Tarea
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" id="formDelegarTarea">
                 @csrf
+                <input type="hidden" name="tarea_id" id="tareaIdDelegar">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Nombre</label>
-                        <input type="text" class="form-control" name="nombre" required 
-                               placeholder="Nombre del tipo" maxlength="50"
-                               oninput="sanitizeElementoNombre(this)">
-                        <small class="text-muted">Máx. 50 caracteres. Solo letras, números, espacios y puntos.</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Categoría</label>
-                        <select class="form-control" name="categoria" required>
-                            <option value="">Seleccionar categoría</option>
-                            <option value="documento">Documento</option>
-                            <option value="objeto">Objeto</option>
-                            <option value="kit">Kit</option>
+                        <label for="nuevoResponsable">Seleccionar nuevo responsable</label>
+                        <select class="form-control" id="nuevoResponsable" name="nuevo_responsable" required>
+                            <option value="">Seleccionar responsable</option>
+                            @foreach$responsables as $responsable)
+                                <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Tipo</button>
+                    <button type="submit" class="btn btn-primary">Delegar</button>
                 </div>
             </form>
         </div>
@@ -485,6 +518,48 @@
     .elegant-header .header-icon {
         font-size: 2.5rem;
         opacity: 0.9;
+    }
+    
+    /* Tarjetas de estadísticas */
+    .card-stats {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .card-stats .card-body {
+        padding: 15px;
+    }
+    
+    .icon-bg {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .bg-secondary { background-color: #6c757d; }
+    .bg-info { background-color: #17a2b8; }
+    .bg-success { background-color: #28a745; }
+    .bg-primary { background-color: #007bff; }
+    
+    .card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .card-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0;
     }
     
     /* Tarjetas */
@@ -541,24 +616,6 @@
         color: #6c757d;
     }
     
-    .btn-notification {
-        background: #f8f9fc;
-        border: 1px solid #eaeef5;
-        border-radius: 50%;
-        width: 42px;
-        height: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-notification:hover {
-        background: #eef2f7;
-        transform: rotate(10deg);
-    }
-    
     /* Tabla */
     .table-borderless {
         border-collapse: separate;
@@ -607,49 +664,15 @@
     }
     
     /* Badges de estado */
-    .badge-state-enviado {
-        background-color: #e3f2fd;
-        color: #1976d2;
-        padding: 6px 12px;
-        border-radius: 50px;
+    .badge-pill {
+        padding: 0.5em 1em;
         font-weight: 500;
     }
     
-    .badge-state-recibido {
-        background-color: #e8f5e9;
-        color: #388e3c;
-        padding: 6px 12px;
-        border-radius: 50px;
-        font-weight: 500;
-    }
-    
-    .badge-state-pendiente {
-        background-color: #fff8e1;
-        color: #f57c00;
-        padding: 6px 12px;
-        border-radius: 50px;
-        font-weight: 500;
-    }
-    
-    /* Avatar de usuarios */
-    .avatar-sm {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .avatar-initials {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 14px;
-    }
+    .badge-warning { background-color: #ffc107; color: #343a40; }
+    .badge-info { background-color: #17a2b8; }
+    .badge-success { background-color: #28a745; }
+    .badge-primary { background-color: #007bff; }
     
     /* Botones de acción */
     .btn-action {
@@ -672,14 +695,6 @@
     }
     
     /* Alertas */
-    .alert-container {
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        z-index: 1050;
-        width: 350px;
-    }
-    
     .alert-elegant-success {
         background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
         color: #388e3c;
@@ -694,28 +709,6 @@
         border: none;
         border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    }
-    
-    /* Estado vacío */
-    .empty-state {
-        padding: 40px 0;
-        text-align: center;
-    }
-    
-    .empty-state i {
-        font-size: 4rem;
-        opacity: 0.3;
-        margin-bottom: 20px;
-    }
-    
-    .empty-state h5 {
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 10px;
-    }
-    
-    .empty-state p {
-        color: #6c757d;
     }
     
     /* Paginación */
@@ -756,39 +749,71 @@
         box-shadow: 0 0 0 0.2rem rgba(58, 123, 213, 0.15);
     }
     
-    /* Notificaciones dropdown */
-    .notifications-dropdown .dropdown-menu {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        width: 350px;
-        max-height: 400px;
-        overflow-y: auto;
-        padding: 0;
-    }
-    
-    .dropdown-header {
+    /* Documentos en detalle */
+    .documento-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 8px;
         background-color: #f8f9fc;
-        padding: 12px 20px;
-        font-weight: 600;
-        color: #2c3e50;
-        border-radius: 12px 12px 0 0;
-        border-bottom: 1px solid #eaeef5;
+        transition: all 0.3s ease;
     }
     
-    .dropdown-item {
-        padding: 12px 20px;
-        border-bottom: 1px solid #f0f4f8;
-        transition: all 0.2s ease;
+    .documento-item:hover {
+        background-color: #eef2f7;
     }
     
-    .dropdown-item.unread {
-        background-color: #f0f8ff;
-        border-left: 3px solid #3a7bd5;
+    .documento-icon {
+        font-size: 1.8rem;
+        margin-right: 12px;
     }
     
-    .dropdown-item:hover {
-        background-color: #f8f9fc;
+    .documento-info {
+        flex-grow: 1;
+    }
+    
+    .documento-info h6 {
+        margin-bottom: 2px;
+        font-weight: 500;
+    }
+    
+    .documento-info p {
+        margin-bottom: 0;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    /* Historial */
+    .historial-scroll {
+        padding-right: 18px !important;
+    }
+    
+    .historial-scroll::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .historial-scroll::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+    
+    .historial-scroll::-webkit-scrollbar-track {
+        background: #f8f9fa;
+    }
+    
+    .historial-item {
+        padding: 8px 0;
+        border-bottom: 1px dashed #eaeef5;
+    }
+    
+    .historial-item:last-child {
+        border-bottom: none;
+    }
+    
+    .historial-item .badge {
+        font-size: 0.75em;
+        margin-right: 8px;
     }
 </style>
 @stop
@@ -796,11 +821,11 @@
 @section('js')
 <script>
     // Funciones de sanitización
-    function sanitizeTitulo(input) {
+    function sanitizeNombreTarea(input) {
         let value = input.value;
         
-        // Eliminar caracteres no permitidos (solo letras, números, espacios, puntos, comas y guiones)
-        value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,\-]/g, '');
+        // Eliminar caracteres no permitidos
+        value = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
         
         // Limitar repeticiones consecutivas a 3
         value = value.replace(/(.)\1{3,}/g, '$1$1$1');
@@ -813,45 +838,11 @@
         input.value = value;
     }
 
-    function sanitizeDescripcion(input) {
+    function sanitizeDescripcionTarea(input) {
         let value = input.value;
         
         // Eliminar caracteres no permitidos (solo letras, números, espacios, puntos, comas, guiones y dos puntos)
-        value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,\-:]/g, '');
-        
-        // Limitar repeticiones consecutivas a 3
-        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
-        
-        // Limitar a 100 caracteres
-        if (value.length > 100) {
-            value = value.substring(0, 100);
-        }
-        
-        input.value = value;
-    }
-
-    function sanitizeElementoNombre(input) {
-        let value = input.value;
-        
-        // Eliminar caracteres no permitidos (solo letras, números, espacios y puntos)
-        value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.]/g, '');
-        
-        // Limitar repeticiones consecutivas a 3
-        value = value.replace(/(.)\1{3,}/g, '$1$1$1');
-        
-        // Limitar a 50 caracteres
-        if (value.length > 50) {
-            value = value.substring(0, 50);
-        }
-        
-        input.value = value;
-    }
-
-    function sanitizeElementoDescripcion(input) {
-        let value = input.value;
-        
-        // Eliminar caracteres no permitidos (solo letras, números, espacios, puntos, comas, guiones y dos puntos)
-        value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,\-:]/g, '');
+        value = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-:]/g, '');
         
         // Limitar repeticiones consecutivas a 3
         value = value.replace(/(.)\1{3,}/g, '$1$1$1');
@@ -865,85 +856,207 @@
     }
 
     $(document).ready(function() {
-        // Inicializar tooltips
-        $('[data-toggle="tooltip"]').tooltip({
-            placement: 'top',
-            trigger: 'hover'
+        // Ocultar notificación de éxito después de 5 segundos
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+        
+        // Actualizar nombre de archivo en input file
+        $('.custom-file-input').on('change', function() {
+            let fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
         });
         
-        // Animación para las filas de la tabla
-        $('.table-row').each(function(i) {
-            $(this).delay(i * 50).animate({
-                opacity: 1
-            }, 300);
-        });
-        
-        // Animación para botón de notificaciones
-        $('#notifDropdown').hover(function() {
-            $(this).find('i').css('transform', 'rotate(15deg)');
-        }, function() {
-            $(this).find('i').css('transform', 'rotate(0deg)');
-        });
-
-        // Controlador para agregar elementos
-        let elementoCount = 1;
-        $('#addElement').click(function(e) {
-            e.preventDefault();
-            let newElement = `
-                <div class="elemento-item mb-3 border p-3 rounded">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label>Tipo</label>
-                            <select class="form-control tipo-select" name="elementos[${elementoCount}][fk_id_tipo]" required>
-                                <option value="">Seleccionar tipo</option>
-                                @foreach($tiposElemento as $tipo)
-                                    <option value="{{ $tipo->id_tipo }}">
-                                        {{ $tipo->nombre }} ({{ $tipo->categoria }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label>Nombre</label>
-                            <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" required 
-                                   placeholder="Nombre del elemento" maxlength="50"
-                                   oninput="sanitizeElementoNombre(this)">
-                            <small class="text-muted">Máx. 50 caracteres. Solo letras, números, espacios y puntos.</small>
-                        </div>
-                        <div class="col-md-2">
-                            <label>Cantidad</label>
-                            <input type="number" class="form-control" name="elementos[${elementoCount}][cantidad]" 
-                                   value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="button" class="btn btn-danger btn-block remove-element">
-                                <i class="fas fa-trash"></i>
+        // Modal Detalle
+        $('#modalDetalleTarea').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var tareaId = button.data('id');
+            
+            $('#detalle-nombre').text(button.data('nombre'));
+            $('#detalle-responsable').text(button.data('responsable'));
+            $('#detalle-fecha').text(button.data('fecha'));
+            $('#detalle-vencimiento').text(button.data('vencimiento') || 'No definida');
+            $('#detalle-descripcion').text(button.data('descripcion') || 'Sin descripción');
+            
+            // Estado destacado
+            var estado = button.data('estado');
+            var badgeClass = '';
+            switch(estado) {
+                case 'Pendiente': badgeClass = 'badge-warning'; break;
+                case 'En Proceso': badgeClass = 'badge-info'; break;
+                case 'Completada': badgeClass = 'badge-success'; break;
+                case 'Rechazada': badgeClass = 'badge-primary'; break;
+                default: badgeClass = 'badge-secondary';
+            }
+            $('#detalle-estado').attr('class', 'badge badge-pill ' + badgeClass).text(estado);
+            
+            // Documentos
+            var documentos = button.data('documentos');
+            var documentosHtml = '';
+            
+            if(documentos && documentos.length > 0) {
+                documentos.forEach(function(doc) {
+                    var icono = '';
+                    if(doc.tipo === 'imagen') {
+                        icono = '<i class="fas fa-file-image text-info documento-icon"></i>';
+                    } else if(doc.tipo === 'pdf') {
+                        icono = '<i class="fas fa-file-pdf text-danger documento-icon"></i>';
+                    } else {
+                        icono = '<i class="fas fa-file text-secondary documento-icon"></i>';
+                    }
+                    
+                    documentosHtml += `
+                        <div class="documento-item">
+                            ${icono}
+                            <div class="documento-info">
+                                <h6>${doc.nombre}</h6>
+                                <p>Tipo: ${doc.tipo_documento}</p>
+                            </div>
+                            <button class="btn btn-sm btn-link ver-documento" 
+                                data-url="${doc.url}" 
+                                data-tipo="${doc.tipo}"
+                                data-nombre="${doc.nombre}"
+                                data-id="${doc.id}">
+                                <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <label>Descripción</label>
-                            <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" rows="2" 
-                                      placeholder="Descripción del elemento" maxlength="100"
-                                      oninput="sanitizeElementoDescripcion(this)"></textarea>
-                            <small class="text-muted">Máx. 100 caracteres. Solo letras, números, espacios, puntos, comas, guiones y dos puntos (:).</small>
-                        </div>
-                    </div>
-                </div>
-            `;
-            $('#elementosContainer').append(newElement);
-            elementoCount++;
+                    `;
+                });
+            } else {
+                documentosHtml = '<div class="text-center text-muted py-3">Sin documentos adjuntos</div>';
+            }
+            
+            $('#detalle-documentos').html(documentosHtml);
         });
 
-        // Eliminar elemento
-        $(document).on('click', '.remove-element', function() {
-            $(this).closest('.elemento-item').remove();
+        // Modal Nueva/Editar Tarea
+        $('#modalNuevaTarea').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var modal = $(this);
+            var form = modal.find('form');
+            var isEdit = button.data('id') ? true : false;
+
+            // Reset form
+            form.trigger('reset');
+            form.find('input[name="_method"]').remove();
+            modal.find('#documentoLabel').text('Seleccionar archivo');
+            $('#modalTareaTitle').text('Nueva Tarea Documental');
+            $('#btnGuardarTarea').text('Crear Tarea');
+            $('#tareaId').val('');
+            
+            // Mostrar campo de documento solo para crear
+            $('#tipoDocumentoContainer').show();
+
+            if (isEdit) {
+                // Editar
+                $('#modalTareaTitle').text('Editar Tarea Documental');
+                $('#btnGuardarTarea').text('Actualizar Tarea');
+                form.attr('action', '/tareas/' + button.data('id'));
+                form.append('<input type="hidden" name="_method" value="PUT">');
+                $('#tareaId').val(button.data('id'));
+                $('#nombreTarea').val(button.data('nombre'));
+                $('#responsableTarea').val(button.data('responsable'));
+                $('#fechaCreacionTarea').val(button.data('fecha'));
+                $('#fechaVencimientoTarea').val(button.data('vencimiento'));
+                $('#descripcionTarea').val(button.data('descripcion'));
+                
+                // Ocultar campo de documento para edición
+                $('#tipoDocumentoContainer').hide();
+            }
+        });
+
+        // Visualizar documento en modal
+        $(document).on('click', '.ver-documento', function(e) {
+            e.preventDefault();
+            var url = $(this).data('url');
+            var tipo = $(this).data('tipo');
+            var nombre = $(this).data('nombre');
+            var id = $(this).data('id');
+            var icono = '';
+            var html = '';
+
+            if(tipo === 'imagen') {
+                icono = '<i class="fas fa-file-image text-info"></i>';
+                html = '<img src="' + url + '" alt="' + nombre + '" class="img-fluid">';
+            } else if(tipo === 'pdf') {
+                icono = '<i class="fas fa-file-pdf text-danger"></i>';
+                html = '<iframe src="' + url + '" width="100%" height="500px" style="border:none;"></iframe>';
+            } else {
+                icono = '<i class="fas fa-file text-secondary"></i>';
+                html = '<p>No es posible visualizar este tipo de archivo.</p>';
+            }
+
+            $('#iconoDocumento').html(icono);
+            $('#modalVerDocumentoLabel').text(nombre);
+            $('#contenedorDocumento').html(html);
+            $('#descargarDocumento').attr('href', url);
+
+            // Actualiza la acción del formulario de eliminar
+            var action = "{{ route('tareas.documento.eliminar', ':id') }}";
+            $('#formEliminarDocumento').attr('action', action.replace(':id', id));
+            
+            $('#modalVerDocumento').modal('show');
         });
         
-        // Validación para campos numéricos
-        $('body').on('input', 'input[type="number"]', function() {
-            this.value = this.value.replace(/[^0-9]/g, '');
+        // Validación de fechas
+        $('#fechaVencimientoTarea').on('change', function() {
+            var fechaInicio = new Date($('#fechaCreacionTarea').val());
+            var fechaFin = new Date($(this).val());
+            
+            if(fechaFin < fechaInicio) {
+                alert('La fecha de vencimiento no puede ser anterior a la fecha de creación');
+                $(this).val('');
+            }
+        });
+        
+        // Filtrar tabla con AJAX
+        $('#filtroTareas').on('submit', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                url: form.attr('action'),
+                type: 'GET',
+                data: form.serialize(),
+                success: function(data) {
+                    $(".table tbody").html(data);
+                },
+                error: function() {
+                    alert('Error al filtrar las tareas.');
+                }
+            });
+        });
+
+        // Cambiar estado de tarea
+        $(document).on('click', '.cambiar-estado', function(e) {
+            e.preventDefault();
+            var estado = $(this).data('estado');
+            var tareaId = $(this).closest('tr').data('id');
+            var url = "{{ route('tareas.estado', ['id' => ':id']) }}";
+            url = url.replace(':id', tareaId);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    estado: estado
+                },
+                success: function(response) {
+                    location.reload();
+                },
+                error: function() {
+                    alert('Error al cambiar el estado');
+                }
+            });
+        });
+
+        // Modal Delegar Tarea
+        $('#modalDelegarTarea').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var tareaId = button.data('id');
+            var form = $(this).find('form');
+            form.attr('action', "{{ route('tareas.delegar', ['id' => ':id']) }}".replace(':id', tareaId));
+            $('#tareaIdDelegar').val(tareaId);
         });
     });
 </script>
