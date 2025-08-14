@@ -36,7 +36,11 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Número de Documento</label>
-                            <input type="text" class="form-control form-control-elegant" name="numero" placeholder="Ej: OF-2023-001">
+                            <input type="text" class="form-control form-control-elegant" name="numero" 
+                                   placeholder="Ej: OF-2023-001" 
+                                   oninput="sanitizeNumeroDocumento(this)"
+                                   maxlength="20">
+                            <small class="text-muted">Formato: LETRAS-GUION-NÚMEROS. Máx. 20 caracteres</small>
                         </div>
                     </div>
                 </div>
@@ -45,25 +49,40 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Remitente</label>
-                            <input type="text" class="form-control form-control-elegant" name="remitente" placeholder="Nombre del remitente" required>
+                            <input type="text" class="form-control form-control-elegant" name="remitente" 
+                                   placeholder="Nombre del remitente" required
+                                   oninput="sanitizeNombre(this)"
+                                   maxlength="100">
+                            <small class="text-muted">Máx. 100 caracteres. Solo letras, espacios, puntos, comas y guiones</small>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Destinatario</label>
-                            <input type="text" class="form-control form-control-elegant" name="destinatario" placeholder="Nombre del destinatario" required>
+                            <input type="text" class="form-control form-control-elegant" name="destinatario" 
+                                   placeholder="Nombre del destinatario" required
+                                   oninput="sanitizeNombre(this)"
+                                   maxlength="100">
+                            <small class="text-muted">Máx. 100 caracteres. Solo letras, espacios, puntos, comas y guiones</small>
                         </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label>Asunto</label>
-                    <input type="text" class="form-control form-control-elegant" name="asunto" placeholder="Asunto del documento" required>
+                    <input type="text" class="form-control form-control-elegant" name="asunto" 
+                           placeholder="Asunto del documento" required
+                           oninput="sanitizeAsunto(this)"
+                           maxlength="255">
+                    <small class="text-muted">Máx. 255 caracteres. Solo letras, números, espacios, puntos, comas, guiones y signos de interrogación/admiración</small>
                 </div>
                 
                 <div class="form-group">
                     <label>Descripción</label>
-                    <textarea class="form-control form-control-elegant" name="descripcion" rows="3" placeholder="Descripción adicional (opcional)"></textarea>
+                    <textarea class="form-control form-control-elegant" name="descripcion" rows="3" 
+                              placeholder="Descripción adicional (opcional)"
+                              oninput="sanitizeDescripcion(this)"></textarea>
+                    <small class="text-muted">Solo letras, números, espacios, puntos, comas, guiones y signos de interrogación/admiración</small>
                 </div>
                 
                 <div class="row">
@@ -101,7 +120,6 @@
 
 @section('css')
     <style>
-
         .elegant-header {
             background: linear-gradient(135deg, #0b2e59, #1a5a8d);
             padding: 20px;
@@ -142,5 +160,66 @@
             // Establecer fecha actual por defecto
             $('input[name="fecha_documento"]').val(new Date().toISOString().split('T')[0]);
         });
+        
+        // Funciones de sanitización
+        function sanitizeNombre(input) {
+            let value = input.value;
+            
+            // Eliminar caracteres no permitidos (solo letras, espacios, puntos, comas y guiones)
+            value = value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ.,-]/g, '');
+            
+            // Limitar repeticiones consecutivas a 3
+            value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+            
+            // Limitar a 100 caracteres
+            if (value.length > 100) {
+                value = value.substring(0, 100);
+            }
+            
+            input.value = value;
+        }
+        
+        function sanitizeAsunto(input) {
+            let value = input.value;
+            
+            // Permitir letras, números, espacios, puntos, comas, guiones, ¿?, ¡!
+            value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,\-¿?¡!]/g, '');
+            
+            // Limitar repeticiones consecutivas a 3
+            value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+            
+            // Limitar a 255 caracteres
+            if (value.length > 255) {
+                value = value.substring(0, 255);
+            }
+            
+            input.value = value;
+        }
+        
+        function sanitizeDescripcion(textarea) {
+            let value = textarea.value;
+            
+            // Permitir letras, números, espacios, puntos, comas, guiones, ¿?, ¡!
+            value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,\-¿?¡!]/g, '');
+            
+            // Limitar repeticiones consecutivas a 3
+            value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+            
+            textarea.value = value;
+        }
+        
+        function sanitizeNumeroDocumento(input) {
+            let value = input.value;
+            
+            // Permitir letras, números y guiones
+            value = value.replace(/[^a-zA-Z0-9\-]/g, '');
+            
+            // Limitar a 20 caracteres
+            if (value.length > 20) {
+                value = value.substring(0, 20);
+            }
+            
+            input.value = value;
+        }
     </script>
 @stop

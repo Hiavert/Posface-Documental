@@ -46,13 +46,17 @@
                         <label class="form-label">Remitente</label>
                         <input type="text" class="form-control form-control-elegant" name="remitente" 
                                placeholder="Nombre del remitente" value="{{ request('remitente') }}"
-                               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" title="Solo letras, espacios y caracteres como . , -">
+                               oninput="sanitizeNombre(this)"
+                               maxlength="100">
+                        <small class="text-muted">Solo letras, espacios, puntos, comas y guiones</small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Destinatario</label>
                         <input type="text" class="form-control form-control-elegant" name="destinatario" 
                                placeholder="Nombre del destinatario" value="{{ request('destinatario') }}"
-                               pattern="[a-zA极狐ZáéíóúÁÉÍÓÚñÑ\s.,\-]+" title="Solo letras, espacios y caracteres como . , -">
+                               oninput="sanitizeNombre(this)"
+                               maxlength="100">
+                        <small class="text-muted">Solo letras, espacios, puntos, comas y guiones</small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Fecha</label>
@@ -63,7 +67,8 @@
                     <div class="col-md-8 mb-3">
                         <label class="form-label">Palabras Clave</label>
                         <input type="text" class="form-control form-control-elegant" name="busqueda" 
-                               placeholder="Buscar por asunto o contenido" value="{{ request('busqueda') }}">
+                               placeholder="Buscar por asunto o contenido" value="{{ request('busqueda') }}"
+                               oninput="sanitizeBusqueda(this)">
                     </div>
                     <div class="col-md-4 mb-3 d-flex align-items-end">
                         <div class="d-flex w-100">
@@ -446,11 +451,6 @@
                 window.location = "{{ route('documentos.gestor') }}";
             });
             
-            // Validación de campos
-            $('input[name="remitente"], input[name="destinatario"]').on('input', function() {
-                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
-            });
-            
             // Vista previa de documentos
             $('.preview-btn').click(function() {
                 const fileUrl = $(this).data('file-url');
@@ -477,5 +477,23 @@
                 $('#previewModal').modal('show');
             });
         });
+        
+        // Funciones de sanitización para filtros
+        function sanitizeNombre(input) {
+            let value = input.value;
+            value = value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ.,-]/g, '');
+            value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+            if (value.length > 100) {
+                value = value.substring(0, 100);
+            }
+            input.value = value;
+        }
+        
+        function sanitizeBusqueda(input) {
+            let value = input.value;
+            value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,\-¿?¡!]/g, '');
+            value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+            input.value = value;
+        }
     </script>
 @stop

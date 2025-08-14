@@ -38,7 +38,10 @@
                         <div class="form-group">
                             <label>Número de Documento</label>
                             <input type="text" class="form-control form-control-elegant" name="numero" 
-                                   placeholder="Ej: OF-2023-001" value="{{ $documento->numero }}">
+                                   placeholder="Ej: OF-2023-001" value="{{ $documento->numero }}"
+                                   oninput="sanitizeNumeroDocumento(this)"
+                                   maxlength="20">
+                            <small class="text-muted">Formato: LETRAS-GUION-NÚMEROS. Máx. 20 caracteres</small>
                         </div>
                     </div>
                 </div>
@@ -48,14 +51,20 @@
                         <div class="form-group">
                             <label>Remitente</label>
                             <input type="text" class="form-control form-control-elegant" name="remitente" 
-                                   placeholder="Nombre del remitente" required value="{{ $documento->remitente }}">
+                                   placeholder="Nombre del remitente" required value="{{ $documento->remitente }}"
+                                   oninput="sanitizeNombre(this)"
+                                   maxlength="100">
+                            <small class="text-muted">Máx. 100 caracteres. Solo letras, espacios, puntos, comas y guiones</small>
                         </div>
                     </div>
-                    <col-md-6">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label>Destinatario</label>
                             <input type="text" class="form-control form-control-elegant" name="destinatario" 
-                                   placeholder="Nombre del destinatario" required value="{{ $documento->destinatario }}">
+                                   placeholder="Nombre del destinatario" required value="{{ $documento->destinatario }}"
+                                   oninput="sanitizeNombre(this)"
+                                   maxlength="100">
+                            <small class="text-muted">Máx. 100 caracteres. Solo letras, espacios, puntos, comas y guiones</small>
                         </div>
                     </div>
                 </div>
@@ -63,13 +72,18 @@
                 <div class="form-group">
                     <label>Asunto</label>
                     <input type="text" class="form-control form-control-elegant" name="asunto" 
-                           placeholder="Asunto del documento" required value="{{ $documento->asunto }}">
+                           placeholder="Asunto del documento" required value="{{ $documento->asunto }}"
+                           oninput="sanitizeAsunto(this)"
+                           maxlength="255">
+                    <small class="text-muted">Máx. 255 caracteres. Solo letras, números, espacios, puntos, comas, guiones y signos de interrogación/admiración</small>
                 </div>
                 
                 <div class="form-group">
                     <label>Descripción</label>
                     <textarea class="form-control form-control-elegant" name="descripcion" rows="3" 
-                              placeholder="Descripción adicional (opcional)">{{ $documento->descripcion }}</textarea>
+                              placeholder="Descripción adicional (opcional)"
+                              oninput="sanitizeDescripcion(this)">{{ $documento->descripcion }}</textarea>
+                    <small class="text-muted">Solo letras, números, espacios, puntos, comas, guiones y signos de interrogación/admiración</small>
                 </div>
                 
                 <div class="row">
@@ -187,5 +201,42 @@
                 $('#previewModal').modal('show');
             });
         });
+        
+        // Funciones de sanitización (iguales a las de create)
+        function sanitizeNombre(input) {
+            let value = input.value;
+            value = value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ.,-]/g, '');
+            value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+            if (value.length > 100) {
+                value = value.substring(0, 100);
+            }
+            input.value = value;
+        }
+        
+        function sanitizeAsunto(input) {
+            let value = input.value;
+            value = value.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,\-¿?¡!]/g, '');
+            value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+            if (value.length > 255) {
+                value = value.substring(0, 255);
+            }
+            input.value = value;
+        }
+        
+        function sanitizeDescripcion(textarea) {
+            let value = textarea.value;
+            value = value.replace(/[^a-zA极狐Z0-9\sáéíóúÁÉÍÓÚñÑ.,\-¿?¡!]/g, '');
+            value = value.replace(/(.)\1{3,}/g, '$1$1$1');
+            textarea.value = value;
+        }
+        
+        function sanitizeNumeroDocumento(input) {
+            let value = input.value;
+            value = value.replace(/[^a-zA-Z0-9\-]/g, '');
+            if (value.length > 20) {
+                value = value.substring(0, 20);
+            }
+            input.value = value;
+        }
     </script>
 @stop
