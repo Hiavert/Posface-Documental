@@ -123,7 +123,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/preview/{filename}', [TesisController::class, 'preview'])->name('tesis.preview');
         });
 
-        Route::middleware('granular.permission:Tesis,Gestionagregar')->group(function () {
+        Route::middleware('granular.permission:GestionTesis,agregar')->group(function () {
             Route::post('/', [TesisController::class, 'store'])->name('tesis.store');
             Route::post('/exportar', [TesisController::class, 'exportar'])->name('tesis.exportar');
         });
