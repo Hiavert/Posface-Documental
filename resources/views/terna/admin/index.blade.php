@@ -34,12 +34,14 @@
     <!-- Filtros de búsqueda -->
     <div class="card card-elegant mb-4">
         <div class="card-body">
-            <form action="{{ route('terna.admin.index') }}" method="GET">
+            <form action="{{ route('terna.admin.index') }}" method="GET" id="filtrosForm">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
                             <label>Buscar por código</label>
-                            <input type="text" name="codigo" class="form-control" placeholder="TERNA-001" value="{{ request('codigo') }}">
+                            <input type="text" name="codigo" id="codigo" class="form-control" placeholder="TERNA-001" value="{{ request('codigo') }}" maxlength="12">
+                            <div class="invalid-feedback" id="codigoError"></div>
+                            <small class="form-text text-muted">Máximo 12 caracteres. Solo letras, números y guiones.</small>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -56,7 +58,9 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label>Responsable</label>
-                            <input type="text" name="responsable" class="form-control" placeholder="Nombre responsable" value="{{ request('responsable') }}">
+                            <input type="text" name="responsable" id="responsable" class="form-control" placeholder="Nombre responsable" value="{{ request('responsable') }}" maxlength="20">
+                            <div class="invalid-feedback" id="responsableError"></div>
+                            <small class="form-text text-muted">Máximo 20 caracteres. Solo letras y espacios.</small>
                         </div>
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
@@ -516,6 +520,25 @@
         border-radius: 8px;
         margin: 0 3px;
     }
+    
+    /* Estilos para campos con error */
+    .is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .invalid-feedback {
+        display: none;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 80%;
+        color: #dc3545;
+    }
+    
+    .was-validated .form-control:invalid ~ .invalid-feedback,
+    .form-control.is-invalid ~ .invalid-feedback {
+        display: block;
+    }
 </style>
 @stop
 
@@ -538,6 +561,105 @@
         // Prevenir doble envío de formularios
         $('form').submit(function() {
             $(this).find('button[type="submit"]').prop('disabled', true);
+        });
+        
+        // Validaciones para el campo de código
+        $('#codigo').on('input', function() {
+            let value = $(this).val();
+            let errorElement = $('#codigoError');
+            
+            // Validar longitud máxima
+            if (value.length > 12) {
+                $(this).val(value.substring(0, 12));
+                value = $(this).val();
+            }
+            
+            // Validar caracteres permitidos (solo letras, números y guiones)
+            let validChars = /^[a-zA-Z0-9\-]*$/;
+            if (!validChars.test(value)) {
+                $(this).addClass('is-invalid');
+                errorElement.text('Solo se permiten letras, números y guiones.');
+                return;
+            }
+            
+            // Validar repetición de letras (máximo 3 veces seguidas)
+            let repeatChars = /(.)\1{3,}/;
+            if (repeatChars.test(value)) {
+                $(this).addClass('is-invalid');
+                errorElement.text('No se permiten más de 3 repeticiones de la misma letra.');
+                return;
+            }
+            
+            // Si pasa todas las validaciones, quitar clase de error
+            $(this).removeClass('is-invalid');
+            errorElement.text('');
+        });
+        
+        // Validaciones para el campo de responsable
+        $('#responsable').on('input', function() {
+            let value = $(this).val();
+            let errorElement = $('#responsableError');
+            
+            // Validar longitud máxima
+            if (value.length > 20) {
+                $(this).val(value.substring(0, 20));
+                value = $(this).val();
+            }
+            
+            // Validar caracteres permitidos (solo letras y espacios)
+            let validChars = /^[a-zA-Z\s]*$/;
+            if (!validChars.test(value)) {
+                $(this).addClass('is-invalid');
+                errorElement.text('Solo se permiten letras y espacios.');
+                return;
+            }
+            
+            // Validar repetición de letras (máximo 3 veces seguidas)
+            let repeatChars = /(.)\1{3,}/;
+            if (repeatChars.test(value)) {
+                $(this).addClass('is-invalid');
+                errorElement.text('No se permiten más de 3 repeticiones de la misma letra.');
+                return;
+            }
+            
+            // Si pasa todas las validaciones, quitar clase de error
+            $(this).removeClass('is-invalid');
+            errorElement.text('');
+        });
+        
+        // Validar formulario antes de enviar
+        $('#filtrosForm').on('submit', function(e) {
+            let isValid = true;
+            
+            // Validar campo código
+            let codigoValue = $('#codigo').val();
+            let codigoValidChars = /^[a-zA-Z0-9\-]*$/;
+            let codigoRepeatChars = /(.)\1{3,}/;
+            
+            if (codigoValue && (!codigoValidChars.test(codigoValue) || codigoRepeatChars.test(codigoValue))) {
+                $('#codigo').addClass('is-invalid');
+                $('#codigoError').text('El código no cumple con las validaciones requeridas.');
+                isValid = false;
+            }
+            
+            // Validar campo responsable
+            let responsableValue = $('#responsable').val();
+            let responsableValidChars = /^[a-zA-Z\s]*$/;
+            let responsableRepeatChars = /(.)\1{3,}/;
+            
+            if (responsableValue && (!responsableValidChars.test(responsableValue) || responsableRepeatChars.test(responsableValue))) {
+                $('#responsable').addClass('is-invalid');
+                $('#responsableError').text('El responsable no cumple con las validaciones requeridas.');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                // Desplazar hacia el primer campo con error
+                $('html, body').animate({
+                    scrollTop: $('.is-invalid').first().offset().top - 100
+                }, 500);
+            }
         });
     });
 </script>
