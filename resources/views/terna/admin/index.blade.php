@@ -565,10 +565,10 @@
             let value = $(this).val();
             
             // Validar y limpiar caracteres no permitidos (solo letras y espacios)
-            value = value.replace(/[^a-zA-Z\s]/g, '');
+            value = value.replace(/[^a-zA-ZÀ-ÿ\u00f1\u00d1\s]/g, '');
             
             // Validar repetición de letras (máximo 3 veces seguidas)
-            value = value.replace(/([a-zA-Z])\1{3,}/g, function(match, p1) {
+            value = value.replace(/([^a-zA-ZÀ-ÿ\u00f1\u00d1\s])\1{3,}/g, function(match, p1) {
                 return p1 + p1 + p1; // Deja máximo 3 repeticiones
             });
             
