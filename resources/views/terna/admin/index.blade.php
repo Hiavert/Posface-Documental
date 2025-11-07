@@ -40,7 +40,6 @@
                         <div class="form-group">
                             <label>Buscar por código</label>
                             <input type="text" name="codigo" id="codigo" class="form-control" placeholder="TERNA-001" value="{{ request('codigo') }}" maxlength="12">
-                            <div class="invalid-feedback" id="codigoError"></div>
                             <small class="form-text text-muted">Máximo 12 caracteres. Solo letras, números y guiones.</small>
                         </div>
                     </div>
@@ -59,7 +58,6 @@
                         <div class="form-group">
                             <label>Responsable</label>
                             <input type="text" name="responsable" id="responsable" class="form-control" placeholder="Nombre responsable" value="{{ request('responsable') }}" maxlength="20">
-                            <div class="invalid-feedback" id="responsableError"></div>
                             <small class="form-text text-muted">Máximo 20 caracteres. Solo letras y espacios.</small>
                         </div>
                     </div>
@@ -520,25 +518,6 @@
         border-radius: 8px;
         margin: 0 3px;
     }
-    
-    /* Estilos para campos con error */
-    .is-invalid {
-        border-color: #dc3545;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-    }
-    
-    .invalid-feedback {
-        display: none;
-        width: 100%;
-        margin-top: 0.25rem;
-        font-size: 80%;
-        color: #dc3545;
-    }
-    
-    .was-validated .form-control:invalid ~ .invalid-feedback,
-    .form-control.is-invalid ~ .invalid-feedback {
-        display: block;
-    }
 </style>
 @stop
 
@@ -563,103 +542,52 @@
             $(this).find('button[type="submit"]').prop('disabled', true);
         });
         
-        // Validaciones para el campo de código
+        // Validación para el campo de código - previene entrada no válida
         $('#codigo').on('input', function() {
             let value = $(this).val();
-            let errorElement = $('#codigoError');
             
-            // Validar longitud máxima
-            if (value.length > 12) {
-                $(this).val(value.substring(0, 12));
-                value = $(this).val();
-            }
-            
-            // Validar caracteres permitidos (solo letras, números y guiones)
-            let validChars = /^[a-zA-Z0-9\-]*$/;
-            if (!validChars.test(value)) {
-                $(this).addClass('is-invalid');
-                errorElement.text('Solo se permiten letras, números y guiones.');
-                return;
-            }
+            // Validar y limpiar caracteres no permitidos
+            value = value.replace(/[^a-zA-Z0-9\-]/g, '');
             
             // Validar repetición de letras (máximo 3 veces seguidas)
-            let repeatChars = /(.)\1{3,}/;
-            if (repeatChars.test(value)) {
-                $(this).addClass('is-invalid');
-                errorElement.text('No se permiten más de 3 repeticiones de la misma letra.');
-                return;
+            value = value.replace(/([a-zA-Z])\1{3,}/g, function(match, p1) {
+                return p1 + p1 + p1; // Deja máximo 3 repeticiones
+            });
+            
+            // Limitar longitud
+            if (value.length > 12) {
+                value = value.substring(0, 12);
             }
             
-            // Si pasa todas las validaciones, quitar clase de error
-            $(this).removeClass('is-invalid');
-            errorElement.text('');
+            $(this).val(value);
         });
         
-        // Validaciones para el campo de responsable
+        // Validación para el campo de responsable - previene entrada no válida
         $('#responsable').on('input', function() {
             let value = $(this).val();
-            let errorElement = $('#responsableError');
             
-            // Validar longitud máxima
-            if (value.length > 20) {
-                $(this).val(value.substring(0, 20));
-                value = $(this).val();
-            }
-            
-            // Validar caracteres permitidos (solo letras y espacios)
-            let validChars = /^[a-zA-Z\s]*$/;
-            if (!validChars.test(value)) {
-                $(this).addClass('is-invalid');
-                errorElement.text('Solo se permiten letras y espacios.');
-                return;
-            }
+            // Validar y limpiar caracteres no permitidos (solo letras y espacios)
+            value = value.replace(/[^a-zA-Z\s]/g, '');
             
             // Validar repetición de letras (máximo 3 veces seguidas)
-            let repeatChars = /(.)\1{3,}/;
-            if (repeatChars.test(value)) {
-                $(this).addClass('is-invalid');
-                errorElement.text('No se permiten más de 3 repeticiones de la misma letra.');
-                return;
+            value = value.replace(/([a-zA-Z])\1{3,}/g, function(match, p1) {
+                return p1 + p1 + p1; // Deja máximo 3 repeticiones
+            });
+            
+            // Limitar longitud
+            if (value.length > 20) {
+                value = value.substring(0, 20);
             }
             
-            // Si pasa todas las validaciones, quitar clase de error
-            $(this).removeClass('is-invalid');
-            errorElement.text('');
+            $(this).val(value);
         });
         
-        // Validar formulario antes de enviar
-        $('#filtrosForm').on('submit', function(e) {
-            let isValid = true;
-            
-            // Validar campo código
-            let codigoValue = $('#codigo').val();
-            let codigoValidChars = /^[a-zA-Z0-9\-]*$/;
-            let codigoRepeatChars = /(.)\1{3,}/;
-            
-            if (codigoValue && (!codigoValidChars.test(codigoValue) || codigoRepeatChars.test(codigoValue))) {
-                $('#codigo').addClass('is-invalid');
-                $('#codigoError').text('El código no cumple con las validaciones requeridas.');
-                isValid = false;
-            }
-            
-            // Validar campo responsable
-            let responsableValue = $('#responsable').val();
-            let responsableValidChars = /^[a-zA-Z\s]*$/;
-            let responsableRepeatChars = /(.)\1{3,}/;
-            
-            if (responsableValue && (!responsableValidChars.test(responsableValue) || responsableRepeatChars.test(responsableValue))) {
-                $('#responsable').addClass('is-invalid');
-                $('#responsableError').text('El responsable no cumple con las validaciones requeridas.');
-                isValid = false;
-            }
-            
-            if (!isValid) {
-                e.preventDefault();
-                // Desplazar hacia el primer campo con error
-                $('html, body').animate({
-                    scrollTop: $('.is-invalid').first().offset().top - 100
-                }, 500);
-            }
+        // Prevenir pegado de contenido no válido
+        $('#codigo, #responsable').on('paste', function(e) {
+            // Permitir el pegado pero procesarlo después con el evento input
+            setTimeout(() => {
+                $(this).trigger('input');
+            }, 0);
         });
     });
 </script>
