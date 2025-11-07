@@ -573,8 +573,8 @@
             });
             
             // Limitar longitud
-            if (value.length > 20) {
-                value = value.substring(0, 20);
+            if (value.length > 50) {
+                value = value.substring(0, 50);
             }
             
             $(this).val(value);
