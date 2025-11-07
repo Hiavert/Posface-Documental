@@ -40,7 +40,6 @@
                         <div class="form-group">
                             <label>Buscar por código</label>
                             <input type="text" name="codigo" id="codigo" class="form-control" placeholder="TERNA-001" value="{{ request('codigo') }}" maxlength="12">
-                            <small class="form-text text-muted">Máximo 12 caracteres. Solo letras, números y guiones.</small>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -58,7 +57,6 @@
                         <div class="form-group">
                             <label>Responsable</label>
                             <input type="text" name="responsable" id="responsable" class="form-control" placeholder="Nombre responsable" value="{{ request('responsable') }}" maxlength="20">
-                            <small class="form-text text-muted">Máximo 20 caracteres. Solo letras y espacios.</small>
                         </div>
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
