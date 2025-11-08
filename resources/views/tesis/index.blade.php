@@ -83,7 +83,6 @@
                                oninput="validarYFiltrarBusqueda(this)"
                                onkeypress="return permitirCaracteresBusqueda(event)">
                     </div>
-                    <small class="form-text text-muted">Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.</small>
                 </div>
                 <div class="col-md-6 text-right">
                     <button class="btn btn-outline-primary btn-elegant" id="btn-exportar">
