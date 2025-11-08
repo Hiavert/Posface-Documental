@@ -44,9 +44,6 @@
                                    maxlength="12" oninput="validarYFiltrarCodigo(this)"
                                    onkeypress="return permitirCaracteresCodigo(event)"
                                    aria-describedby="codigoHelp codigoError">
-                            <small id="codigoHelp" class="form-text text-muted">
-                                12 caracteres, solo letras, números y guión. Máximo 3 letras iguales consecutivas.
-                            </small>
                             <div class="invalid-feedback" id="codigoError" role="alert"></div>
                         </div>
                     </div>
@@ -58,9 +55,6 @@
                                    maxlength="50" oninput="validarYFiltrarResponsable(this)"
                                    onkeypress="return permitirCaracteresResponsable(event)"
                                    aria-describedby="responsableHelp responsableError">
-                            <small id="responsableHelp" class="form-text text-muted">
-                                Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.
-                            </small>
                             <div class="invalid-feedback" id="responsableError" role="alert"></div>
                         </div>
                     </div>
