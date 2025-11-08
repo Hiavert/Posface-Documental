@@ -4,7 +4,7 @@
 
 @section('content_header')
     <div class="elegant-header">
-        <h1><i class="fas fa-book mr-2"></i> Gestión Documental de Tesis</h1>
+        <h1><i class="fas fa-book mr-2" aria-hidden="true"></i> Gestión Documental de Tesis</h1>
         <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
     </div>
 @stop
@@ -15,53 +15,59 @@
     <!-- Filtros -->
     <div class="card card-elegant mb-4">
         <div class="card-header">
-            <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i> Filtros</h5>
+            <h2 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted" aria-hidden="true"></i> Filtros</h2>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Tipo de Tesis</label>
-                    <select class="form-control form-control-elegant" id="filtro-tipo">
+                    <label for="filtro-tipo" class="form-label">Tipo de Tesis</label>
+                    <select class="form-control form-control-elegant" id="filtro-tipo" aria-describedby="help-tipo">
                         <option value="">Todas</option>
                         @foreach($tiposTesis as $tipo)
                             <option value="{{ $tipo->id_tipo_tesis }}">{{ $tipo->nombre }}</option>
                         @endforeach
                     </select>
+                    <small id="help-tipo" class="form-text text-muted">Seleccione el tipo de tesis</small>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Región/Departamento</label>
-                    <select class="form-control form-control-elegant" id="filtro-region">
+                    <label for="filtro-region" class="form-label">Región/Departamento</label>
+                    <select class="form-control form-control-elegant" id="filtro-region" aria-describedby="help-region">
                         <option value="">Todas</option>
                         @foreach($regiones as $region)
                             <option value="{{ $region->id_region }}">{{ $region->nombre }}</option>
                         @endforeach
                     </select>
+                    <small id="help-region" class="form-text text-muted">Seleccione la región</small>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Autor</label>
+                    <label for="filtro-responsable" class="form-label">Autor</label>
                     <input type="text" class="form-control form-control-elegant" id="filtro-responsable" 
                            placeholder="Nombre del autor" maxlength="50"
                            oninput="validarYFiltrarAutor(this)"
-                           onkeypress="return permitirCaracteresAutor(event)">
+                           onkeypress="return permitirCaracteresAutor(event)"
+                           aria-describedby="help-autor">
+                    <small id="help-autor" class="form-text text-muted">Solo letras y espacios</small>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Número de Cuenta</label>
+                    <label for="filtro-cuenta" class="form-label">Número de Cuenta</label>
                     <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" 
                            placeholder="Número de cuenta" maxlength="12"
                            oninput="validarYFiltrarCuenta(this)"
-                           onkeypress="return permitirCaracteresCuenta(event)">
+                           onkeypress="return permitirCaracteresCuenta(event)"
+                           aria-describedby="help-cuenta">
+                    <small id="help-cuenta" class="form-text text-muted">Solo números</small>
                 </div>
             </div>
             <div class="d-flex justify-content-end">
-                <button class="btn btn-outline-secondary btn-elegant mr-2" id="btn-restablecer">
-                    <i class="fas fa-redo mr-1"></i> Restablecer
+                <button class="btn btn-outline-secondary btn-elegant mr-2" id="btn-restablecer" aria-label="Restablecer filtros">
+                    <i class="fas fa-redo mr-1" aria-hidden="true"></i> Restablecer
                 </button>
-                <button class="btn btn-primary btn-elegant mr-2" id="btn-filtrar">
-                    <i class="fas fa-filter mr-1"></i> Filtrar
+                <button class="btn btn-primary btn-elegant mr-2" id="btn-filtrar" aria-label="Aplicar filtros">
+                    <i class="fas fa-filter mr-1" aria-hidden="true"></i> Filtrar
                 </button>
                 @if(auth()->user()->puedeAgregar('GestionTesis'))
-                <button class="btn btn-success btn-elegant" id="btn-subir-tesis">
-                    <i class="fas fa-upload mr-1"></i> Subir Tesis
+                <button class="btn btn-success btn-elegant" id="btn-subir-tesis" aria-label="Subir nueva tesis">
+                    <i class="fas fa-upload mr-1" aria-hidden="true"></i> Subir Tesis
                 </button>
                 @endif
             </div>
@@ -71,22 +77,25 @@
     <!-- Herramientas de tabla -->
     <div class="card card-elegant mb-4">
         <div class="card-header">
-            <h5 class="card-title mb-0"><i class="fas fa-table mr-2 text-muted"></i> Herramientas de Tabla</h5>
+            <h2 class="card-title mb-0"><i class="fas fa-table mr-2 text-muted" aria-hidden="true"></i> Herramientas de Tabla</h2>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <span class="input-group-text" id="busqueda-label"><i class="fas fa-search" aria-hidden="true"></i></span>
                         <input type="text" class="form-control form-control-elegant" id="busqueda" 
                                placeholder="Buscar por título, autor o cuenta..." maxlength="50"
                                oninput="validarYFiltrarBusqueda(this)"
-                               onkeypress="return permitirCaracteresBusqueda(event)">
+                               onkeypress="return permitirCaracteresBusqueda(event)"
+                               aria-labelledby="busqueda-label"
+                               aria-describedby="help-busqueda">
                     </div>
+                    <small id="help-busqueda" class="form-text text-muted">Buscar en títulos, autores o números de cuenta</small>
                 </div>
                 <div class="col-md-6 text-right">
-                    <button class="btn btn-outline-primary btn-elegant" id="btn-exportar">
-                        <i class="fas fa-file-export mr-1"></i> Exportar Seleccionados
+                    <button class="btn btn-outline-primary btn-elegant" id="btn-exportar" aria-label="Exportar tesis seleccionadas">
+                        <i class="fas fa-file-export mr-1" aria-hidden="true"></i> Exportar Seleccionados
                     </button>
                 </div>
             </div>
@@ -96,23 +105,27 @@
     <!-- Tabla de Tesis -->
     <div class="card card-elegant">
         <div class="card-header">
-            <h5 class="card-title mb-0"><i class="fas fa-folder-open mr-2 text-muted"></i> Tesis Registradas</h5>
+            <h2 class="card-title mb-0"><i class="fas fa-folder-open mr-2 text-muted" aria-hidden="true"></i> Tesis Registradas</h2>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0" aria-labelledby="tabla-tesis-title">
+                    <caption id="tabla-tesis-title">Lista de tesis registradas en el sistema</caption>
                     <thead class="thead-elegant">
                         <tr>
-                            <th width="50"><input type="checkbox" id="select-all"></th>
-                            <th width="70" data-sort="id_tesis">ID <i class="fas fa-sort"></i></th>
-                            <th data-sort="titulo">Título <i class="fas fa-sort"></i></th>
-                            <th data-sort="fk_id_tipo_tesis">Tipo <i class="fas fa-sort"></i></th>
-                            <th data-sort="autor">Autor <i class="fas fa-sort"></i></th>
-                            <th data-sort="numero_cuenta">Número de Cuenta <i class="fas fa-sort"></i></th>
-                            <th data-sort="fk_id_region">Región/Depto <i class="fas fa-sort"></i></th>
-                            <th width="100" data-sort="fecha_defensa">Fecha Defensa <i class="fas fa-sort"></i></th>
-                            <th width="150">Documento</th>
-                            <th width="120">Acciones</th>
+                            <th scope="col" width="50">
+                                <label for="select-all" class="visually-hidden">Seleccionar todos</label>
+                                <input type="checkbox" id="select-all" aria-label="Seleccionar todas las tesis">
+                            </th>
+                            <th scope="col" width="70" data-sort="id_tesis">ID <i class="fas fa-sort" aria-hidden="true"></i></th>
+                            <th scope="col" data-sort="titulo">Título <i class="fas fa-sort" aria-hidden="true"></i></th>
+                            <th scope="col" data-sort="fk_id_tipo_tesis">Tipo <i class="fas fa-sort" aria-hidden="true"></i></th>
+                            <th scope="col" data-sort="autor">Autor <i class="fas fa-sort" aria-hidden="true"></i></th>
+                            <th scope="col" data-sort="numero_cuenta">Número de Cuenta <i class="fas fa-sort" aria-hidden="true"></i></th>
+                            <th scope="col" data-sort="fk_id_region">Región/Depto <i class="fas fa-sort" aria-hidden="true"></i></th>
+                            <th scope="col" width="100" data-sort="fecha_defensa">Fecha Defensa <i class="fas fa-sort" aria-hidden="true"></i></th>
+                            <th scope="col" width="150">Documento</th>
+                            <th scope="col" width="120">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-tesis">
@@ -124,21 +137,23 @@
 
         <!-- Paginación -->
         <div class="card-footer clearfix bg-white">
-            <ul class="pagination pagination-sm m-0 float-right" id="pagination">
-                <!-- La paginación se cargará dinámicamente -->
-            </ul>
+            <nav aria-label="Paginación de tesis">
+                <ul class="pagination pagination-sm m-0 float-right" id="pagination">
+                    <!-- La paginación se cargará dinámicamente -->
+                </ul>
+            </nav>
         </div>
     </div>
 
 </div>
 
 <!-- Modal para Subir/Editar Tesis -->
-<div class="modal fade" id="modal-tesis" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="modal-tesis" tabindex="-1" role="dialog" aria-labelledby="modal-tesis-title" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-elegant">
-                <h5 class="modal-title text-white" id="modal-titulo">Subir Nueva Tesis</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <h3 class="modal-title text-white" id="modal-tesis-title">Subir Nueva Tesis</h3>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -148,28 +163,33 @@
                     <input type="hidden" id="id-tesis">
                     <div class="form-group">
                         <label for="titulo" class="form-label">Título *</label>
-                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="80">
-                        <small class="form-text text-muted">Máximo 80 caracteres</small>
+                        <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="80"
+                               aria-describedby="help-titulo">
+                        <small id="help-titulo" class="form-text text-muted">Máximo 80 caracteres</small>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="tipo_tesis" class="form-label">Tipo de Tesis *</label>
-                                <select class="form-control form-control-elegant" id="tipo_tesis" name="tipo_tesis" required>
+                                <select class="form-control form-control-elegant" id="tipo_tesis" name="tipo_tesis" required
+                                        aria-describedby="help-tipo-tesis">
                                     @foreach($tiposTesis as $tipo)
                                         <option value="{{ $tipo->id_tipo_tesis }}">{{ $tipo->nombre }}</option>
                                     @endforeach
                                 </select>
+                                <small id="help-tipo-tesis" class="form-text text-muted">Seleccione el tipo de tesis</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="region" class="form-label">Región/Departamento *</label>
-                                <select class="form-control form-control-elegant" id="region" name="region" required>
+                                <select class="form-control form-control-elegant" id="region" name="region" required
+                                        aria-describedby="help-region-modal">
                                     @foreach($regiones as $region)
                                         <option value="{{ $region->id_region }}">{{ $region->nombre }}</option>
                                     @endforeach
                                 </select>
+                                <small id="help-region-modal" class="form-text text-muted">Seleccione la región</small>
                             </div>
                         </div>
                     </div>
@@ -178,101 +198,107 @@
                             <div class="form-group">
                                 <label for="autor" class="form-label">Autor *</label>
                                 <input type="text" class="form-control form-control-elegant" id="autor" name="autor" 
-                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required maxlength="80">
-                                <small class="form-text text-muted">Solo letras y espacios, máximo 80 caracteres</small>
+                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required maxlength="80"
+                                       aria-describedby="help-autor-modal">
+                                <small id="help-autor-modal" class="form-text text-muted">Solo letras y espacios, máximo 80 caracteres</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="numero_cuenta" class="form-label">Número de Cuenta *</label>
                                 <input type="text" class="form-control form-control-elegant" id="numero_cuenta" name="numero_cuenta" 
-                                       pattern="[0-9]+" title="Solo números" required maxlength="13">
-                                <small class="form-text text-muted">Solo números, máximo 13 dígitos</small>
+                                       pattern="[0-9]+" title="Solo números" required maxlength="13"
+                                       aria-describedby="help-cuenta-modal">
+                                <small id="help-cuenta-modal" class="form-text text-muted">Solo números, máximo 13 dígitos</small>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="fecha_defensa" class="form-label">Fecha de Defensa *</label>
-                        <input type="date" class="form-control form-control-elegant" id="fecha_defensa" name="fecha_defensa" required>
+                        <input type="date" class="form-control form-control-elegant" id="fecha_defensa" name="fecha_defensa" required
+                               aria-describedby="help-fecha">
+                        <small id="help-fecha" class="form-text text-muted">Seleccione la fecha de defensa</small>
                     </div>
                     <div class="form-group">
                         <label for="documento" class="form-label">Documento (PDF, máximo 30MB) *</label>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="documento" name="documento" accept=".pdf">
+                            <input type="file" class="custom-file-input" id="documento" name="documento" accept=".pdf"
+                                   aria-describedby="help-documento">
                             <label class="custom-file-label" for="documento">Seleccionar archivo</label>
                         </div>
-                        <small class="form-text text-muted">Solo archivos PDF, tamaño máximo 30MB</small>
+                        <small id="help-documento" class="form-text text-muted">Solo archivos PDF, tamaño máximo 30MB</small>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary btn-elegant" data-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary btn-elegant" id="btn-guardar">Guardar</button>
+                <button type="button" class="btn btn-outline-secondary btn-elegant" data-dismiss="modal" aria-label="Cancelar operación">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-elegant" id="btn-guardar" aria-label="Guardar tesis">Guardar</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal para Detalles -->
-<div class="modal fade" id="modal-detalles" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="modal-detalles" tabindex="-1" role="dialog" aria-labelledby="modal-detalles-title" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-elegant">
-                <h5 class="modal-title text-white">Detalles de Subida</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <h3 class="modal-title text-white" id="modal-detalles-title">Detalles de Subida</h3>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Responsable:</label>
-                    <p id="detalle-responsable"></p>
+                    <label><strong>Responsable:</strong></label>
+                    <p id="detalle-responsable" aria-live="polite"></p>
                 </div>
                 <div class="form-group">
-                    <label>Fecha de Subida:</label>
-                    <p id="detalle-fecha-subida"></p>
+                    <label><strong>Fecha de Subida:</strong></label>
+                    <p id="detalle-fecha-subida" aria-live="polite"></p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cerrar detalles">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal para Vista Previa del PDF -->
-<div class="modal fade" id="modal-preview" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="modal-preview" tabindex="-1" role="dialog" aria-labelledby="modal-preview-title" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-elegant">
-                <h5 class="modal-title text-white">Vista Previa de Tesis</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <h3 class="modal-title text-white" id="modal-preview-title">Vista Previa de Tesis</h3>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar vista previa">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="embed-responsive embed-responsive-16by9">
-                    <iframe id="preview-iframe" class="embed-responsive-item" src=""></iframe>
+                    <iframe id="preview-iframe" class="embed-responsive-item" src="" 
+                            title="Vista previa del documento PDF" aria-label="Vista previa del documento PDF"></iframe>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cerrar vista previa">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal de carga -->
-<div class="modal fade" id="modal-carga" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+<div class="modal fade" id="modal-carga" tabindex="-1" role="dialog" aria-labelledby="modal-carga-title" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content bg-transparent border-0">
             <div class="d-flex justify-content-center">
-                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status" aria-hidden="true">
                     <span class="sr-only">Cargando...</span>
                 </div>
             </div>
             <div class="text-center mt-3 text-white">
-                <p id="mensaje-carga">Procesando, por favor espere...</p>
+                <p id="mensaje-carga" aria-live="polite">Procesando, por favor espere...</p>
             </div>
         </div>
     </div>
@@ -648,6 +674,19 @@ document.addEventListener('DOMContentLoaded', function() {
         height: 100%;
     }
 
+    /* Clase para contenido visualmente oculto pero accesible */
+    .visually-hidden {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .d-flex.justify-content-end {
@@ -764,7 +803,10 @@ $(document).ready(function() {
             const fechaSubida = tesis.fecha_subida ? new Date(tesis.fecha_subida).toLocaleDateString('es-HN') : '-';
             
             const tr = $('<tr class="fade-in">');
-            tr.append(`<td><input type="checkbox" class="select-item" value="${tesis.id_tesis}"></td>`);
+            tr.append(`<td>
+                <label for="select-${tesis.id_tesis}" class="visually-hidden">Seleccionar tesis ${tesis.id_tesis}</label>
+                <input type="checkbox" class="select-item" id="select-${tesis.id_tesis}" value="${tesis.id_tesis}">
+            </td>`);
             tr.append(`<td>${tesis.id_tesis}</td>`);
             tr.append(`<td title="${tesis.titulo}">${tesis.titulo}</td>`);
             tr.append(`<td>${tesis.tipo ? tesis.tipo.nombre : 'N/A'}</td>`);
@@ -779,20 +821,25 @@ $(document).ready(function() {
                 const downloadUrl = routes.download(tesis.ruta_archivo);
                 
                 tr.append(`<td>
-                    <div class="btn-group btn-group-sm">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones de documento">
                         <button class="btn btn-info btn-preview" 
                             data-url="${previewUrl}" 
-                            title="Vista previa">
-                            <i class="fas fa-eye"></i>
+                            title="Vista previa"
+                            aria-label="Vista previa de tesis ${tesis.id_tesis}">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
                         </button>
-                        <a href="${downloadUrl}" class="btn btn-secondary" title="Descargar" target="_blank">
-                            <i class="fas fa-download"></i>
+                        <a href="${downloadUrl}" class="btn btn-secondary" 
+                           title="Descargar" 
+                           aria-label="Descargar tesis ${tesis.id_tesis}" 
+                           target="_blank">
+                            <i class="fas fa-download" aria-hidden="true"></i>
                         </a>
                         <button class="btn btn-primary btn-detalles" 
                             data-responsable="${tesis.usuario ? tesis.usuario.usuario : 'N/A'}" 
                             data-fecha="${fechaSubida}" 
-                            title="Detalles">
-                            <i class="fas fa-info-circle"></i>
+                            title="Detalles de subida"
+                            aria-label="Ver detalles de subida de tesis ${tesis.id_tesis}">
+                            <i class="fas fa-info-circle" aria-hidden="true"></i>
                         </button>
                     </div>
                 </td>`);
@@ -801,15 +848,21 @@ $(document).ready(function() {
             }
 
             tr.append(`<td>
-                <div class="btn-group btn-group-sm">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Acciones de tesis">
                     @if(auth()->user()->puedeEditar('GestionTesis'))
-                    <button class="btn btn-success btn-editar" data-id="${tesis.id_tesis}" title="Editar">
-                        <i class="fas fa-edit"></i>
+                    <button class="btn btn-success btn-editar" 
+                            data-id="${tesis.id_tesis}" 
+                            title="Editar"
+                            aria-label="Editar tesis ${tesis.id_tesis}">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
                     </button>
                     @endif
                     @if(auth()->user()->puedeEliminar('GestionTesis'))
-                    <button class="btn btn-danger btn-eliminar" data-id="${tesis.id_tesis}" title="Eliminar">
-                        <i class="fas fa-trash-alt"></i>
+                    <button class="btn btn-danger btn-eliminar" 
+                            data-id="${tesis.id_tesis}" 
+                            title="Eliminar"
+                            aria-label="Eliminar tesis ${tesis.id_tesis}">
+                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
                     </button>
                     @endif
                 </div>
@@ -834,21 +887,21 @@ $(document).ready(function() {
         if (tesisData.last_page > 1) {
             // Botón Anterior
             const prevLi = $('<li>').addClass('page-item').toggleClass('disabled', tesisData.current_page === 1);
-            const prevLink = $('<a>').addClass('page-link').attr('href', '#').text('Anterior').data('page', tesisData.current_page - 1);
+            const prevLink = $('<a>').addClass('page-link').attr('href', '#').html('<span class="visually-hidden">Página anterior</span> <span aria-hidden="true">Anterior</span>').data('page', tesisData.current_page - 1);
             prevLi.append(prevLink);
             pagination.append(prevLi);
 
             // Números de página
             for (let i = 1; i <= tesisData.last_page; i++) {
                 const li = $('<li>').addClass('page-item').toggleClass('active', i === tesisData.current_page);
-                const link = $('<a>').addClass('page-link').attr('href', '#').text(i).data('page', i);
+                const link = $('<a>').addClass('page-link').attr('href', '#').html(`<span class="visually-hidden">Página </span>${i}`).data('page', i);
                 li.append(link);
                 pagination.append(li);
             }
 
             // Botón Siguiente
             const nextLi = $('<li>').addClass('page-item').toggleClass('disabled', tesisData.current_page === tesisData.last_page);
-            const nextLink = $('<a>').addClass('page-link').attr('href', '#').text('Siguiente').data('page', tesisData.current_page + 1);
+            const nextLink = $('<a>').addClass('page-link').attr('href', '#').html('<span class="visually-hidden">Página siguiente</span> <span aria-hidden="true">Siguiente</span>').data('page', tesisData.current_page + 1);
             nextLi.append(nextLink);
             pagination.append(nextLi);
         }
@@ -857,7 +910,7 @@ $(document).ready(function() {
     // Helper functions
     function showLoading(show) {
         if (show) {
-            $('#tabla-tesis').html('<tr><td colspan="11" class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando tesis...</td></tr>');
+            $('#tabla-tesis').html('<tr><td colspan="11" class="text-center"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Cargando tesis...</td></tr>');
         }
     }
 
@@ -927,7 +980,7 @@ $(document).ready(function() {
         
         // Subir nueva tesis
         $('#btn-subir-tesis').click(function() {
-            $('#modal-titulo').text('Subir Nueva Tesis');
+            $('#modal-tesis-title').text('Subir Nueva Tesis');
             $('#form-tesis')[0].reset();
             $('.custom-file-label').text('Seleccionar archivo');
             $('#id-tesis').val('');
@@ -1013,7 +1066,7 @@ $(document).ready(function() {
             const tesis = tesisData.data.find(t => t.id_tesis == id);
             
             if (tesis) {
-                $('#modal-titulo').text('Editar Tesis');
+                $('#modal-tesis-title').text('Editar Tesis');
                 $('#id-tesis').val(tesis.id_tesis);
                 $('#titulo').val(tesis.titulo);
                 $('#tipo_tesis').val(tesis.fk_id_tipo_tesis);
