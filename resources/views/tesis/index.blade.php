@@ -3,8 +3,8 @@
 @section('title', 'Gestión Documental de Tesis')
 
 @section('content_header')
-    <div class="elegant-header" role="banner">
-        <h1><i class="fas fa-book mr-2" aria-hidden="true"></i> Gestión Documental de Tesis</h1>
+    <div class="elegant-header">
+        <h1><i class="fas fa-book mr-2"></i> Gestión Documental de Tesis</h1>
         <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
     </div>
 @stop
@@ -15,61 +15,47 @@
     <!-- Filtros -->
     <div class="card card-elegant mb-4">
         <div class="card-header">
-            <h2 class="card-title mb-0 h5"><i class="fas fa-filter mr-2 text-muted" aria-hidden="true"></i> Filtros</h2>
+            <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i> Filtros</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3 mb-3">
-                    <label for="filtro-tipo" class="form-label font-weight-bold">Tipo de Tesis</label>
-                    <select class="form-control form-control-elegant" id="filtro-tipo" aria-describedby="tipoHelp">
+                    <label class="form-label">Tipo de Tesis</label>
+                    <select class="form-control form-control-elegant" id="filtro-tipo">
                         <option value="">Todas</option>
                         @foreach($tiposTesis as $tipo)
                             <option value="{{ $tipo->id_tipo_tesis }}">{{ $tipo->nombre }}</option>
                         @endforeach
                     </select>
-                    <small id="tipoHelp" class="form-text text-muted sr-only">Seleccione el tipo de tesis para filtrar</small>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label for="filtro-region" class="form-label font-weight-bold">Región/Departamento</label>
-                    <select class="form-control form-control-elegant" id="filtro-region" aria-describedby="regionHelp">
+                    <label class="form-label">Región/Departamento</label>
+                    <select class="form-control form-control-elegant" id="filtro-region">
                         <option value="">Todas</option>
                         @foreach($regiones as $region)
                             <option value="{{ $region->id_region }}">{{ $region->nombre }}</option>
                         @endforeach
                     </select>
-                    <small id="regionHelp" class="form-text text-muted sr-only">Seleccione la región o departamento para filtrar</small>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label for="filtro-autor" class="form-label font-weight-bold">Autor</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-autor" 
-                           placeholder="Nombre del autor" maxlength="50" 
-                           oninput="validarYFiltrarAutor(this)"
-                           onkeypress="return permitirCaracteresAutor(event)"
-                           aria-describedby="autorHelp autorError">
-                    <small id="autorHelp" class="form-text text-muted">Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.</small>
-                    <div class="invalid-feedback" id="autorError" role="alert"></div>
+                    <label class="form-label">Autor</label>
+                    <input type="text" class="form-control form-control-elegant" id="filtro-responsable" placeholder="Nombre del autor" maxlength="255">
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label for="filtro-cuenta" class="form-label font-weight-bold">Número de Cuenta</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" 
-                           placeholder="Número de cuenta" maxlength="12"
-                           oninput="validarYFiltrarCuenta(this)"
-                           onkeypress="return permitirCaracteresCuenta(event)"
-                           aria-describedby="cuentaHelp cuentaError">
-                    <small id="cuentaHelp" class="form-text text-muted">12 caracteres, solo números y guión. No se permiten letras ni otros caracteres especiales.</small>
-                    <div class="invalid-feedback" id="cuentaError" role="alert"></div>
+                    <label class="form-label">Número de Cuenta</label>
+                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" placeholder="Número de cuenta" maxlength="20">
                 </div>
             </div>
             <div class="d-flex justify-content-end">
-                <button class="btn btn-outline-secondary btn-elegant mr-2" id="btn-restablecer" aria-label="Restablecer filtros">
-                    <i class="fas fa-redo mr-1" aria-hidden="true"></i> Restablecer
+                <button class="btn btn-outline-secondary btn-elegant mr-2" id="btn-restablecer">
+                    <i class="fas fa-redo mr-1"></i> Restablecer
                 </button>
-                <button class="btn btn-primary btn-elegant mr-2" id="btn-filtrar" aria-label="Aplicar filtros">
-                    <i class="fas fa-filter mr-1" aria-hidden="true"></i> Filtrar
+                <button class="btn btn-primary btn-elegant mr-2" id="btn-filtrar">
+                    <i class="fas fa-filter mr-1"></i> Filtrar
                 </button>
                 @if(auth()->user()->puedeAgregar('GestionTesis'))
-                <button class="btn btn-success btn-elegant" id="btn-subir-tesis" aria-label="Subir nueva tesis">
-                    <i class="fas fa-upload mr-1" aria-hidden="true"></i> Subir Tesis
+                <button class="btn btn-success btn-elegant" id="btn-subir-tesis">
+                    <i class="fas fa-upload mr-1"></i> Subir Tesis
                 </button>
                 @endif
             </div>
@@ -79,26 +65,19 @@
     <!-- Herramientas de tabla -->
     <div class="card card-elegant mb-4">
         <div class="card-header">
-            <h2 class="card-title mb-0 h5"><i class="fas fa-table mr-2 text-muted" aria-hidden="true"></i> Herramientas de Tabla</h2>
+            <h5 class="card-title mb-0"><i class="fas fa-table mr-2 text-muted"></i> Herramientas de Tabla</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <label for="busqueda" class="sr-only">Buscar en la tabla</label>
                     <div class="input-group">
-                        <span class="input-group-text" aria-hidden="true"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control form-control-elegant" id="busqueda" 
-                               placeholder="Buscar por título, autor o cuenta..." maxlength="50"
-                               oninput="validarYFiltrarBusqueda(this)"
-                               onkeypress="return permitirCaracteresBusqueda(event)"
-                               aria-describedby="busquedaHelp busquedaError">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control form-control-elegant" id="busqueda" placeholder="Buscar por título, autor o cuenta..." maxlength="255">
                     </div>
-                    <small id="busquedaHelp" class="form-text text-muted">Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.</small>
-                    <div class="invalid-feedback" id="busquedaError" role="alert"></div>
                 </div>
                 <div class="col-md-6 text-right">
-                    <button class="btn btn-outline-primary btn-elegant" id="btn-exportar" aria-label="Exportar tesis seleccionadas">
-                        <i class="fas fa-file-export mr-1" aria-hidden="true"></i> Exportar Seleccionados
+                    <button class="btn btn-outline-primary btn-elegant" id="btn-exportar">
+                        <i class="fas fa-file-export mr-1"></i> Exportar Seleccionados
                     </button>
                 </div>
             </div>
@@ -108,55 +87,23 @@
     <!-- Tabla de Tesis -->
     <div class="card card-elegant">
         <div class="card-header">
-            <h2 class="card-title mb-0 h5"><i class="fas fa-folder-open mr-2 text-muted" aria-hidden="true"></i> Tesis Registradas</h2>
+            <h5 class="card-title mb-0"><i class="fas fa-folder-open mr-2 text-muted"></i> Tesis Registradas</h5>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" aria-describedby="tablaDescripcion">
-                    <caption id="tablaDescripcion" class="sr-only">Lista de tesis registradas con opciones para filtrar, ordenar y realizar acciones</caption>
+                <table class="table table-hover align-middle mb-0">
                     <thead class="thead-elegant">
                         <tr>
-                            <th scope="col" width="50">
-                                <label for="select-all" class="sr-only">Seleccionar todas las tesis</label>
-                                <input type="checkbox" id="select-all" aria-label="Seleccionar todas las tesis">
-                            </th>
-                            <th scope="col" width="70" data-sort="id_tesis">
-                                <button type="button" class="btn btn-link p-0 border-0 text-white font-weight-bold" onclick="ordenarColumna('id_tesis')">
-                                    ID <i class="fas fa-sort" aria-hidden="true"></i>
-                                </button>
-                            </th>
-                            <th scope="col" data-sort="titulo">
-                                <button type="button" class="btn btn-link p-0 border-0 text-white font-weight-bold" onclick="ordenarColumna('titulo')">
-                                    Título <i class="fas fa-sort" aria-hidden="true"></i>
-                                </button>
-                            </th>
-                            <th scope="col" data-sort="fk_id_tipo_tesis">
-                                <button type="button" class="btn btn-link p-0 border-0 text-white font-weight-bold" onclick="ordenarColumna('fk_id_tipo_tesis')">
-                                    Tipo <i class="fas fa-sort" aria-hidden="true"></i>
-                                </button>
-                            </th>
-                            <th scope="col" data-sort="autor">
-                                <button type="button" class="btn btn-link p-0 border-0 text-white font-weight-bold" onclick="ordenarColumna('autor')">
-                                    Autor <i class="fas fa-sort" aria-hidden="true"></i>
-                                </button>
-                            </th>
-                            <th scope="col" data-sort="numero_cuenta">
-                                <button type="button" class="btn btn-link p-0 border-0 text-white font-weight-bold" onclick="ordenarColumna('numero_cuenta')">
-                                    Número de Cuenta <i class="fas fa-sort" aria-hidden="true"></i>
-                                </button>
-                            </th>
-                            <th scope="col" data-sort="fk_id_region">
-                                <button type="button" class="btn btn-link p-0 border-0 text-white font-weight-bold" onclick="ordenarColumna('fk_id_region')">
-                                    Región/Depto <i class="fas fa-sort" aria-hidden="true"></i>
-                                </button>
-                            </th>
-                            <th scope="col" width="100" data-sort="fecha_defensa">
-                                <button type="button" class="btn btn-link p-0 border-0 text-white font-weight-bold" onclick="ordenarColumna('fecha_defensa')">
-                                    Fecha Defensa <i class="fas fa-sort" aria-hidden="true"></i>
-                                </button>
-                            </th>
-                            <th scope="col" width="150">Documento</th>
-                            <th scope="col" width="120">Acciones</th>
+                            <th width="50"><input type="checkbox" id="select-all"></th>
+                            <th width="70" data-sort="id_tesis">ID <i class="fas fa-sort"></i></th>
+                            <th data-sort="titulo">Título <i class="fas fa-sort"></i></th>
+                            <th data-sort="fk_id_tipo_tesis">Tipo <i class="fas fa-sort"></i></th>
+                            <th data-sort="autor">Autor <i class="fas fa-sort"></i></th>
+                            <th data-sort="numero_cuenta">Número de Cuenta <i class="fas fa-sort"></i></th>
+                            <th data-sort="fk_id_region">Región/Depto <i class="fas fa-sort"></i></th>
+                            <th width="100" data-sort="fecha_defensa">Fecha Defensa <i class="fas fa-sort"></i></th>
+                            <th width="150">Documento</th>
+                            <th width="120">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-tesis">
@@ -168,23 +115,21 @@
 
         <!-- Paginación -->
         <div class="card-footer clearfix bg-white">
-            <nav aria-label="Navegación de páginas">
-                <ul class="pagination pagination-sm m-0 float-right" id="pagination">
-                    <!-- La paginación se cargará dinámicamente -->
-                </ul>
-            </nav>
+            <ul class="pagination pagination-sm m-0 float-right" id="pagination">
+                <!-- La paginación se cargará dinámicamente -->
+            </ul>
         </div>
     </div>
 
 </div>
 
 <!-- Modal para Subir/Editar Tesis -->
-<div class="modal fade" id="modal-tesis" tabindex="-1" role="dialog" aria-labelledby="modal-titulo" aria-hidden="true">
+<div class="modal fade" id="modal-tesis" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-elegant">
-                <h3 class="modal-title text-white h5" id="modal-titulo">Subir Nueva Tesis</h3>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                <h5 class="modal-title text-white" id="modal-titulo">Subir Nueva Tesis</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -193,14 +138,14 @@
                     @csrf
                     <input type="hidden" id="id-tesis">
                     <div class="form-group">
-                        <label for="titulo" class="form-label font-weight-bold">Título *</label>
+                        <label for="titulo" class="form-label">Título *</label>
                         <input type="text" class="form-control form-control-elegant" id="titulo" name="titulo" required maxlength="80">
                         <small class="form-text text-muted">Máximo 80 caracteres</small>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="tipo_tesis" class="form-label font-weight-bold">Tipo de Tesis *</label>
+                                <label for="tipo_tesis" class="form-label">Tipo de Tesis *</label>
                                 <select class="form-control form-control-elegant" id="tipo_tesis" name="tipo_tesis" required>
                                     @foreach($tiposTesis as $tipo)
                                         <option value="{{ $tipo->id_tipo_tesis }}">{{ $tipo->nombre }}</option>
@@ -210,7 +155,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="region" class="form-label font-weight-bold">Región/Departamento *</label>
+                                <label for="region" class="form-label">Región/Departamento *</label>
                                 <select class="form-control form-control-elegant" id="region" name="region" required>
                                     @foreach($regiones as $region)
                                         <option value="{{ $region->id_region }}">{{ $region->nombre }}</option>
@@ -222,36 +167,32 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="autor" class="form-label font-weight-bold">Autor *</label>
+                                <label for="autor" class="form-label">Autor *</label>
                                 <input type="text" class="form-control form-control-elegant" id="autor" name="autor" 
-                                       required maxlength="80"
-                                       oninput="validarYFiltrarAutorModal(this)"
-                                       onkeypress="return permitirCaracteresAutor(event)">
+                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required maxlength="80">
                                 <small class="form-text text-muted">Solo letras y espacios, máximo 80 caracteres</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="numero_cuenta" class="form-label font-weight-bold">Número de Cuenta *</label>
+                                <label for="numero_cuenta" class="form-label">Número de Cuenta *</label>
                                 <input type="text" class="form-control form-control-elegant" id="numero_cuenta" name="numero_cuenta" 
-                                       required maxlength="13"
-                                       oninput="validarYFiltrarCuentaModal(this)"
-                                       onkeypress="return permitirCaracteresCuenta(event)">
+                                       pattern="[0-9]+" title="Solo números" required maxlength="13">
                                 <small class="form-text text-muted">Solo números, máximo 13 dígitos</small>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="fecha_defensa" class="form-label font-weight-bold">Fecha de Defensa *</label>
+                        <label for="fecha_defensa" class="form-label">Fecha de Defensa *</label>
                         <input type="date" class="form-control form-control-elegant" id="fecha_defensa" name="fecha_defensa" required>
                     </div>
                     <div class="form-group">
-                        <label for="documento" class="form-label font-weight-bold">Documento (PDF, máximo 30MB) *</label>
+                        <label for="documento" class="form-label">Documento (PDF, máximo 30MB) *</label>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="documento" name="documento" accept=".pdf" aria-describedby="documentoHelp">
+                            <input type="file" class="custom-file-input" id="documento" name="documento" accept=".pdf">
                             <label class="custom-file-label" for="documento">Seleccionar archivo</label>
                         </div>
-                        <small id="documentoHelp" class="form-text text-muted">Solo archivos PDF, tamaño máximo 30MB</small>
+                        <small class="form-text text-muted">Solo archivos PDF, tamaño máximo 30MB</small>
                     </div>
                 </form>
             </div>
@@ -264,22 +205,22 @@
 </div>
 
 <!-- Modal para Detalles -->
-<div class="modal fade" id="modal-detalles" tabindex="-1" role="dialog" aria-labelledby="detallesTitulo" aria-hidden="true">
+<div class="modal fade" id="modal-detalles" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-elegant">
-                <h3 class="modal-title text-white h5" id="detallesTitulo">Detalles de Subida</h3>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                <h5 class="modal-title text-white">Detalles de Subida</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="font-weight-bold">Responsable:</label>
+                    <label>Responsable:</label>
                     <p id="detalle-responsable"></p>
                 </div>
                 <div class="form-group">
-                    <label class="font-weight-bold">Fecha de Subida:</label>
+                    <label>Fecha de Subida:</label>
                     <p id="detalle-fecha-subida"></p>
                 </div>
             </div>
@@ -291,18 +232,18 @@
 </div>
 
 <!-- Modal para Vista Previa del PDF -->
-<div class="modal fade" id="modal-preview" tabindex="-1" role="dialog" aria-labelledby="previewTitulo" aria-hidden="true">
+<div class="modal fade" id="modal-preview" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-elegant">
-                <h3 class="modal-title text-white h5" id="previewTitulo">Vista Previa de Tesis</h3>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                <h5 class="modal-title text-white">Vista Previa de Tesis</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="embed-responsive embed-responsive-16by9">
-                    <iframe id="preview-iframe" class="embed-responsive-item" src="" title="Vista previa del documento PDF"></iframe>
+                    <iframe id="preview-iframe" class="embed-responsive-item" src=""></iframe>
                 </div>
             </div>
             <div class="modal-footer">
@@ -327,263 +268,257 @@
         </div>
     </div>
 </div>
+@stop
 
+@section('css')
+<style>
+    /* Estilos generales */
+    body {
+        background-color: #f8f9fc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* Encabezado */
+    .elegant-header {
+        background: linear-gradient(135deg, #0b2e59, #1a5a8d);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        color: white;
+        margin-bottom: 25px;
+    }
+    
+    .elegant-header h1 {
+        font-weight: 600;
+        font-size: 1.8rem;
+        margin-bottom: 0.2rem;
+        letter-spacing: -0.5px;
+    }
+    
+    .elegant-header p {
+        font-size: 1rem;
+        opacity: 0.85;
+    }
+    
+    /* Tarjetas */
+    .card-elegant {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card-elegant:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .card-header {
+        background-color: white;
+        border-bottom: 1px solid #eaeef5;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 18px 25px;
+    }
+    
+    .card-title {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+    }
+    
+    .card-body {
+        padding: 25px;
+    }
+    
+    /* Botones */
+    .btn-elegant {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-secondary.btn-elegant {
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+    }
+    
+    .btn-outline-secondary.btn-elegant:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .btn-primary.btn-elegant {
+        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        border: none;
+    }
+    
+    .btn-primary.btn-elegant:hover {
+        background: linear-gradient(135deg, #2a6bc9, #00bde3);
+    }
+    
+    .btn-success.btn-elegant {
+        background: linear-gradient(135deg, #00b09b, #96c93d);
+        border: none;
+    }
+    
+    .btn-success.btn-elegant:hover {
+        background: linear-gradient(135deg, #009c87, #84b52c);
+    }
+    
+    .btn-outline-primary.btn-elegant {
+        border: 1px solid #3a7bd5;
+        color: #3a7bd5;
+    }
+    
+    .btn-outline-primary.btn-elegant:hover {
+        background-color: #3a7bd5;
+        color: white;
+    }
+    
+    /* Formularios */
+    .form-control-elegant {
+        border: 1px solid #eaeef5;
+        border-radius: 8px;
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+        height: calc(1.5em + 1rem + 2px);
+    }
+    
+    .form-control-elegant:focus {
+        border-color: #3a7bd5;
+        box-shadow: 0 0 0 0.2rem rgba(58, 123, 213, 0.15);
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fc;
+        border: 1px solid #eaeef5;
+        border-radius: 8px 0 0 8px;
+    }
+    
+    /* Tabla */
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .thead-elegant {
+        background-color: #0b2e59;
+        color: white;
+    }
+    
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 12px 15px;
+        vertical-align: middle;
+        cursor: pointer;
+    }
+    
+    .table th i {
+        margin-left: 5px;
+        opacity: 0.7;
+    }
+    
+    .table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f4f8;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+    
+    /* Modal */
+    .modal-header.bg-elegant {
+        background: linear-gradient(135deg, #0b2e59, #1a5a8d);
+        border-radius: 0;
+    }
+    
+    .modal-title {
+        font-weight: 500;
+    }
+    
+    /* Paginación */
+    .pagination {
+        margin: 0;
+    }
+    
+    .page-item .page-link {
+        border-radius: 8px;
+        margin: 0 3px;
+        color: #3a7bd5;
+        border: 1px solid #dee2e6;
+    }
+    
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        border-color: #3a7bd5;
+        color: white;
+    }
+    
+    /* Estilo para el modal de vista previa */
+    #modal-preview .modal-dialog {
+        max-width: 90%;
+        height: 90vh;
+    }
+
+    #modal-preview .modal-content {
+        height: 100%;
+    }
+
+    #modal-preview .modal-body {
+        padding: 0;
+        height: calc(100% - 120px); /* Resta el header y footer */
+    }
+
+    .embed-responsive {
+        height: 100%;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .d-flex.justify-content-end {
+            flex-wrap: wrap;
+        }
+        
+        .btn-elegant {
+            margin-bottom: 8px;
+            width: 100%;
+        }
+        
+        .card-header, .card-body {
+            padding: 15px;
+        }
+        
+        .table-responsive {
+            max-height: 400px;
+        }
+        
+        #modal-preview .modal-dialog {
+            max-width: 95%;
+            height: 80vh;
+            margin: 5px;
+        }
+    }
+    
+    /* Animaciones */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+</style>
+@stop
+
+@section('js')
 <script>
-// =============================================
-// VALIDACIONES PARA FILTROS Y CAMPOS DE TEXTO
-// =============================================
-
-// Función para permitir solo caracteres válidos en campo de autor
-function permitirCaracteresAutor(event) {
-    const charCode = event.which ? event.which : event.keyCode;
-    const charStr = String.fromCharCode(charCode);
-    
-    // Permitir letras (con acentos), espacios y ñ
-    const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]$/;
-    
-    // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
-    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
-        return true;
-    }
-    
-    if (!regex.test(charStr)) {
-        event.preventDefault();
-        return false;
-    }
-    
-    return true;
-}
-
-// Función para permitir solo caracteres válidos en campo de número de cuenta
-function permitirCaracteresCuenta(event) {
-    const charCode = event.which ? event.which : event.keyCode;
-    const charStr = String.fromCharCode(charCode);
-    
-    // Permitir solo números y guión
-    const regex = /^[0-9\-]$/;
-    
-    // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
-    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
-        return true;
-    }
-    
-    if (!regex.test(charStr)) {
-        event.preventDefault();
-        return false;
-    }
-    
-    return true;
-}
-
-// Función para permitir solo caracteres válidos en campo de búsqueda
-function permitirCaracteresBusqueda(event) {
-    const charCode = event.which ? event.which : event.keyCode;
-    const charStr = String.fromCharCode(charCode);
-    
-    // Permitir letras (con acentos), espacios, números y algunos caracteres básicos para búsqueda
-    const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ0-9\s\-_.,!?]$/;
-    
-    // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
-    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
-        return true;
-    }
-    
-    if (!regex.test(charStr)) {
-        event.preventDefault();
-        return false;
-    }
-    
-    return true;
-}
-
-// Función para validar y filtrar el campo de autor en tiempo real
-function validarYFiltrarAutor(input) {
-    let valor = input.value;
-    const errorElement = document.getElementById('autorError');
-    
-    // Remover clases de validación previas
-    input.classList.remove('is-invalid', 'is-valid');
-    errorElement.textContent = '';
-    input.removeAttribute('aria-invalid');
-    
-    // Filtrar caracteres no permitidos (solo letras, espacios y acentos)
-    valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
-    
-    // Validar que no haya más de 3 letras iguales consecutivas
-    const regexRepetidas = /([A-Za-z])\1{3,}/g;
-    if (regexRepetidas.test(valor)) {
-        // Eliminar letras repetidas más allá de 3
-        valor = valor.replace(regexRepetidas, (match) => {
-            return match.substring(0, 3);
-        });
-    }
-    
-    // Limitar a 50 caracteres
-    if (valor.length > 50) {
-        valor = valor.substring(0, 50);
-    }
-    
-    // Actualizar el valor del input
-    if (input.value !== valor) {
-        input.value = valor;
-    }
-    
-    // Si está vacío, no validar
-    if (valor === '') {
-        return true;
-    }
-    
-    // Si pasa todas las validaciones
-    input.classList.add('is-valid');
-    return true;
-}
-
-// Función para validar y filtrar el campo de número de cuenta en tiempo real
-function validarYFiltrarCuenta(input) {
-    let valor = input.value;
-    const errorElement = document.getElementById('cuentaError');
-    
-    // Remover clases de validación previas
-    input.classList.remove('is-invalid', 'is-valid');
-    errorElement.textContent = '';
-    input.removeAttribute('aria-invalid');
-    
-    // Filtrar caracteres no permitidos (solo números y guión)
-    valor = valor.replace(/[^0-9\-]/g, '');
-    
-    // Limitar a 12 caracteres
-    if (valor.length > 12) {
-        valor = valor.substring(0, 12);
-    }
-    
-    // Actualizar el valor del input
-    if (input.value !== valor) {
-        input.value = valor;
-    }
-    
-    // Si está vacío, no validar
-    if (valor === '') {
-        return true;
-    }
-    
-    // Si pasa todas las validaciones
-    input.classList.add('is-valid');
-    return true;
-}
-
-// Función para validar y filtrar el campo de búsqueda en tiempo real
-function validarYFiltrarBusqueda(input) {
-    let valor = input.value;
-    const errorElement = document.getElementById('busquedaError');
-    
-    // Remover clases de validación previas
-    input.classList.remove('is-invalid', 'is-valid');
-    errorElement.textContent = '';
-    input.removeAttribute('aria-invalid');
-    
-    // Validar que no haya más de 3 letras iguales consecutivas (solo para letras)
-    const regexRepetidas = /([A-Za-z])\1{3,}/g;
-    if (regexRepetidas.test(valor)) {
-        // Eliminar letras repetidas más allá de 3
-        valor = valor.replace(regexRepetidas, (match) => {
-            return match.substring(0, 3);
-        });
-    }
-    
-    // Limitar a 50 caracteres
-    if (valor.length > 50) {
-        valor = valor.substring(0, 50);
-    }
-    
-    // Actualizar el valor del input
-    if (input.value !== valor) {
-        input.value = valor;
-    }
-    
-    // Si está vacío, no validar
-    if (valor === '') {
-        return true;
-    }
-    
-    // Si pasa todas las validaciones
-    input.classList.add('is-valid');
-    return true;
-}
-
-// Funciones para validación en el modal
-function validarYFiltrarAutorModal(input) {
-    let valor = input.value;
-    
-    // Filtrar caracteres no permitidos (solo letras, espacios y acentos)
-    valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
-    
-    // Validar que no haya más de 3 letras iguales consecutivas
-    const regexRepetidas = /([A-Za-z])\1{3,}/g;
-    if (regexRepetidas.test(valor)) {
-        valor = valor.replace(regexRepetidas, (match) => {
-            return match.substring(0, 3);
-        });
-    }
-    
-    // Limitar a 80 caracteres
-    if (valor.length > 80) {
-        valor = valor.substring(0, 80);
-    }
-    
-    // Actualizar el valor del input
-    if (input.value !== valor) {
-        input.value = valor;
-    }
-}
-
-function validarYFiltrarCuentaModal(input) {
-    let valor = input.value;
-    
-    // Filtrar caracteres no permitidos (solo números)
-    valor = valor.replace(/[^0-9]/g, '');
-    
-    // Limitar a 13 caracteres
-    if (valor.length > 13) {
-        valor = valor.substring(0, 13);
-    }
-    
-    // Actualizar el valor del input
-    if (input.value !== valor) {
-        input.value = valor;
-    }
-}
-
-// Función para ordenar columnas (accesible)
-function ordenarColumna(columna) {
-    // Esta función se integrará con la lógica existente de ordenamiento
-    const event = new Event('click');
-    document.querySelector(`th[data-sort="${columna}"]`).dispatchEvent(event);
-}
-
-// Aplicar validación inicial si hay valores en los campos
-document.addEventListener('DOMContentLoaded', function() {
-    const autorInput = document.getElementById('filtro-autor');
-    const cuentaInput = document.getElementById('filtro-cuenta');
-    const busquedaInput = document.getElementById('busqueda');
-    
-    if (autorInput && autorInput.value) {
-        validarYFiltrarAutor(autorInput);
-    }
-    
-    if (cuentaInput && cuentaInput.value) {
-        validarYFiltrarCuenta(cuentaInput);
-    }
-    
-    if (busquedaInput && busquedaInput.value) {
-        validarYFiltrarBusqueda(busquedaInput);
-    }
-});
-</script>
-
-<script>
-// =============================================
-// CÓDIGO JQUERY EXISTENTE (MANTENIDO)
-// =============================================
 $(document).ready(function() {
     // Variables globales
     let tesisData = {};
@@ -600,9 +535,11 @@ $(document).ready(function() {
         update: (id) => `{{ url('tesis') }}/${id}`,
         destroy: (id) => `{{ url('tesis') }}/${id}`,
         exportar: "{{ route('tesis.exportar') }}",
+        // CORRECCIÓN: Generar rutas correctamente con parámetros
         download: (filename) => "{{ url('storage/tesis') }}/" + filename,
         preview: (filename) => "{{ url('storage/tesis') }}/" + filename
     };
+
 
     // Inicializar
     cargarTesis();
@@ -614,7 +551,7 @@ $(document).ready(function() {
         const filtros = {
             tipo: $('#filtro-tipo').val(),
             region: $('#filtro-region').val(),
-            responsable: $('#filtro-autor').val(),
+            responsable: $('#filtro-responsable').val(),
             cuenta: $('#filtro-cuenta').val(),
             busqueda: $('#busqueda').val(),
             page: currentPage,
@@ -658,7 +595,7 @@ $(document).ready(function() {
             const fechaSubida = tesis.fecha_subida ? new Date(tesis.fecha_subida).toLocaleDateString('es-HN') : '-';
             
             const tr = $('<tr class="fade-in">');
-            tr.append(`<td><input type="checkbox" class="select-item" value="${tesis.id_tesis}" aria-label="Seleccionar tesis ${tesis.id_tesis}"></td>`);
+            tr.append(`<td><input type="checkbox" class="select-item" value="${tesis.id_tesis}"></td>`);
             tr.append(`<td>${tesis.id_tesis}</td>`);
             tr.append(`<td title="${tesis.titulo}">${tesis.titulo}</td>`);
             tr.append(`<td>${tesis.tipo ? tesis.tipo.nombre : 'N/A'}</td>`);
@@ -673,20 +610,20 @@ $(document).ready(function() {
                 const downloadUrl = routes.download(tesis.ruta_archivo);
                 
                 tr.append(`<td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones para documento">
+                    <div class="btn-group btn-group-sm">
                         <button class="btn btn-info btn-preview" 
                             data-url="${previewUrl}" 
-                            aria-label="Vista previa de tesis ${tesis.titulo}">
-                            <i class="fas fa-eye" aria-hidden="true"></i>
+                            title="Vista previa">
+                            <i class="fas fa-eye"></i>
                         </button>
-                        <a href="${downloadUrl}" class="btn btn-secondary" aria-label="Descargar tesis ${tesis.titulo}" target="_blank">
-                            <i class="fas fa-download" aria-hidden="true"></i>
+                        <a href="${downloadUrl}" class="btn btn-secondary" title="Descargar" target="_blank">
+                            <i class="fas fa-download"></i>
                         </a>
                         <button class="btn btn-primary btn-detalles" 
                             data-responsable="${tesis.usuario ? tesis.usuario.usuario : 'N/A'}" 
                             data-fecha="${fechaSubida}" 
-                            aria-label="Ver detalles de subida">
-                            <i class="fas fa-info-circle" aria-hidden="true"></i>
+                            title="Detalles">
+                            <i class="fas fa-info-circle"></i>
                         </button>
                     </div>
                 </td>`);
@@ -695,15 +632,15 @@ $(document).ready(function() {
             }
 
             tr.append(`<td>
-                <div class="btn-group btn-group-sm" role="group" aria-label="Acciones para tesis">
+                <div class="btn-group btn-group-sm">
                     @if(auth()->user()->puedeEditar('GestionTesis'))
-                    <button class="btn btn-success btn-editar" data-id="${tesis.id_tesis}" aria-label="Editar tesis ${tesis.titulo}">
-                        <i class="fas fa-edit" aria-hidden="true"></i>
+                    <button class="btn btn-success btn-editar" data-id="${tesis.id_tesis}" title="Editar">
+                        <i class="fas fa-edit"></i>
                     </button>
                     @endif
                     @if(auth()->user()->puedeEliminar('GestionTesis'))
-                    <button class="btn btn-danger btn-eliminar" data-id="${tesis.id_tesis}" aria-label="Eliminar tesis ${tesis.titulo}">
-                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                    <button class="btn btn-danger btn-eliminar" data-id="${tesis.id_tesis}" title="Eliminar">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                     @endif
                 </div>
@@ -728,7 +665,7 @@ $(document).ready(function() {
         if (tesisData.last_page > 1) {
             // Botón Anterior
             const prevLi = $('<li>').addClass('page-item').toggleClass('disabled', tesisData.current_page === 1);
-            const prevLink = $('<a>').addClass('page-link').attr('href', '#').html('<span aria-hidden="true">&laquo;</span><span class="sr-only">Anterior</span>').data('page', tesisData.current_page - 1);
+            const prevLink = $('<a>').addClass('page-link').attr('href', '#').text('Anterior').data('page', tesisData.current_page - 1);
             prevLi.append(prevLink);
             pagination.append(prevLi);
 
@@ -736,14 +673,13 @@ $(document).ready(function() {
             for (let i = 1; i <= tesisData.last_page; i++) {
                 const li = $('<li>').addClass('page-item').toggleClass('active', i === tesisData.current_page);
                 const link = $('<a>').addClass('page-link').attr('href', '#').text(i).data('page', i);
-                link.attr('aria-label', `Página ${i}`);
                 li.append(link);
                 pagination.append(li);
             }
 
             // Botón Siguiente
             const nextLi = $('<li>').addClass('page-item').toggleClass('disabled', tesisData.current_page === tesisData.last_page);
-            const nextLink = $('<a>').addClass('page-link').attr('href', '#').html('<span aria-hidden="true">&raquo;</span><span class="sr-only">Siguiente</span>').data('page', tesisData.current_page + 1);
+            const nextLink = $('<a>').addClass('page-link').attr('href', '#').text('Siguiente').data('page', tesisData.current_page + 1);
             nextLi.append(nextLink);
             pagination.append(nextLi);
         }
@@ -752,7 +688,7 @@ $(document).ready(function() {
     // Helper functions
     function showLoading(show) {
         if (show) {
-            $('#tabla-tesis').html('<tr><td colspan="11" class="text-center"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Cargando tesis...</td></tr>');
+            $('#tabla-tesis').html('<tr><td colspan="11" class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando tesis...</td></tr>');
         }
     }
 
@@ -797,7 +733,7 @@ $(document).ready(function() {
         // Restablecer filtros
         $('#btn-restablecer').click(function() {
             $('#filtro-tipo, #filtro-region').val('');
-            $('#filtro-autor, #filtro-cuenta, #busqueda').val('');
+            $('#filtro-responsable, #filtro-cuenta, #busqueda').val('');
             currentPage = 1;
             cargarTesis();
         });
@@ -1019,6 +955,15 @@ $(document).ready(function() {
             cargarTesis();
         });
         
+        // Validación en tiempo real
+        $('#autor').on('input', function() {
+            this.value = this.value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ]/g, '');
+        });
+        
+        $('#numero_cuenta').on('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
         // Cambiar label del archivo seleccionado
         $('#documento').on('change', function() {
             const fileName = $(this).val().split('\\').pop();
@@ -1027,317 +972,177 @@ $(document).ready(function() {
     }
 });
 </script>
-@stop
 
-@section('css')
-<style>
-    /* Estilos generales */
-    body {
-        background-color: #f8f9fc;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    /* Encabezado */
-    .elegant-header {
-        background: linear-gradient(135deg, #0b2e59, #1a5a8d);
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        color: white;
-        margin-bottom: 25px;
-    }
-    
-    .elegant-header h1 {
-        font-weight: 600;
-        font-size: 1.8rem;
-        margin-bottom: 0.2rem;
-        letter-spacing: -0.5px;
-    }
-    
-    .elegant-header p {
-        font-size: 1rem;
-        opacity: 0.85;
-    }
-    
-    /* Tarjetas */
-    .card-elegant {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        margin-bottom: 25px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .card-elegant:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    }
-    
-    .card-header {
-        background-color: white;
-        border-bottom: 1px solid #eaeef5;
-        border-radius: 12px 12px 0 0 !important;
-        padding: 18px 25px;
-    }
-    
-    .card-title {
-        font-weight: 600;
-        color: #2c3e50;
-        font-size: 1.1rem;
-    }
-    
-    .card-body {
-        padding: 25px;
-    }
-    
-    /* Botones */
-    .btn-elegant {
-        border-radius: 8px;
-        font-weight: 500;
-        padding: 8px 16px;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-outline-secondary.btn-elegant {
-        border: 1px solid #dee2e6;
-        color: #6c757d;
-    }
-    
-    .btn-outline-secondary.btn-elegant:hover {
-        background-color: #f8f9fa;
-    }
-    
-    .btn-primary.btn-elegant {
-        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
-        border: none;
-    }
-    
-    .btn-primary.btn-elegant:hover {
-        background: linear-gradient(135deg, #2a6bc9, #00bde3);
-    }
-    
-    .btn-success.btn-elegant {
-        background: linear-gradient(135deg, #00b09b, #96c93d);
-        border: none;
-    }
-    
-    .btn-success.btn-elegant:hover {
-        background: linear-gradient(135deg, #009c87, #84b52c);
-    }
-    
-    .btn-outline-primary.btn-elegant {
-        border: 1px solid #3a7bd5;
-        color: #3a7bd5;
-    }
-    
-    .btn-outline-primary.btn-elegant:hover {
-        background-color: #3a7bd5;
-        color: white;
-    }
-    
-    /* Formularios */
-    .form-control-elegant {
-        border: 1px solid #eaeef5;
-        border-radius: 8px;
-        padding: 10px 15px;
-        transition: all 0.3s ease;
-        height: calc(1.5em + 1rem + 2px);
-    }
-    
-    .form-control-elegant:focus {
-        border-color: #3a7bd5;
-        box-shadow: 0 0 0 0.2rem rgba(58, 123, 213, 0.15);
-    }
-    
-    .input-group-text {
-        background-color: #f8f9fc;
-        border: 1px solid #eaeef5;
-        border-radius: 8px 0 0 8px;
-    }
-    
-    /* Tabla */
-    .table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    
-    .thead-elegant {
-        background-color: #0b2e59;
-        color: white;
-    }
-    
-    .table th {
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
-        padding: 12px 15px;
-        vertical-align: middle;
-    }
-    
-    .table th i {
-        margin-left: 5px;
-        opacity: 0.7;
-    }
-    
-    .table td {
-        padding: 12px 15px;
-        vertical-align: middle;
-        border-bottom: 1px solid #f0f4f8;
-    }
-    
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fc;
-    }
-    
-    /* Modal */
-    .modal-header.bg-elegant {
-        background: linear-gradient(135deg, #0b2e59, #1a5a8d);
-        border-radius: 0;
-    }
-    
-    .modal-title {
-        font-weight: 500;
-    }
-    
-    /* Paginación */
-    .pagination {
-        margin: 0;
-    }
-    
-    .page-item .page-link {
-        border-radius: 8px;
-        margin: 0 3px;
-        color: #3a7bd5;
-        border: 1px solid #dee2e6;
-    }
-    
-    .page-item.active .page-link {
-        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
-        border-color: #3a7bd5;
-        color: white;
-    }
-    
-    /* Estilo para el modal de vista previa */
-    #modal-preview .modal-dialog {
-        max-width: 90%;
-        height: 90vh;
-    }
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const maxLen = 50;
 
-    #modal-preview .modal-content {
-        height: 100%;
-    }
-
-    #modal-preview .modal-body {
-        padding: 0;
-        height: calc(100% - 120px); /* Resta el header y footer */
-    }
-
-    .embed-responsive {
-        height: 100%;
-    }
-
-    /* Estilos para validación */
-    .is-valid {
-        border-color: #28a745 !important;
-        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
-    }
-    
-    .is-invalid {
-        border-color: #dc3545 !important;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
-    }
-    
-    .invalid-feedback {
-        display: block;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-        color: #dc3545;
-        font-weight: 500;
-    }
-    
-    /* Mejoras de accesibilidad */
-    .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-    }
-    
-    /* Mejorar contraste en enlaces */
-    a {
-        color: #2c5aa0;
-    }
-    
-    a:hover {
-        color: #1e3f73;
-    }
-    
-    /* Mejorar contraste en textos */
-    .text-muted {
-        color: #6b7280 !important;
-    }
-    
-    .badge-danger {
-        background-color: #dc3545;
-        color: white;
-    }
-    
-    /* Focus visible para mejor accesibilidad */
-    .btn:focus,
-    .form-control:focus,
-    .form-check-input:focus {
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        outline: 2px solid #0056b3;
-        outline-offset: 2px;
-    }
-    
-    .pagination .page-link:focus {
-        z-index: 3;
-        outline: 2px solid #0056b3;
-        outline-offset: 2px;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .d-flex.justify-content-end {
-            flex-wrap: wrap;
-        }
-        
-        .btn-elegant {
-            margin-bottom: 8px;
-            width: 100%;
-        }
-        
-        .card-header, .card-body {
-            padding: 15px;
-        }
-        
-        .table-responsive {
-            max-height: 400px;
-        }
-        
-        #modal-preview .modal-dialog {
-            max-width: 95%;
-            height: 80vh;
-            margin: 5px;
+    // helper to set maxlength and trim value
+    function enforceMaxLength(el) {
+        if (!el) return;
+        el.setAttribute('maxlength', maxLen);
+        if (el.value && el.value.length > maxLen) {
+            el.value = el.value.slice(0, maxLen);
         }
     }
-    
-    /* Animaciones */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+
+    // text-only (letters, accents, spaces)
+    function lettersOnly(e) {
+        const el = e.target;
+        el.value = el.value.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ\s]/g, '').slice(0, maxLen);
+        if (el.value.trim().length < 2) {
+            el.setCustomValidity('Por favor ingresa al menos 2 letras.');
+        } else {
+            el.setCustomValidity('');
+        }
     }
-    
-    .fade-in {
-        animation: fadeIn 0.3s ease-in-out;
+
+    // alphanumeric username (no spaces)
+    function usernameOnly(e) {
+        const el = e.target;
+        el.value = el.value.replace(/[^A-Za-z0-9_.-]/g, '').slice(0, maxLen);
+        if (el.value.trim().length < 3) {
+            el.setCustomValidity('Usuario muy corto (mínimo 3 caracteres).');
+        } else {
+            el.setCustomValidity('');
+        }
     }
-</style>
+
+    // digits only
+    function digitsOnly(e) {
+        const el = e.target;
+        el.value = el.value.replace(/[^0-9]/g, '').slice(0, maxLen);
+        if (el.value.trim().length === 0) {
+            el.setCustomValidity('Este campo no puede quedar vacío.');
+        } else {
+            el.setCustomValidity('');
+        }
+    }
+
+    // email simple validation
+    function emailCheck(e) {
+        const el = e.target;
+        el.value = el.value.slice(0, maxLen);
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (el.value && !re.test(el.value)) {
+            el.setCustomValidity('Correo electrónico inválido.');
+        } else {
+            el.setCustomValidity('');
+        }
+    }
+
+    // password and confirm match
+    function passwordCheck() {
+        const pass = document.getElementById('clave');
+        const conf = document.getElementById('confirma_clave');
+        if (!pass || !conf) return;
+        enforceMaxLength(pass);
+        enforceMaxLength(conf);
+        if (pass.value && pass.value.length < 8) {
+            pass.setCustomValidity('La clave debe tener mínimo 8 caracteres.');
+        } else {
+            pass.setCustomValidity('');
+        }
+        if (conf.value && conf.value !== pass.value) {
+            conf.setCustomValidity('Las claves no coinciden.');
+        } else {
+            conf.setCustomValidity('');
+        }
+    }
+
+    // Apply to common inputs if they exist in the page
+    const nombres = document.getElementById('nombres');
+    const apellidos = document.getElementById('apellidos');
+    const usuario = document.getElementById('usuario');
+    const ci = document.getElementById('ci');
+    const clave = document.getElementById('clave');
+    const confirma = document.getElementById('confirma_clave');
+    const telefono = document.getElementById('telefono');
+    const correo = document.getElementById('correo');
+    const numero_cuenta = document.getElementById('numero_cuenta');
+    const documento = document.getElementById('documento'); // file input
+
+    [nombres, apellidos].forEach(el => {
+        if (el) {
+            enforceMaxLength(el);
+            el.addEventListener('input', lettersOnly);
+        }
+    });
+
+    if (usuario) {
+        enforceMaxLength(usuario);
+        usuario.addEventListener('input', usernameOnly);
+    }
+
+    [ci, telefono, numero_cuenta].forEach(el => {
+        if (el) {
+            enforceMaxLength(el);
+            el.addEventListener('input', digitsOnly);
+        }
+    });
+
+    if (correo) {
+        enforceMaxLength(correo);
+        correo.addEventListener('input', emailCheck);
+    }
+
+    if (clave || confirma) {
+        if (clave) clave.addEventListener('input', passwordCheck);
+        if (confirma) confirma.addEventListener('input', passwordCheck);
+    }
+
+    // file input: change label text (works with Bootstrap custom-file or input file next label)
+    if (documento) {
+        documento.addEventListener('change', function () {
+            const fileName = this.value.split('\\').pop().split('/').pop();
+            // try Bootstrap custom file label
+            const nextLabel = this.nextElementSibling;
+            if (nextLabel && nextLabel.classList.contains('custom-file-label')) {
+                nextLabel.innerText = fileName;
+            } else {
+                // else set title attribute
+                this.setAttribute('title', fileName);
+            }
+        });
+    }
+
+    // Add CSS to prevent long strings from breaking layout
+    const style = document.createElement('style');
+    style.innerHTML = `
+    /* Prevent long strings from breaking layout; use ellipsis where appropriate */
+    .prevent-break { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; word-break: normal; }
+    td, th { word-break: break-word; }
+    `;
+    document.head.appendChild(style);
+
+    // Optional: sanitize existing table/text content to truncate very long words
+    document.querySelectorAll('td, th, p, span, label').forEach(el => {
+        if (el && el.textContent && el.textContent.length > maxLen * 3) {
+            // truncate visual display but keep full text in title attribute
+            const full = el.textContent.trim();
+            el.setAttribute('title', full);
+            el.textContent = full.slice(0, maxLen) + '…';
+            el.classList.add('prevent-break');
+        }
+    });
+});
+// Validación en tiempo real para título de tesis
+const titulo = document.getElementById('titulo');
+if (titulo) {
+    titulo.addEventListener('input', function () {
+        const error = document.getElementById('titulo-error');
+        const regexTitulo = /^[a-zA-ZÀ-ÿ0-9\s.,;:!?()'"-]+$/; // letras, números y signos básicos
+        if (titulo.value.length > 50) {
+            titulo.value = titulo.value.slice(0, 50);
+        }
+        if (!regexTitulo.test(titulo.value) && titulo.value.trim() !== "") {
+            error.textContent = 'El título contiene caracteres no permitidos.';
+        } else {
+            error.textContent = '';
+        }
+    });
+}
+
+</script>
+
 @stop
