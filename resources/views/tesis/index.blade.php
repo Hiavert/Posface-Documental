@@ -43,7 +43,6 @@
                            placeholder="Nombre del autor" maxlength="50"
                            oninput="validarYFiltrarAutor(this)"
                            onkeypress="return permitirCaracteresAutor(event)">
-                    <small class="form-text text-muted">Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.</small>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Número de Cuenta</label>
@@ -51,7 +50,6 @@
                            placeholder="Número de cuenta" maxlength="12"
                            oninput="validarYFiltrarCuenta(this)"
                            onkeypress="return permitirCaracteresCuenta(event)">
-                    <small class="form-text text-muted">12 caracteres, solo números y guión.</small>
                 </div>
             </div>
             <div class="d-flex justify-content-end">
