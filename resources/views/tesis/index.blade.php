@@ -46,7 +46,6 @@
                            oninput="validarYFiltrarAutor(this)"
                            onkeypress="return permitirCaracteresAutor(event)"
                            aria-describedby="help-autor">
-                    <small id="help-autor" class="form-text text-muted">Solo letras y espacios</small>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="filtro-cuenta" class="form-label">Número de Cuenta</label>
@@ -55,7 +54,6 @@
                            oninput="validarYFiltrarCuenta(this)"
                            onkeypress="return permitirCaracteresCuenta(event)"
                            aria-describedby="help-cuenta">
-                    <small id="help-cuenta" class="form-text text-muted">Solo números</small>
                 </div>
             </div>
             <div class="d-flex justify-content-end">
@@ -91,7 +89,6 @@
                                aria-labelledby="busqueda-label"
                                aria-describedby="help-busqueda">
                     </div>
-                    <small id="help-busqueda" class="form-text text-muted">Buscar en títulos, autores o números de cuenta</small>
                 </div>
                 <div class="col-md-6 text-right">
                     <button class="btn btn-outline-primary btn-elegant" id="btn-exportar" aria-label="Exportar tesis seleccionadas">
