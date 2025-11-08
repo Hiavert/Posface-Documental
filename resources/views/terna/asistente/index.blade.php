@@ -41,7 +41,8 @@
                             <label for="codigo" class="font-weight-bold">Buscar por código</label>
                             <input type="text" name="codigo" id="codigo" class="form-control" 
                                    placeholder="TERNA-001" value="{{ request('codigo') }}" 
-                                   maxlength="12" oninput="validarCodigo(this)"
+                                   maxlength="12" oninput="validarYFiltrarCodigo(this)"
+                                   onkeypress="return permitirCaracteresCodigo(event)"
                                    aria-describedby="codigoHelp codigoError">
                             <small id="codigoHelp" class="form-text text-muted">
                                 12 caracteres, solo letras, números y guión. Máximo 3 letras iguales consecutivas.
@@ -54,7 +55,8 @@
                             <label for="responsable" class="font-weight-bold">Responsable</label>
                             <input type="text" name="responsable" id="responsable" class="form-control" 
                                    placeholder="Nombre responsable" value="{{ request('responsable') }}" 
-                                   maxlength="50" oninput="validarResponsable(this)"
+                                   maxlength="50" oninput="validarYFiltrarResponsable(this)"
+                                   onkeypress="return permitirCaracteresResponsable(event)"
                                    aria-describedby="responsableHelp responsableError">
                             <small id="responsableHelp" class="form-text text-muted">
                                 Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.
@@ -171,15 +173,81 @@
 </div>
 
 <script>
-// Función para validar el campo de código
-function validarCodigo(input) {
-    const valor = input.value;
+// Función para permitir solo caracteres válidos en código
+function permitirCaracteresCodigo(event) {
+    const charCode = event.which ? event.which : event.keyCode;
+    const charStr = String.fromCharCode(charCode);
+    
+    // Permitir letras (A-Z, a-z), números (0-9) y guión (-)
+    const regex = /^[A-Za-z0-9\-]$/;
+    
+    // Permitir teclas de control (backspace, delete, tab, etc.)
+    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39) {
+        return true;
+    }
+    
+    if (!regex.test(charStr)) {
+        event.preventDefault();
+        mostrarErrorTemporal('codigoError', 'Solo se permiten letras, números y guión.');
+        return false;
+    }
+    
+    return true;
+}
+
+// Función para permitir solo caracteres válidos en responsable
+function permitirCaracteresResponsable(event) {
+    const charCode = event.which ? event.which : event.keyCode;
+    const charStr = String.fromCharCode(charCode);
+    
+    // Permitir letras (con acentos), espacios y ñ
+    const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]$/;
+    
+    // Permitir teclas de control (backspace, delete, tab, etc.)
+    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39) {
+        return true;
+    }
+    
+    if (!regex.test(charStr)) {
+        event.preventDefault();
+        mostrarErrorTemporal('responsableError', 'Solo se permiten letras y espacios.');
+        return false;
+    }
+    
+    return true;
+}
+
+// Función para validar y filtrar el campo de código en tiempo real
+function validarYFiltrarCodigo(input) {
+    let valor = input.value;
     const errorElement = document.getElementById('codigoError');
     
     // Remover clases de validación previas
     input.classList.remove('is-invalid', 'is-valid');
     errorElement.textContent = '';
     input.removeAttribute('aria-invalid');
+    
+    // Filtrar caracteres no permitidos (solo letras, números y guión)
+    valor = valor.replace(/[^A-Za-z0-9\-]/g, '');
+    
+    // Validar que no haya más de 3 letras iguales consecutivas
+    const regexRepetidas = /([A-Za-z])\1{3,}/g;
+    if (regexRepetidas.test(valor)) {
+        // Eliminar letras repetidas más allá de 3
+        valor = valor.replace(regexRepetidas, (match) => {
+            return match.substring(0, 3);
+        });
+    }
+    
+    // Limitar a 12 caracteres
+    if (valor.length > 12) {
+        valor = valor.substring(0, 12);
+    }
+    
+    // Actualizar el valor del input
+    if (input.value !== valor) {
+        input.value = valor;
+    }
     
     // Si está vacío, no validar
     if (valor === '') {
@@ -194,32 +262,14 @@ function validarCodigo(input) {
         return false;
     }
     
-    // Validar caracteres permitidos (solo letras, números y guión)
-    const regexCaracteres = /^[A-Za-z0-9\-]+$/;
-    if (!regexCaracteres.test(valor)) {
-        input.classList.add('is-invalid');
-        input.setAttribute('aria-invalid', 'true');
-        errorElement.textContent = 'Solo se permiten letras, números y el guión (-).';
-        return false;
-    }
-    
-    // Validar que no haya más de 3 letras iguales consecutivas
-    const regexRepetidas = /([A-Za-z])\1{3,}/;
-    if (regexRepetidas.test(valor)) {
-        input.classList.add('is-invalid');
-        input.setAttribute('aria-invalid', 'true');
-        errorElement.textContent = 'No se permiten más de 3 letras iguales consecutivas.';
-        return false;
-    }
-    
     // Si pasa todas las validaciones
     input.classList.add('is-valid');
     return true;
 }
 
-// Función para validar el campo de responsable
-function validarResponsable(input) {
-    const valor = input.value;
+// Función para validar y filtrar el campo de responsable en tiempo real
+function validarYFiltrarResponsable(input) {
+    let valor = input.value;
     const errorElement = document.getElementById('responsableError');
     
     // Remover clases de validación previas
@@ -227,35 +277,31 @@ function validarResponsable(input) {
     errorElement.textContent = '';
     input.removeAttribute('aria-invalid');
     
+    // Filtrar caracteres no permitidos (solo letras, espacios y acentos)
+    valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
+    
+    // Validar que no haya más de 3 letras iguales consecutivas
+    const regexRepetidas = /([A-Za-z])\1{3,}/g;
+    if (regexRepetidas.test(valor)) {
+        // Eliminar letras repetidas más allá de 3
+        valor = valor.replace(regexRepetidas, (match) => {
+            return match.substring(0, 3);
+        });
+    }
+    
+    // Limitar a 50 caracteres
+    if (valor.length > 50) {
+        valor = valor.substring(0, 50);
+    }
+    
+    // Actualizar el valor del input
+    if (input.value !== valor) {
+        input.value = valor;
+    }
+    
     // Si está vacío, no validar
     if (valor === '') {
         return true;
-    }
-    
-    // Validar longitud máxima de 50 caracteres
-    if (valor.length > 50) {
-        input.classList.add('is-invalid');
-        input.setAttribute('aria-invalid', 'true');
-        errorElement.textContent = 'El responsable no puede tener más de 50 caracteres.';
-        return false;
-    }
-    
-    // Validar solo letras y espacios (permitir acentos y ñ)
-    const regexCaracteres = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/;
-    if (!regexCaracteres.test(valor)) {
-        input.classList.add('is-invalid');
-        input.setAttribute('aria-invalid', 'true');
-        errorElement.textContent = 'Solo se permiten letras y espacios. No se permiten números ni caracteres especiales.';
-        return false;
-    }
-    
-    // Validar que no haya más de 3 letras iguales consecutivas
-    const regexRepetidas = /([A-Za-z])\1{3,}/;
-    if (regexRepetidas.test(valor)) {
-        input.classList.add('is-invalid');
-        input.setAttribute('aria-invalid', 'true');
-        errorElement.textContent = 'No se permiten más de 3 letras iguales consecutivas.';
-        return false;
     }
     
     // Si pasa todas las validaciones
@@ -263,33 +309,35 @@ function validarResponsable(input) {
     return true;
 }
 
+// Función para mostrar errores temporales
+function mostrarErrorTemporal(elementId, mensaje) {
+    const errorElement = document.getElementById(elementId);
+    errorElement.textContent = mensaje;
+    errorElement.style.display = 'block';
+    
+    setTimeout(() => {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+    }, 2000);
+}
+
 // Validar formulario antes de enviar
 document.getElementById('filtrosForm').addEventListener('submit', function(e) {
-    const codigoValido = validarCodigo(document.getElementById('codigo'));
-    const responsableValido = validarResponsable(document.getElementById('responsable'));
+    const codigoInput = document.getElementById('codigo');
+    const responsableInput = document.getElementById('responsable');
+    
+    const codigoValido = validarYFiltrarCodigo(codigoInput);
+    const responsableValido = validarYFiltrarResponsable(responsableInput);
     
     if (!codigoValido || !responsableValido) {
         e.preventDefault();
         
         // Enfocar el primer campo con error
         if (!codigoValido) {
-            document.getElementById('codigo').focus();
+            codigoInput.focus();
         } else if (!responsableValido) {
-            document.getElementById('responsable').focus();
+            responsableInput.focus();
         }
-        
-        // Anunciar error para lectores de pantalla
-        const errorMessage = 'Por favor, corrige los errores en el formulario antes de enviar.';
-        const liveRegion = document.createElement('div');
-        liveRegion.setAttribute('role', 'alert');
-        liveRegion.setAttribute('aria-live', 'assertive');
-        liveRegion.className = 'sr-only';
-        liveRegion.textContent = errorMessage;
-        document.body.appendChild(liveRegion);
-        
-        setTimeout(() => {
-            document.body.removeChild(liveRegion);
-        }, 3000);
     }
 });
 
@@ -299,11 +347,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const responsableInput = document.getElementById('responsable');
     
     if (codigoInput.value) {
-        validarCodigo(codigoInput);
+        validarYFiltrarCodigo(codigoInput);
     }
     
     if (responsableInput.value) {
-        validarResponsable(responsableInput);
+        validarYFiltrarResponsable(responsableInput);
     }
     
     // Mejorar accesibilidad de la paginación
