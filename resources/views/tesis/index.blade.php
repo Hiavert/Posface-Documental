@@ -27,7 +27,7 @@
                             <option value="{{ $tipo->id_tipo_tesis }}">{{ $tipo->nombre }}</option>
                         @endforeach
                     </select>
-                    <small id="tipoHelp" class="form-text text-muted">Seleccione el tipo de tesis</small>
+                    <small id="tipoHelp" class="form-text text-muted sr-only">Seleccione el tipo de tesis para filtrar</small>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="filtro-region" class="form-label font-weight-bold">Región/Departamento</label>
@@ -37,15 +37,16 @@
                             <option value="{{ $region->id_region }}">{{ $region->nombre }}</option>
                         @endforeach
                     </select>
-                    <small id="regionHelp" class="form-text text-muted">Seleccione la región</small>
+                    <small id="regionHelp" class="form-text text-muted sr-only">Seleccione la región o departamento para filtrar</small>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label for="filtro-responsable" class="form-label font-weight-bold">Autor</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-responsable" 
+                    <label for="filtro-autor" class="form-label font-weight-bold">Autor</label>
+                    <input type="text" class="form-control form-control-elegant" id="filtro-autor" 
                            placeholder="Nombre del autor" maxlength="50" 
                            oninput="validarYFiltrarAutor(this)"
                            onkeypress="return permitirCaracteresAutor(event)"
                            aria-describedby="autorHelp autorError">
+                    <small id="autorHelp" class="form-text text-muted">Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.</small>
                     <div class="invalid-feedback" id="autorError" role="alert"></div>
                 </div>
                 <div class="col-md-3 mb-3">
@@ -55,6 +56,7 @@
                            oninput="validarYFiltrarCuenta(this)"
                            onkeypress="return permitirCaracteresCuenta(event)"
                            aria-describedby="cuentaHelp cuentaError">
+                    <small id="cuentaHelp" class="form-text text-muted">12 caracteres, solo números y guión. No se permiten letras ni otros caracteres especiales.</small>
                     <div class="invalid-feedback" id="cuentaError" role="alert"></div>
                 </div>
             </div>
@@ -82,15 +84,16 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
+                    <label for="busqueda" class="sr-only">Buscar en la tabla</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search" aria-hidden="true"></i></span>
-                        <label for="busqueda" class="sr-only">Buscar en la tabla</label>
+                        <span class="input-group-text" aria-hidden="true"><i class="fas fa-search"></i></span>
                         <input type="text" class="form-control form-control-elegant" id="busqueda" 
                                placeholder="Buscar por título, autor o cuenta..." maxlength="50"
                                oninput="validarYFiltrarBusqueda(this)"
                                onkeypress="return permitirCaracteresBusqueda(event)"
                                aria-describedby="busquedaHelp busquedaError">
                     </div>
+                    <small id="busquedaHelp" class="form-text text-muted">Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.</small>
                     <div class="invalid-feedback" id="busquedaError" role="alert"></div>
                 </div>
                 <div class="col-md-6 text-right">
@@ -109,13 +112,13 @@
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" aria-describedby="tablaDescription">
-                    <caption id="tablaDescription" class="sr-only">Lista de tesis registradas con opciones de gestión</caption>
+                <table class="table table-hover align-middle mb-0" aria-describedby="tablaDescripcion">
+                    <caption id="tablaDescripcion" class="sr-only">Lista de tesis registradas con opciones para filtrar, ordenar y realizar acciones</caption>
                     <thead class="thead-elegant">
                         <tr>
                             <th scope="col" width="50">
+                                <label for="select-all" class="sr-only">Seleccionar todas las tesis</label>
                                 <input type="checkbox" id="select-all" aria-label="Seleccionar todas las tesis">
-                                <span class="sr-only">Seleccionar todos</span>
                             </th>
                             <th scope="col" width="70" data-sort="id_tesis">
                                 <button type="button" class="btn btn-link p-0 border-0 text-white font-weight-bold" onclick="ordenarColumna('id_tesis')">
@@ -180,7 +183,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-elegant">
-                <h3 class="modal-title text-white" id="modal-titulo">Subir Nueva Tesis</h3>
+                <h3 class="modal-title text-white h5" id="modal-titulo">Subir Nueva Tesis</h3>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -221,7 +224,9 @@
                             <div class="form-group">
                                 <label for="autor" class="form-label font-weight-bold">Autor *</label>
                                 <input type="text" class="form-control form-control-elegant" id="autor" name="autor" 
-                                       pattern="[a-zA-Z\sáéíóúÁÉÍÓÚñÑ]+" title="Solo letras y espacios" required maxlength="80">
+                                       required maxlength="80"
+                                       oninput="validarYFiltrarAutorModal(this)"
+                                       onkeypress="return permitirCaracteresAutor(event)">
                                 <small class="form-text text-muted">Solo letras y espacios, máximo 80 caracteres</small>
                             </div>
                         </div>
@@ -229,7 +234,9 @@
                             <div class="form-group">
                                 <label for="numero_cuenta" class="form-label font-weight-bold">Número de Cuenta *</label>
                                 <input type="text" class="form-control form-control-elegant" id="numero_cuenta" name="numero_cuenta" 
-                                       pattern="[0-9]+" title="Solo números" required maxlength="13">
+                                       required maxlength="13"
+                                       oninput="validarYFiltrarCuentaModal(this)"
+                                       onkeypress="return permitirCaracteresCuenta(event)">
                                 <small class="form-text text-muted">Solo números, máximo 13 dígitos</small>
                             </div>
                         </div>
@@ -261,7 +268,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-elegant">
-                <h3 class="modal-title text-white" id="detallesTitulo">Detalles de Subida</h3>
+                <h3 class="modal-title text-white h5" id="detallesTitulo">Detalles de Subida</h3>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -288,7 +295,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-elegant">
-                <h3 class="modal-title text-white" id="previewTitulo">Vista Previa de Tesis</h3>
+                <h3 class="modal-title text-white h5" id="previewTitulo">Vista Previa de Tesis</h3>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -323,32 +330,10 @@
 
 <script>
 // =============================================
-// VALIDACIONES EN TIEMPO REAL PARA FILTROS
+// VALIDACIONES PARA FILTROS Y CAMPOS DE TEXTO
 // =============================================
 
-// Función para permitir solo caracteres válidos en número de cuenta
-function permitirCaracteresCuenta(event) {
-    const charCode = event.which ? event.which : event.keyCode;
-    const charStr = String.fromCharCode(charCode);
-    
-    // Permitir solo números (0-9) y guión (-)
-    const regex = /^[0-9\-]$/;
-    
-    // Permitir teclas de control (backspace, delete, tab, flechas)
-    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39) {
-        return true;
-    }
-    
-    if (!regex.test(charStr)) {
-        event.preventDefault();
-        mostrarErrorTemporal('cuentaError', 'Solo se permiten números y guión.');
-        return false;
-    }
-    
-    return true;
-}
-
-// Función para permitir solo caracteres válidos en autor
+// Función para permitir solo caracteres válidos en campo de autor
 function permitirCaracteresAutor(event) {
     const charCode = event.which ? event.which : event.keyCode;
     const charStr = String.fromCharCode(charCode);
@@ -356,72 +341,58 @@ function permitirCaracteresAutor(event) {
     // Permitir letras (con acentos), espacios y ñ
     const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]$/;
     
-    // Permitir teclas de control (backspace, delete, tab, flechas)
-    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39) {
+    // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
         return true;
     }
     
     if (!regex.test(charStr)) {
         event.preventDefault();
-        mostrarErrorTemporal('autorError', 'Solo se permiten letras y espacios.');
         return false;
     }
     
     return true;
 }
 
-// Función para permitir solo caracteres válidos en búsqueda
+// Función para permitir solo caracteres válidos en campo de número de cuenta
+function permitirCaracteresCuenta(event) {
+    const charCode = event.which ? event.which : event.keyCode;
+    const charStr = String.fromCharCode(charCode);
+    
+    // Permitir solo números y guión
+    const regex = /^[0-9\-]$/;
+    
+    // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+        return true;
+    }
+    
+    if (!regex.test(charStr)) {
+        event.preventDefault();
+        return false;
+    }
+    
+    return true;
+}
+
+// Función para permitir solo caracteres válidos en campo de búsqueda
 function permitirCaracteresBusqueda(event) {
     const charCode = event.which ? event.which : event.keyCode;
     const charStr = String.fromCharCode(charCode);
     
     // Permitir letras (con acentos), espacios, números y algunos caracteres básicos para búsqueda
-    const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ0-9\s\-_.,]$/;
+    const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ0-9\s\-_.,!?]$/;
     
-    // Permitir teclas de control (backspace, delete, tab, flechas)
-    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39) {
+    // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
         return true;
     }
     
     if (!regex.test(charStr)) {
         event.preventDefault();
-        mostrarErrorTemporal('busquedaError', 'Carácter no permitido.');
         return false;
     }
     
-    return true;
-}
-
-// Función para validar y filtrar el campo de número de cuenta en tiempo real
-function validarYFiltrarCuenta(input) {
-    let valor = input.value;
-    const errorElement = document.getElementById('cuentaError');
-    
-    // Remover clases de validación previas
-    input.classList.remove('is-invalid', 'is-valid');
-    errorElement.textContent = '';
-    input.removeAttribute('aria-invalid');
-    
-    // Filtrar caracteres no permitidos (solo números y guión)
-    valor = valor.replace(/[^0-9\-]/g, '');
-    
-    // Limitar a 12 caracteres
-    if (valor.length > 12) {
-        valor = valor.substring(0, 12);
-    }
-    
-    // Actualizar el valor del input
-    if (input.value !== valor) {
-        input.value = valor;
-    }
-    
-    // Si está vacío, no validar
-    if (valor === '') {
-        return true;
-    }
-    
-    // Si pasa todas las validaciones
-    input.classList.add('is-valid');
     return true;
 }
 
@@ -467,6 +438,39 @@ function validarYFiltrarAutor(input) {
     return true;
 }
 
+// Función para validar y filtrar el campo de número de cuenta en tiempo real
+function validarYFiltrarCuenta(input) {
+    let valor = input.value;
+    const errorElement = document.getElementById('cuentaError');
+    
+    // Remover clases de validación previas
+    input.classList.remove('is-invalid', 'is-valid');
+    errorElement.textContent = '';
+    input.removeAttribute('aria-invalid');
+    
+    // Filtrar caracteres no permitidos (solo números y guión)
+    valor = valor.replace(/[^0-9\-]/g, '');
+    
+    // Limitar a 12 caracteres
+    if (valor.length > 12) {
+        valor = valor.substring(0, 12);
+    }
+    
+    // Actualizar el valor del input
+    if (input.value !== valor) {
+        input.value = valor;
+    }
+    
+    // Si está vacío, no validar
+    if (valor === '') {
+        return true;
+    }
+    
+    // Si pasa todas las validaciones
+    input.classList.add('is-valid');
+    return true;
+}
+
 // Función para validar y filtrar el campo de búsqueda en tiempo real
 function validarYFiltrarBusqueda(input) {
     let valor = input.value;
@@ -477,10 +481,7 @@ function validarYFiltrarBusqueda(input) {
     errorElement.textContent = '';
     input.removeAttribute('aria-invalid');
     
-    // Filtrar caracteres no permitidos (más permisivo para búsqueda)
-    valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ0-9\s\-_.,]/g, '');
-    
-    // Validar que no haya más de 3 letras iguales consecutivas
+    // Validar que no haya más de 3 letras iguales consecutivas (solo para letras)
     const regexRepetidas = /([A-Za-z])\1{3,}/g;
     if (regexRepetidas.test(valor)) {
         // Eliminar letras repetidas más allá de 3
@@ -509,37 +510,68 @@ function validarYFiltrarBusqueda(input) {
     return true;
 }
 
-// Función para mostrar errores temporales
-function mostrarErrorTemporal(elementId, mensaje) {
-    const errorElement = document.getElementById(elementId);
-    errorElement.textContent = mensaje;
-    errorElement.style.display = 'block';
+// Funciones para validación en el modal
+function validarYFiltrarAutorModal(input) {
+    let valor = input.value;
     
-    setTimeout(() => {
-        errorElement.textContent = '';
-        errorElement.style.display = 'none';
-    }, 2000);
+    // Filtrar caracteres no permitidos (solo letras, espacios y acentos)
+    valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
+    
+    // Validar que no haya más de 3 letras iguales consecutivas
+    const regexRepetidas = /([A-Za-z])\1{3,}/g;
+    if (regexRepetidas.test(valor)) {
+        valor = valor.replace(regexRepetidas, (match) => {
+            return match.substring(0, 3);
+        });
+    }
+    
+    // Limitar a 80 caracteres
+    if (valor.length > 80) {
+        valor = valor.substring(0, 80);
+    }
+    
+    // Actualizar el valor del input
+    if (input.value !== valor) {
+        input.value = valor;
+    }
 }
 
-// Función para ordenar columnas
-function ordenarColumna(column) {
+function validarYFiltrarCuentaModal(input) {
+    let valor = input.value;
+    
+    // Filtrar caracteres no permitidos (solo números)
+    valor = valor.replace(/[^0-9]/g, '');
+    
+    // Limitar a 13 caracteres
+    if (valor.length > 13) {
+        valor = valor.substring(0, 13);
+    }
+    
+    // Actualizar el valor del input
+    if (input.value !== valor) {
+        input.value = valor;
+    }
+}
+
+// Función para ordenar columnas (accesible)
+function ordenarColumna(columna) {
     // Esta función se integrará con la lógica existente de ordenamiento
-    console.log('Ordenar por:', column);
-    // La implementación completa dependerá de tu lógica actual de ordenamiento
+    const event = new Event('click');
+    document.querySelector(`th[data-sort="${columna}"]`).dispatchEvent(event);
 }
 
 // Aplicar validación inicial si hay valores en los campos
 document.addEventListener('DOMContentLoaded', function() {
+    const autorInput = document.getElementById('filtro-autor');
     const cuentaInput = document.getElementById('filtro-cuenta');
-    const autorInput = document.getElementById('filtro-responsable');
     const busquedaInput = document.getElementById('busqueda');
-    
-    if (cuentaInput && cuentaInput.value) {
-        validarYFiltrarCuenta(cuentaInput);
-    }
     
     if (autorInput && autorInput.value) {
         validarYFiltrarAutor(autorInput);
+    }
+    
+    if (cuentaInput && cuentaInput.value) {
+        validarYFiltrarCuenta(cuentaInput);
     }
     
     if (busquedaInput && busquedaInput.value) {
@@ -550,9 +582,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // =============================================
-// CÓDIGO JQUERY EXISTENTE (CON CORRECCIONES DE ACCESIBILIDAD)
+// CÓDIGO JQUERY EXISTENTE (MANTENIDO)
 // =============================================
-
 $(document).ready(function() {
     // Variables globales
     let tesisData = {};
@@ -583,7 +614,7 @@ $(document).ready(function() {
         const filtros = {
             tipo: $('#filtro-tipo').val(),
             region: $('#filtro-region').val(),
-            responsable: $('#filtro-responsable').val(),
+            responsable: $('#filtro-autor').val(),
             cuenta: $('#filtro-cuenta').val(),
             busqueda: $('#busqueda').val(),
             page: currentPage,
@@ -642,13 +673,13 @@ $(document).ready(function() {
                 const downloadUrl = routes.download(tesis.ruta_archivo);
                 
                 tr.append(`<td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones para documento ${tesis.id_tesis}">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones para documento">
                         <button class="btn btn-info btn-preview" 
                             data-url="${previewUrl}" 
-                            aria-label="Vista previa de ${tesis.titulo}">
+                            aria-label="Vista previa de tesis ${tesis.titulo}">
                             <i class="fas fa-eye" aria-hidden="true"></i>
                         </button>
-                        <a href="${downloadUrl}" class="btn btn-secondary" aria-label="Descargar ${tesis.titulo}" target="_blank">
+                        <a href="${downloadUrl}" class="btn btn-secondary" aria-label="Descargar tesis ${tesis.titulo}" target="_blank">
                             <i class="fas fa-download" aria-hidden="true"></i>
                         </a>
                         <button class="btn btn-primary btn-detalles" 
@@ -664,14 +695,14 @@ $(document).ready(function() {
             }
 
             tr.append(`<td>
-                <div class="btn-group btn-group-sm" role="group" aria-label="Acciones para tesis ${tesis.id_tesis}">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Acciones para tesis">
                     @if(auth()->user()->puedeEditar('GestionTesis'))
-                    <button class="btn btn-success btn-editar" data-id="${tesis.id_tesis}" aria-label="Editar tesis ${tesis.id_tesis}">
+                    <button class="btn btn-success btn-editar" data-id="${tesis.id_tesis}" aria-label="Editar tesis ${tesis.titulo}">
                         <i class="fas fa-edit" aria-hidden="true"></i>
                     </button>
                     @endif
                     @if(auth()->user()->puedeEliminar('GestionTesis'))
-                    <button class="btn btn-danger btn-eliminar" data-id="${tesis.id_tesis}" aria-label="Eliminar tesis ${tesis.id_tesis}">
+                    <button class="btn btn-danger btn-eliminar" data-id="${tesis.id_tesis}" aria-label="Eliminar tesis ${tesis.titulo}">
                         <i class="fas fa-trash-alt" aria-hidden="true"></i>
                     </button>
                     @endif
@@ -697,27 +728,22 @@ $(document).ready(function() {
         if (tesisData.last_page > 1) {
             // Botón Anterior
             const prevLi = $('<li>').addClass('page-item').toggleClass('disabled', tesisData.current_page === 1);
-            const prevLink = $('<a>').addClass('page-link').attr('href', '#').text('Anterior')
-                .data('page', tesisData.current_page - 1)
-                .attr('aria-label', 'Página anterior');
+            const prevLink = $('<a>').addClass('page-link').attr('href', '#').html('<span aria-hidden="true">&laquo;</span><span class="sr-only">Anterior</span>').data('page', tesisData.current_page - 1);
             prevLi.append(prevLink);
             pagination.append(prevLi);
 
             // Números de página
             for (let i = 1; i <= tesisData.last_page; i++) {
                 const li = $('<li>').addClass('page-item').toggleClass('active', i === tesisData.current_page);
-                const link = $('<a>').addClass('page-link').attr('href', '#').text(i)
-                    .data('page', i)
-                    .attr('aria-label', `Página ${i}`);
+                const link = $('<a>').addClass('page-link').attr('href', '#').text(i).data('page', i);
+                link.attr('aria-label', `Página ${i}`);
                 li.append(link);
                 pagination.append(li);
             }
 
             // Botón Siguiente
             const nextLi = $('<li>').addClass('page-item').toggleClass('disabled', tesisData.current_page === tesisData.last_page);
-            const nextLink = $('<a>').addClass('page-link').attr('href', '#').text('Siguiente')
-                .data('page', tesisData.current_page + 1)
-                .attr('aria-label', 'Página siguiente');
+            const nextLink = $('<a>').addClass('page-link').attr('href', '#').html('<span aria-hidden="true">&raquo;</span><span class="sr-only">Siguiente</span>').data('page', tesisData.current_page + 1);
             nextLi.append(nextLink);
             pagination.append(nextLi);
         }
@@ -771,7 +797,7 @@ $(document).ready(function() {
         // Restablecer filtros
         $('#btn-restablecer').click(function() {
             $('#filtro-tipo, #filtro-region').val('');
-            $('#filtro-responsable, #filtro-cuenta, #busqueda').val('');
+            $('#filtro-autor, #filtro-cuenta, #busqueda').val('');
             currentPage = 1;
             cargarTesis();
         });
@@ -981,8 +1007,8 @@ $(document).ready(function() {
         });
         
         // Ordenar por columna
-        $(document).on('click', 'th[data-sort] button', function() {
-            const column = $(this).closest('th').data('sort');
+        $(document).on('click', 'th[data-sort]', function() {
+            const column = $(this).data('sort');
             if (sortColumn === column) {
                 sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
             } else {
@@ -991,15 +1017,6 @@ $(document).ready(function() {
             }
             currentPage = 1;
             cargarTesis();
-        });
-        
-        // Validación en tiempo real
-        $('#autor').on('input', function() {
-            this.value = this.value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ]/g, '');
-        });
-        
-        $('#numero_cuenta').on('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, '');
         });
         
         // Cambiar label del archivo seleccionado
@@ -1158,15 +1175,6 @@ $(document).ready(function() {
         vertical-align: middle;
     }
     
-    .table th button {
-        color: inherit;
-        text-decoration: none;
-    }
-    
-    .table th button:hover {
-        text-decoration: underline;
-    }
-    
     .table th i {
         margin-left: 5px;
         opacity: 0.7;
@@ -1259,6 +1267,25 @@ $(document).ready(function() {
         clip: rect(0, 0, 0, 0);
         white-space: nowrap;
         border: 0;
+    }
+    
+    /* Mejorar contraste en enlaces */
+    a {
+        color: #2c5aa0;
+    }
+    
+    a:hover {
+        color: #1e3f73;
+    }
+    
+    /* Mejorar contraste en textos */
+    .text-muted {
+        color: #6b7280 !important;
+    }
+    
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
     }
     
     /* Focus visible para mejor accesibilidad */
