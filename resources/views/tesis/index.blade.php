@@ -39,11 +39,19 @@
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Autor</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-responsable" placeholder="Nombre del autor" maxlength="255">
+                    <input type="text" class="form-control form-control-elegant" id="filtro-responsable" 
+                           placeholder="Nombre del autor" maxlength="50"
+                           oninput="validarYFiltrarAutor(this)"
+                           onkeypress="return permitirCaracteresAutor(event)">
+                    <small class="form-text text-muted">Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.</small>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Número de Cuenta</label>
-                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" placeholder="Número de cuenta" maxlength="20">
+                    <input type="text" class="form-control form-control-elegant" id="filtro-cuenta" 
+                           placeholder="Número de cuenta" maxlength="12"
+                           oninput="validarYFiltrarCuenta(this)"
+                           onkeypress="return permitirCaracteresCuenta(event)">
+                    <small class="form-text text-muted">12 caracteres, solo números y guión.</small>
                 </div>
             </div>
             <div class="d-flex justify-content-end">
@@ -72,8 +80,12 @@
                 <div class="col-md-6">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control form-control-elegant" id="busqueda" placeholder="Buscar por título, autor o cuenta..." maxlength="255">
+                        <input type="text" class="form-control form-control-elegant" id="busqueda" 
+                               placeholder="Buscar por título, autor o cuenta..." maxlength="50"
+                               oninput="validarYFiltrarBusqueda(this)"
+                               onkeypress="return permitirCaracteresBusqueda(event)">
                     </div>
+                    <small class="form-text text-muted">Máximo 50 caracteres, solo letras y espacios. Máximo 3 letras iguales consecutivas.</small>
                 </div>
                 <div class="col-md-6 text-right">
                     <button class="btn btn-outline-primary btn-elegant" id="btn-exportar">
@@ -268,6 +280,166 @@
         </div>
     </div>
 </div>
+
+<script>
+// =============================================
+// VALIDACIONES PARA FILTROS
+// =============================================
+
+// Función para permitir solo caracteres válidos en campo de autor
+function permitirCaracteresAutor(event) {
+    const charCode = event.which ? event.which : event.keyCode;
+    const charStr = String.fromCharCode(charCode);
+    
+    // Permitir letras (con acentos), espacios y ñ
+    const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]$/;
+    
+    // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+        return true;
+    }
+    
+    if (!regex.test(charStr)) {
+        event.preventDefault();
+        return false;
+    }
+    
+    return true;
+}
+
+// Función para permitir solo caracteres válidos en campo de número de cuenta
+function permitirCaracteresCuenta(event) {
+    const charCode = event.which ? event.which : event.keyCode;
+    const charStr = String.fromCharCode(charCode);
+    
+    // Permitir solo números y guión
+    const regex = /^[0-9\-]$/;
+    
+    // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+        return true;
+    }
+    
+    if (!regex.test(charStr)) {
+        event.preventDefault();
+        return false;
+    }
+    
+    return true;
+}
+
+// Función para permitir solo caracteres válidos en campo de búsqueda
+function permitirCaracteresBusqueda(event) {
+    const charCode = event.which ? event.which : event.keyCode;
+    const charStr = String.fromCharCode(charCode);
+    
+    // Permitir letras (con acentos), espacios y ñ
+    const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]$/;
+    
+    // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+    if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+        return true;
+    }
+    
+    if (!regex.test(charStr)) {
+        event.preventDefault();
+        return false;
+    }
+    
+    return true;
+}
+
+// Función para validar y filtrar el campo de autor en tiempo real
+function validarYFiltrarAutor(input) {
+    let valor = input.value;
+    
+    // Filtrar caracteres no permitidos (solo letras, espacios y acentos)
+    valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
+    
+    // Validar que no haya más de 3 letras iguales consecutivas
+    const regexRepetidas = /([A-Za-z])\1{3,}/g;
+    if (regexRepetidas.test(valor)) {
+        // Eliminar letras repetidas más allá de 3
+        valor = valor.replace(regexRepetidas, (match) => {
+            return match.substring(0, 3);
+        });
+    }
+    
+    // Limitar a 50 caracteres
+    if (valor.length > 50) {
+        valor = valor.substring(0, 50);
+    }
+    
+    // Actualizar el valor del input
+    if (input.value !== valor) {
+        input.value = valor;
+    }
+}
+
+// Función para validar y filtrar el campo de número de cuenta en tiempo real
+function validarYFiltrarCuenta(input) {
+    let valor = input.value;
+    
+    // Filtrar caracteres no permitidos (solo números y guión)
+    valor = valor.replace(/[^0-9\-]/g, '');
+    
+    // Limitar a 12 caracteres
+    if (valor.length > 12) {
+        valor = valor.substring(0, 12);
+    }
+    
+    // Actualizar el valor del input
+    if (input.value !== valor) {
+        input.value = valor;
+    }
+}
+
+// Función para validar y filtrar el campo de búsqueda en tiempo real
+function validarYFiltrarBusqueda(input) {
+    let valor = input.value;
+    
+    // Filtrar caracteres no permitidos (solo letras, espacios y acentos)
+    valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
+    
+    // Validar que no haya más de 3 letras iguales consecutivas
+    const regexRepetidas = /([A-Za-z])\1{3,}/g;
+    if (regexRepetidas.test(valor)) {
+        // Eliminar letras repetidas más allá de 3
+        valor = valor.replace(regexRepetidas, (match) => {
+            return match.substring(0, 3);
+        });
+    }
+    
+    // Limitar a 50 caracteres
+    if (valor.length > 50) {
+        valor = valor.substring(0, 50);
+    }
+    
+    // Actualizar el valor del input
+    if (input.value !== valor) {
+        input.value = valor;
+    }
+}
+
+// Aplicar validación inicial si hay valores en los campos
+document.addEventListener('DOMContentLoaded', function() {
+    const autorInput = document.getElementById('filtro-responsable');
+    const cuentaInput = document.getElementById('filtro-cuenta');
+    const busquedaInput = document.getElementById('busqueda');
+    
+    if (autorInput && autorInput.value) {
+        validarYFiltrarAutor(autorInput);
+    }
+    
+    if (cuentaInput && cuentaInput.value) {
+        validarYFiltrarCuenta(cuentaInput);
+    }
+    
+    if (busquedaInput && busquedaInput.value) {
+        validarYFiltrarBusqueda(busquedaInput);
+    }
+});
+</script>
 @stop
 
 @section('css')
@@ -972,177 +1144,4 @@ $(document).ready(function() {
     }
 });
 </script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const maxLen = 50;
-
-    // helper to set maxlength and trim value
-    function enforceMaxLength(el) {
-        if (!el) return;
-        el.setAttribute('maxlength', maxLen);
-        if (el.value && el.value.length > maxLen) {
-            el.value = el.value.slice(0, maxLen);
-        }
-    }
-
-    // text-only (letters, accents, spaces)
-    function lettersOnly(e) {
-        const el = e.target;
-        el.value = el.value.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ\s]/g, '').slice(0, maxLen);
-        if (el.value.trim().length < 2) {
-            el.setCustomValidity('Por favor ingresa al menos 2 letras.');
-        } else {
-            el.setCustomValidity('');
-        }
-    }
-
-    // alphanumeric username (no spaces)
-    function usernameOnly(e) {
-        const el = e.target;
-        el.value = el.value.replace(/[^A-Za-z0-9_.-]/g, '').slice(0, maxLen);
-        if (el.value.trim().length < 3) {
-            el.setCustomValidity('Usuario muy corto (mínimo 3 caracteres).');
-        } else {
-            el.setCustomValidity('');
-        }
-    }
-
-    // digits only
-    function digitsOnly(e) {
-        const el = e.target;
-        el.value = el.value.replace(/[^0-9]/g, '').slice(0, maxLen);
-        if (el.value.trim().length === 0) {
-            el.setCustomValidity('Este campo no puede quedar vacío.');
-        } else {
-            el.setCustomValidity('');
-        }
-    }
-
-    // email simple validation
-    function emailCheck(e) {
-        const el = e.target;
-        el.value = el.value.slice(0, maxLen);
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (el.value && !re.test(el.value)) {
-            el.setCustomValidity('Correo electrónico inválido.');
-        } else {
-            el.setCustomValidity('');
-        }
-    }
-
-    // password and confirm match
-    function passwordCheck() {
-        const pass = document.getElementById('clave');
-        const conf = document.getElementById('confirma_clave');
-        if (!pass || !conf) return;
-        enforceMaxLength(pass);
-        enforceMaxLength(conf);
-        if (pass.value && pass.value.length < 8) {
-            pass.setCustomValidity('La clave debe tener mínimo 8 caracteres.');
-        } else {
-            pass.setCustomValidity('');
-        }
-        if (conf.value && conf.value !== pass.value) {
-            conf.setCustomValidity('Las claves no coinciden.');
-        } else {
-            conf.setCustomValidity('');
-        }
-    }
-
-    // Apply to common inputs if they exist in the page
-    const nombres = document.getElementById('nombres');
-    const apellidos = document.getElementById('apellidos');
-    const usuario = document.getElementById('usuario');
-    const ci = document.getElementById('ci');
-    const clave = document.getElementById('clave');
-    const confirma = document.getElementById('confirma_clave');
-    const telefono = document.getElementById('telefono');
-    const correo = document.getElementById('correo');
-    const numero_cuenta = document.getElementById('numero_cuenta');
-    const documento = document.getElementById('documento'); // file input
-
-    [nombres, apellidos].forEach(el => {
-        if (el) {
-            enforceMaxLength(el);
-            el.addEventListener('input', lettersOnly);
-        }
-    });
-
-    if (usuario) {
-        enforceMaxLength(usuario);
-        usuario.addEventListener('input', usernameOnly);
-    }
-
-    [ci, telefono, numero_cuenta].forEach(el => {
-        if (el) {
-            enforceMaxLength(el);
-            el.addEventListener('input', digitsOnly);
-        }
-    });
-
-    if (correo) {
-        enforceMaxLength(correo);
-        correo.addEventListener('input', emailCheck);
-    }
-
-    if (clave || confirma) {
-        if (clave) clave.addEventListener('input', passwordCheck);
-        if (confirma) confirma.addEventListener('input', passwordCheck);
-    }
-
-    // file input: change label text (works with Bootstrap custom-file or input file next label)
-    if (documento) {
-        documento.addEventListener('change', function () {
-            const fileName = this.value.split('\\').pop().split('/').pop();
-            // try Bootstrap custom file label
-            const nextLabel = this.nextElementSibling;
-            if (nextLabel && nextLabel.classList.contains('custom-file-label')) {
-                nextLabel.innerText = fileName;
-            } else {
-                // else set title attribute
-                this.setAttribute('title', fileName);
-            }
-        });
-    }
-
-    // Add CSS to prevent long strings from breaking layout
-    const style = document.createElement('style');
-    style.innerHTML = `
-    /* Prevent long strings from breaking layout; use ellipsis where appropriate */
-    .prevent-break { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; word-break: normal; }
-    td, th { word-break: break-word; }
-    `;
-    document.head.appendChild(style);
-
-    // Optional: sanitize existing table/text content to truncate very long words
-    document.querySelectorAll('td, th, p, span, label').forEach(el => {
-        if (el && el.textContent && el.textContent.length > maxLen * 3) {
-            // truncate visual display but keep full text in title attribute
-            const full = el.textContent.trim();
-            el.setAttribute('title', full);
-            el.textContent = full.slice(0, maxLen) + '…';
-            el.classList.add('prevent-break');
-        }
-    });
-});
-// Validación en tiempo real para título de tesis
-const titulo = document.getElementById('titulo');
-if (titulo) {
-    titulo.addEventListener('input', function () {
-        const error = document.getElementById('titulo-error');
-        const regexTitulo = /^[a-zA-ZÀ-ÿ0-9\s.,;:!?()'"-]+$/; // letras, números y signos básicos
-        if (titulo.value.length > 50) {
-            titulo.value = titulo.value.slice(0, 50);
-        }
-        if (!regexTitulo.test(titulo.value) && titulo.value.trim() !== "") {
-            error.textContent = 'El título contiene caracteres no permitidos.';
-        } else {
-            error.textContent = '';
-        }
-    });
-}
-
-</script>
-
 @stop
