@@ -28,6 +28,23 @@
                     <ul id="error-list"></ul>
                 </div>
                 
+                <!-- Mensaje de error del servidor -->
+                @if($errors->any())
+                <div class="alert alert-danger" id="server-error-alert">
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+                
+                @if(session('login_error'))
+                <div class="alert alert-danger" id="login-error-alert">
+                    {{ session('login_error') }}
+                </div>
+                @endif
+                
                 <div class="alert alert-success" id="success-alert" style="display: none;">
                     ¡Inicio de sesión exitoso! Redirigiendo...
                 </div>
@@ -37,7 +54,8 @@
                     <!-- Campo de email -->
                     <div class="input-container" id="email-container">
                         <i class="bi bi-person"></i>
-                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required />
+                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required 
+                               maxlength="50" oninput="validarEmail(this)" onkeypress="return permitirCaracteresEmail(event)"/>
                         <i class="bi bi-x-circle toggle-icon email-clear" id="email-clear" title="Limpiar campo"></i>
                         <div class="error-message" id="email-error"></div>
                     </div>
@@ -45,7 +63,8 @@
                     <!-- Campo de contraseña -->
                     <div class="input-container" id="password-container">
                         <i class="bi bi-lock"></i>
-                        <input type="password" name="password" id="password" placeholder="Contraseña" required />
+                        <input type="password" name="password" id="password" placeholder="Contraseña" required 
+                               maxlength="50" oninput="validarPassword(this)" onkeypress="return permitirCaracteresPassword(event)"/>
                         <i class="bi bi-eye toggle-icon" id="toggle-password" title="Mostrar contraseña"></i>
                         <div class="error-message" id="password-error"></div>
                     </div>
@@ -75,9 +94,21 @@
             const successAlert = document.getElementById('success-alert');
             const form = document.getElementById('loginForm');
             
+            // Ocultar mensajes de error del servidor después de 5 segundos
+            setTimeout(() => {
+                const serverError = document.getElementById('server-error-alert');
+                const loginError = document.getElementById('login-error-alert');
+                if (serverError) serverError.style.display = 'none';
+                if (loginError) loginError.style.display = 'none';
+            }, 5000);
+            
             // Validación en tiempo real
-            emailInput.addEventListener('input', validateEmail);
-            passwordInput.addEventListener('input', validatePassword);
+            emailInput.addEventListener('input', function() {
+                validarEmail(this);
+            });
+            passwordInput.addEventListener('input', function() {
+                validarPassword(this);
+            });
             
             // Toggle mostrar/ocultar contraseña
             togglePassword.addEventListener('click', function() {
@@ -90,7 +121,7 @@
             // Limpiar campo email
             emailClear.addEventListener('click', function() {
                 emailInput.value = '';
-                validateEmail();
+                validarEmail(emailInput);
                 emailInput.focus();
             });
             
@@ -98,8 +129,8 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                const emailValid = validateEmail();
-                const passwordValid = validatePassword();
+                const emailValid = validarEmail(emailInput);
+                const passwordValid = validarPassword(passwordInput);
                 
                 if (emailValid && passwordValid) {
                     errorAlert.style.display = 'none';
@@ -114,47 +145,71 @@
                 }
             });
             
-            // Validar email (ahora acepta cualquier dominio válido)
-            function validateEmail() {
-                const email = emailInput.value.trim();
+            // Validar email
+            function validarEmail(input) {
+                const email = input.value.trim();
                 const errorElement = document.getElementById('email-error');
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 
-                emailInput.parentElement.classList.remove('error', 'success');
+                input.parentElement.classList.remove('error', 'success');
                 errorElement.style.display = 'none';
                 
                 if (email === '') {
-                    showError(emailInput, errorElement, 'El correo electrónico es obligatorio');
+                    showError(input, errorElement, 'El correo electrónico es obligatorio');
                     return false;
                 }
                 
                 if (!emailRegex.test(email)) {
-                    showError(emailInput, errorElement, 'Debe ser un correo válido');
+                    showError(input, errorElement, 'Debe ser un correo válido');
                     return false;
                 }
                 
-                showSuccess(emailInput);
+                // Validar longitud máxima
+                if (email.length > 50) {
+                    showError(input, errorElement, 'El correo no puede tener más de 50 caracteres');
+                    return false;
+                }
+                
+                // Validar que no tenga más de 3 letras iguales consecutivas
+                if (tieneMasDeTresRepetidas(email)) {
+                    showError(input, errorElement, 'El correo no puede tener más de 3 letras iguales consecutivas');
+                    return false;
+                }
+                
+                showSuccess(input);
                 return true;
             }
             
-            function validatePassword() {
-                const password = passwordInput.value;
+            function validarPassword(input) {
+                const password = input.value;
                 const errorElement = document.getElementById('password-error');
                 
-                passwordInput.parentElement.classList.remove('error', 'success');
+                input.parentElement.classList.remove('error', 'success');
                 errorElement.style.display = 'none';
                 
                 if (password === '') {
-                    showError(passwordInput, errorElement, 'La contraseña es obligatoria');
+                    showError(input, errorElement, 'La contraseña es obligatoria');
                     return false;
                 }
                 
                 if (password.length < 8) {
-                    showError(passwordInput, errorElement, 'La contraseña debe tener al menos 8 caracteres');
+                    showError(input, errorElement, 'La contraseña debe tener al menos 8 caracteres');
                     return false;
                 }
                 
-                showSuccess(passwordInput);
+                // Validar longitud máxima
+                if (password.length > 50) {
+                    showError(input, errorElement, 'La contraseña no puede tener más de 50 caracteres');
+                    return false;
+                }
+                
+                // Validar que no tenga más de 3 letras iguales consecutivas
+                if (tieneMasDeTresRepetidas(password)) {
+                    showError(input, errorElement, 'La contraseña no puede tener más de 3 letras iguales consecutivas');
+                    return false;
+                }
+                
+                showSuccess(input);
                 return true;
             }
             
@@ -166,6 +221,56 @@
             
             function showSuccess(input) {
                 input.parentElement.classList.add('success');
+            }
+            
+            // Función para verificar más de 3 letras iguales consecutivas
+            function tieneMasDeTresRepetidas(texto) {
+                // Eliminar caracteres especiales y números para verificar solo letras
+                const soloLetras = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
+                const regexRepetidas = /([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/g;
+                return regexRepetidas.test(soloLetras);
+            }
+            
+            // Función para permitir solo caracteres válidos en email
+            function permitirCaracteresEmail(event) {
+                const charCode = event.which ? event.which : event.keyCode;
+                const charStr = String.fromCharCode(charCode);
+                
+                // Permitir letras, números, @, ., -, _ y teclas de control
+                const regex = /^[a-zA-Z0-9@._\-]$/;
+                
+                // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+                if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+                    return true;
+                }
+                
+                if (!regex.test(charStr)) {
+                    event.preventDefault();
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Función para permitir solo caracteres válidos en password
+            function permitirCaracteresPassword(event) {
+                const charCode = event.which ? event.which : event.keyCode;
+                const charStr = String.fromCharCode(charCode);
+                
+                // Permitir letras, números y caracteres especiales comunes en contraseñas
+                const regex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]$/;
+                
+                // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+                if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+                    return true;
+                }
+                
+                if (!regex.test(charStr)) {
+                    event.preventDefault();
+                    return false;
+                }
+                
+                return true;
             }
         });
     </script>
