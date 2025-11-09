@@ -90,7 +90,6 @@
                             <option value="recibido" {{ request('estado') == 'recibido' ? 'selected' : '' }}>Recibido</option>
                             <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
                         </select>
-                        <small id="help-estado" class="form-text text-muted">Seleccione el estado del acuse</small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="remitente" class="form-label">Remitente</label>
@@ -100,7 +99,6 @@
                                oninput="validarYFiltrarRemitente(this)"
                                onkeypress="return permitirCaracteresRemitente(event)"
                                aria-describedby="help-remitente">
-                        <small id="help-remitente" class="form-text text-muted">Solo letras, espacios, puntos, comas y guiones. Máximo 50 caracteres.</small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="destinatario" class="form-label">Destinatario</label>
@@ -110,7 +108,6 @@
                                oninput="validarYFiltrarDestinatario(this)"
                                onkeypress="return permitirCaracteresDestinatario(event)"
                                aria-describedby="help-destinatario">
-                        <small id="help-destinatario" class="form-text text-muted">Solo letras, espacios, puntos, comas y guiones. Máximo 50 caracteres.</small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="elemento" class="form-label">Elemento</label>
@@ -120,7 +117,6 @@
                                oninput="validarYFiltrarElemento(this)"
                                onkeypress="return permitirCaracteresElemento(event)"
                                aria-describedby="help-elemento">
-                        <small id="help-elemento" class="form-text text-muted">Solo letras, espacios, puntos, comas y guiones. Máximo 50 caracteres.</small>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-2">
