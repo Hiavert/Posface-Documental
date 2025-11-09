@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Establecer nueva contraseña - POSFACE</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -246,17 +245,7 @@
             <form id="passwordResetForm" method="POST" action="{{ route('password.update') }}">
                 @csrf
                 <input type="hidden" name="token" value="{{ $token }}">
-                
-                <!-- Campo de correo visible para validación -->
-                <div class="input-container" id="email-container">
-                    <i class="bi bi-envelope"></i>
-                    <input type="email" name="email" id="email" placeholder="Correo electrónico" required 
-                           value="{{ $email ?? old('email') }}" 
-                           maxlength="50" 
-                           oninput="validarEmail(this)"
-                           onkeypress="return permitirCaracteresEmail(event)">
-                    <div class="error-message" id="email-error"></div>
-                </div>
+                <input type="hidden" name="email" value="{{ $email }}">
                 
                 <div class="input-container" id="password-container">
                     <i class="bi bi-lock"></i>
@@ -283,7 +272,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             const confirmInput = document.getElementById('confirm-password');
             const togglePassword = document.getElementById('toggle-password');
@@ -307,72 +295,20 @@
             });
             
             // Validación en tiempo real
-            emailInput.addEventListener('input', function() {
-                validarEmail(this);
-            });
             passwordInput.addEventListener('input', validatePassword);
             confirmInput.addEventListener('input', validateConfirm);
             
             // Validación al enviar
             form.addEventListener('submit', function(e) {
-                const emailValid = validarEmail(emailInput);
                 const passwordValid = validatePassword();
                 const confirmValid = validateConfirm();
                 
-                if (!emailValid || !passwordValid || !confirmValid) {
+                if (!passwordValid || !confirmValid) {
                     e.preventDefault();
-                    if (!emailValid) {
-                        showEmailAlert();
-                    }
                 }
             });
             
-            // Función para mostrar alerta de email
-            function showEmailAlert() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error en el correo electrónico',
-                    text: 'El correo electrónico no cumple con los requisitos: máximo 50 caracteres y no más de 3 letras iguales consecutivas.',
-                    confirmButtonColor: '#1a5a8d',
-                    confirmButtonText: 'Entendido'
-                });
-            }
-            
             // Funciones de validación
-            function validarEmail(input) {
-                const email = input.value.trim();
-                const errorElement = document.getElementById('email-error');
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                
-                input.parentElement.classList.remove('error', 'success');
-                errorElement.style.display = 'none';
-                
-                if (email === '') {
-                    showError(input, errorElement, 'El correo electrónico es obligatorio');
-                    return false;
-                }
-                
-                if (!emailRegex.test(email)) {
-                    showError(input, errorElement, 'Debe ser un correo válido');
-                    return false;
-                }
-                
-                // Validar longitud máxima
-                if (email.length > 50) {
-                    showError(input, errorElement, 'El correo no puede tener más de 50 caracteres');
-                    return false;
-                }
-                
-                // Validar que no tenga más de 3 letras iguales consecutivas
-                if (tieneMasDeTresRepetidas(email)) {
-                    showError(input, errorElement, 'El correo no puede tener más de 3 letras iguales consecutivas');
-                    return false;
-                }
-                
-                showSuccess(input);
-                return true;
-            }
-            
             function validatePassword() {
                 const password = passwordInput.value;
                 const errorElement = document.getElementById('password-error');
@@ -428,39 +364,6 @@
                 input.parentElement.classList.add('error');
                 errorElement.textContent = message;
                 errorElement.style.display = 'block';
-            }
-            
-            function showSuccess(input) {
-                input.parentElement.classList.add('success');
-            }
-            
-            // Función para verificar más de 3 letras iguales consecutivas
-            function tieneMasDeTresRepetidas(texto) {
-                // Eliminar caracteres especiales y números para verificar solo letras
-                const soloLetras = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
-                const regexRepetidas = /([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/g;
-                return regexRepetidas.test(soloLetras);
-            }
-            
-            // Función para permitir solo caracteres válidos en email
-            function permitirCaracteresEmail(event) {
-                const charCode = event.which ? event.which : event.keyCode;
-                const charStr = String.fromCharCode(charCode);
-                
-                // Permitir letras, números, @, ., -, _ y teclas de control
-                const regex = /^[a-zA-Z0-9@._\-]$/;
-                
-                // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
-                if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
-                    return true;
-                }
-                
-                if (!regex.test(charStr)) {
-                    event.preventDefault();
-                    return false;
-                }
-                
-                return true;
             }
         });
     </script>
