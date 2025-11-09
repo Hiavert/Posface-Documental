@@ -91,12 +91,26 @@
     </div>
 </div>
 
-<!-- Modal de carga -->
-<div class="modal fade" id="modal-carga" tabindex="-1" role="dialog" data-backdrop="static">
+<!-- Modal de carga mejorado -->
+<div class="modal fade" id="modal-carga" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content bg-transparent border-0 text-center">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-            <div class="text-white mt-3" id="mensaje-carga">Procesando...</div>
+        <div class="modal-content" style="background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
+            <div class="modal-body text-center py-5">
+                <div class="loading-spinner mb-4">
+                    <div class="spinner-border text-primary" style="width: 4rem; height: 4rem; border-width: 0.3em;"></div>
+                </div>
+                <h4 class="text-primary mb-3" id="titulo-carga">Procesando</h4>
+                <div class="loading-message">
+                    <p class="text-muted mb-2" id="mensaje-carga">Por favor espere...</p>
+                    <p class="text-success font-weight-bold" id="mensaje-exito" style="display: none;">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span id="texto-exito"></span>
+                    </p>
+                </div>
+                <div class="progress mt-3" style="height: 6px; display: none;" id="progress-bar-container">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -437,9 +451,42 @@
     .dropdown-item:hover {
         background-color: #f8f9fc;
     }
+
+    /* Estilos mejorados para el modal de carga */
+    .loading-spinner {
+        animation: pulse 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        100% {
+            transform: scale(1.05);
+        }
+    }
+
+    .modal-backdrop.show {
+        opacity: 0.85;
+        background: linear-gradient(135deg, #0b2e59, #1a5a8d);
+    }
+
+    #modal-carga .modal-content {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
 </style>
 @stop
-
 
 @section('js')
 <script>
@@ -447,17 +494,33 @@ $(document).ready(function() {
 
     // Crear backup
     $('#btn-crear-backup').click(function() {
-        $('#mensaje-carga').text('Creando backup...');
+        $('#titulo-carga').text('Creando Backup');
+        $('#mensaje-carga').text('Estamos creando el backup de la base de datos...');
+        $('#mensaje-exito').hide();
+        $('#mensaje-carga').show();
+        $('#progress-bar-container').show();
         $('#modal-carga').modal('show');
 
         $.get("{{ route('backup.create') }}", function(res) {
             if(res.success) {
-                $('#mensaje-carga').text(res.message);
-                setTimeout(()=>location.reload(), 1000);
+                $('#titulo-carga').text('¡Éxito!');
+                $('#mensaje-carga').hide();
+                $('#texto-exito').text(res.message || 'Backup creado correctamente');
+                $('#mensaje-exito').show();
+                $('#progress-bar-container').hide();
+                
+                // Cambiar el spinner por un ícono de éxito
+                $('.loading-spinner').html('<i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>');
+                
+                setTimeout(() => {
+                    $('#modal-carga').modal('hide');
+                    location.reload();
+                }, 1500);
             } else {
-                alert(res.message);
-                $('#modal-carga').modal('hide');
+                mostrarError(res.message || 'Error al crear el backup');
             }
+        }).fail(function() {
+            mostrarError('Error de conexión al crear el backup');
         });
     });
 
@@ -471,18 +534,68 @@ $(document).ready(function() {
     $('#btn-confirm-delete').click(function() {
         const filename = $('#modal-confirm-delete').data('filename');
         $('#modal-confirm-delete').modal('hide');
-        $('#mensaje-carga').text('Eliminando backup...');
+        
+        // Restaurar el spinner original
+        $('.loading-spinner').html('<div class="spinner-border text-primary" style="width: 4rem; height: 4rem; border-width: 0.3em;"></div>');
+        
+        $('#titulo-carga').text('Eliminando Backup');
+        $('#mensaje-carga').text('Eliminando el archivo de backup...');
+        $('#mensaje-exito').hide();
+        $('#mensaje-carga').show();
+        $('#progress-bar-container').show();
         $('#modal-carga').modal('show');
 
         $.get("{{ url('backup/delete') }}/" + filename, function(res) {
             if(res.success) {
-                $('#mensaje-carga').text(res.message);
-                setTimeout(()=>location.reload(), 1000);
+                $('#titulo-carga').text('¡Éxito!');
+                $('#mensaje-carga').hide();
+                $('#texto-exito').text(res.message || 'Backup eliminado correctamente');
+                $('#mensaje-exito').show();
+                $('#progress-bar-container').hide();
+                
+                // Cambiar el spinner por un ícono de éxito
+                $('.loading-spinner').html('<i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>');
+                
+                setTimeout(() => {
+                    $('#modal-carga').modal('hide');
+                    location.reload();
+                }, 1500);
             } else {
-                alert(res.message);
-                $('#modal-carga').modal('hide');
+                mostrarError(res.message || 'Error al eliminar el backup');
             }
+        }).fail(function() {
+            mostrarError('Error de conexión al eliminar el backup');
         });
+    });
+
+    // Función para mostrar errores
+    function mostrarError(mensaje) {
+        $('#titulo-carga').text('Error');
+        $('#mensaje-carga').hide();
+        $('#texto-exito').html('<i class="fas fa-exclamation-triangle mr-2"></i>' + mensaje);
+        $('#mensaje-exito').removeClass('text-success').addClass('text-danger');
+        $('#mensaje-exito').show();
+        $('#progress-bar-container').hide();
+        
+        // Cambiar el spinner por un ícono de error
+        $('.loading-spinner').html('<i class="fas fa-exclamation-circle text-danger" style="font-size: 4rem;"></i>');
+        
+        setTimeout(() => {
+            $('#modal-carga').modal('hide');
+            // Restaurar el estado original del modal
+            setTimeout(() => {
+                $('.loading-spinner').html('<div class="spinner-border text-primary" style="width: 4rem; height: 4rem; border-width: 0.3em;"></div>');
+                $('#mensaje-exito').removeClass('text-danger').addClass('text-success');
+            }, 500);
+        }, 2000);
+    }
+
+    // Restaurar el modal cuando se cierre
+    $('#modal-carga').on('hidden.bs.modal', function() {
+        $('.loading-spinner').html('<div class="spinner-border text-primary" style="width: 4rem; height: 4rem; border-width: 0.3em;"></div>');
+        $('#mensaje-exito').removeClass('text-danger').addClass('text-success').hide();
+        $('#mensaje-carga').show();
+        $('#progress-bar-container').show();
     });
 });
 </script>
