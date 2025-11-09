@@ -48,11 +48,11 @@
         }
         .form-control.error {
             border-color: #d32f2f;
-            background-color: #fff5f5;
+            background: #fff5f5;
         }
         .form-control.success {
             border-color: #4caf50;
-            background-color: #f8fff8;
+            background: #f8fff8;
         }
         .btn-primary {
             background: #003366;
@@ -88,6 +88,13 @@
             margin-top: 5px;
             display: block;
         }
+        .validation-error {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
         .back-link {
             display: block;
             text-align: center;
@@ -106,22 +113,9 @@
             text-align: center;
             margin-bottom: 12px;
         }
-        .validation-message {
-            font-size: 13px;
-            margin-top: 5px;
-            display: none;
-            padding: 5px;
-            border-radius: 4px;
-        }
-        .validation-error {
-            color: #d32f2f;
-            background-color: #ffebee;
-            border: 1px solid #ffcdd2;
-        }
-        .validation-success {
-            color: #256029;
-            background-color: #e6f4ea;
-            border: 1px solid #b7e1cd;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -131,21 +125,22 @@
             <i class="bi bi-lock"></i>
         </span>
         <h2>¿Olvidaste tu contraseña?</h2>
-        <p>Ingresa tu email institucional y te enviaremos un enlace para restablecerla.</p>
+        <p>Ingresa tu correo electrónico y te enviaremos un enlace para restablecerla.</p>
+        
         @if (session('status'))
             <div class="alert alert-success">{{ session('status') }}</div>
         @endif
+        
         <form method="POST" action="{{ route('password.email') }}" id="passwordResetForm">
             @csrf
             <div class="form-group">
-                <label for="email">Email institucional</label>
+                <label for="email">Correo electrónico</label>
                 <input type="email" name="email" id="email" class="form-control" 
-                       placeholder="usuario@unah.edu.hn" 
-                       required autofocus 
-                       maxlength="50"
-                       oninput="validarEmailInstitucional(this)"
+                       required autofocus maxlength="50"
+                       placeholder="tu@correo.com"
+                       oninput="validarEmail(this)"
                        onkeypress="return permitirCaracteresEmail(event)">
-                <div class="validation-message" id="email-validation"></div>
+                <span class="validation-error" id="email-validation-error"></span>
                 @error('email')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
@@ -160,106 +155,96 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const emailInput = document.getElementById('email');
-            const submitBtn = document.getElementById('submit-btn');
             const form = document.getElementById('passwordResetForm');
+            const submitBtn = document.getElementById('submit-btn');
+            const validationError = document.getElementById('email-validation-error');
             
-            // Validación inicial del campo email
-            validarEmailInstitucional(emailInput);
+            // Validación inicial si hay valor en el campo
+            if (emailInput.value) {
+                validarEmail(emailInput);
+            }
             
             // Validación al enviar el formulario
             form.addEventListener('submit', function(e) {
-                const emailValido = validarEmailInstitucional(emailInput);
-                
-                if (!emailValido) {
+                if (!validarEmail(emailInput)) {
                     e.preventDefault();
-                    mostrarError('Por favor corrija los errores en el campo de email antes de enviar.');
-                    return false;
+                    mostrarError(validationError, 'Por favor corrige los errores en el campo de correo electrónico antes de enviar.');
                 }
-                
-                // Si la validación pasa, habilitar el envío
-                submitBtn.disabled = false;
             });
             
             // Función para mostrar errores
-            function mostrarError(mensaje) {
-                const validationElement = document.getElementById('email-validation');
-                validationElement.textContent = mensaje;
-                validationElement.className = 'validation-message validation-error';
-                validationElement.style.display = 'block';
+            function mostrarError(elemento, mensaje) {
+                elemento.textContent = mensaje;
+                elemento.style.display = 'block';
+                elemento.style.color = '#d32f2f';
                 
-                // Scroll al campo con error
-                emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                emailInput.focus();
+                // Ocultar el mensaje después de 5 segundos
+                setTimeout(() => {
+                    elemento.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Función para mostrar éxito
+            function mostrarExito(elemento) {
+                elemento.textContent = '✓ Correo válido';
+                elemento.style.display = 'block';
+                elemento.style.color = '#4caf50';
+            }
+            
+            // Función para limpiar mensajes
+            function limpiarMensaje(elemento) {
+                elemento.style.display = 'none';
+                elemento.textContent = '';
             }
         });
         
-        // Función para validar email institucional en tiempo real
-        function validarEmailInstitucional(input) {
+        // Función para validar email en tiempo real
+        function validarEmail(input) {
             const email = input.value.trim();
-            const validationElement = document.getElementById('email-validation');
+            const validationError = document.getElementById('email-validation-error');
             const submitBtn = document.getElementById('submit-btn');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             
-            // Resetear estados
+            // Limpiar clases y mensajes
             input.classList.remove('error', 'success');
-            validationElement.style.display = 'none';
+            limpiarMensaje(validationError);
             
             // Validar campo vacío
             if (email === '') {
                 input.classList.add('error');
-                validationElement.textContent = 'El email institucional es obligatorio';
-                validationElement.className = 'validation-message validation-error';
-                validationElement.style.display = 'block';
-                submitBtn.disabled = true;
+                mostrarError(validationError, 'El correo electrónico es obligatorio');
+                deshabilitarBoton(true);
                 return false;
             }
             
-            // Validar formato de email básico
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            // Validar formato de email
             if (!emailRegex.test(email)) {
                 input.classList.add('error');
-                validationElement.textContent = 'Debe ser un email válido';
-                validationElement.className = 'validation-message validation-error';
-                validationElement.style.display = 'block';
-                submitBtn.disabled = true;
+                mostrarError(validationError, 'Debe ser un correo electrónico válido');
+                deshabilitarBoton(true);
                 return false;
             }
             
             // Validar longitud máxima
             if (email.length > 50) {
                 input.classList.add('error');
-                validationElement.textContent = 'El email no puede tener más de 50 caracteres';
-                validationElement.className = 'validation-message validation-error';
-                validationElement.style.display = 'block';
-                submitBtn.disabled = true;
+                mostrarError(validationError, 'El correo no puede tener más de 50 caracteres');
+                deshabilitarBoton(true);
                 return false;
             }
             
             // Validar que no tenga más de 3 letras iguales consecutivas
             if (tieneMasDeTresRepetidas(email)) {
                 input.classList.add('error');
-                validationElement.textContent = 'El email no puede tener más de 3 letras iguales consecutivas';
-                validationElement.className = 'validation-message validation-error';
-                validationElement.style.display = 'block';
-                submitBtn.disabled = true;
-                return false;
-            }
-            
-            // Validar que sea un email institucional (opcional, pero recomendado)
-            if (!esEmailInstitucional(email)) {
-                input.classList.add('error');
-                validationElement.textContent = 'Por favor ingrese un email institucional válido';
-                validationElement.className = 'validation-message validation-error';
-                validationElement.style.display = 'block';
-                submitBtn.disabled = true;
+                mostrarError(validationError, 'El correo no puede tener más de 3 letras iguales consecutivas');
+                deshabilitarBoton(true);
                 return false;
             }
             
             // Si pasa todas las validaciones
             input.classList.add('success');
-            validationElement.textContent = 'Email institucional válido';
-            validationElement.className = 'validation-message validation-success';
-            validationElement.style.display = 'block';
-            submitBtn.disabled = false;
+            mostrarExito(validationError);
+            deshabilitarBoton(false);
             return true;
         }
         
@@ -269,20 +254,6 @@
             const soloLetras = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
             const regexRepetidas = /([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/g;
             return regexRepetidas.test(soloLetras);
-        }
-        
-        // Función para validar dominio institucional (puedes ajustar los dominios según tu institución)
-        function esEmailInstitucional(email) {
-            const dominiosInstitucionales = [
-                'unah.edu.hn',
-                'unah.hn',
-                'posface.unah.edu.hn',
-                'est.unah.edu.hn'
-                // Agrega aquí más dominios institucionales si es necesario
-            ];
-            
-            const dominio = email.split('@')[1];
-            return dominiosInstitucionales.some(dom => dominio === dom || dominio.endsWith('.' + dom));
         }
         
         // Función para permitir solo caracteres válidos en email
@@ -306,26 +277,32 @@
             return true;
         }
         
-        // Validación en tiempo real mientras se escribe
-        function validarEnTiempoReal(input) {
-            // Limitar a 50 caracteres
-            if (input.value.length > 50) {
-                input.value = input.value.substring(0, 50);
+        // Función para mostrar errores
+        function mostrarError(elemento, mensaje) {
+            elemento.textContent = mensaje;
+            elemento.style.display = 'block';
+            elemento.style.color = '#d32f2f';
+        }
+        
+        // Función para mostrar éxito
+        function mostrarExito(elemento) {
+            elemento.textContent = '✓ Correo válido';
+            elemento.style.display = 'block';
+            elemento.style.color = '#4caf50';
+        }
+        
+        // Función para limpiar mensajes
+        function limpiarMensaje(elemento) {
+            elemento.style.display = 'none';
+            elemento.textContent = '';
+        }
+        
+        // Función para habilitar/deshabilitar botón
+        function deshabilitarBoton(deshabilitar) {
+            const submitBtn = document.getElementById('submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = deshabilitar;
             }
-            
-            // Validar caracteres repetidos
-            let valor = input.value;
-            const regexRepetidas = /([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/g;
-            if (regexRepetidas.test(valor)) {
-                // Eliminar letras repetidas más allá de 3
-                valor = valor.replace(regexRepetidas, (match) => {
-                    return match.substring(0, 3);
-                });
-                input.value = valor;
-            }
-            
-            // Ejecutar validación completa
-            validarEmailInstitucional(input);
         }
     </script>
 </body>
