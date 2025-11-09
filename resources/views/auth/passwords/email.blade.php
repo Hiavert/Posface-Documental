@@ -85,6 +85,31 @@
             text-align: center;
             margin-bottom: 12px;
         }
+        
+        /* Estilos para el SweetAlert personalizado */
+        .swal-overlay {
+            background-color: rgba(0, 51, 102, 0.4);
+        }
+        .swal-modal {
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .swal-title {
+            color: #003366;
+            font-weight: 600;
+        }
+        .swal-text {
+            color: #555;
+            text-align: center;
+        }
+        .swal-button {
+            background: #003366;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .swal-button:hover {
+            background: #002244 !important;
+        }
     </style>
 </head>
 <body>
@@ -97,11 +122,14 @@
         @if (session('status'))
             <div class="alert alert-success">{{ session('status') }}</div>
         @endif
-        <form method="POST" action="{{ route('password.email') }}">
+        <form method="POST" action="{{ route('password.email') }}" id="passwordResetForm">
             @csrf
             <div class="form-group">
-                <label for="email">email institucional</label>
-                <input type="email" name="email" id="email" class="form-control" required autofocus>
+                <label for="email">Email institucional</label>
+                <input type="email" name="email" id="email" class="form-control" 
+                       required autofocus maxlength="50"
+                       oninput="validarEmailRecuperacion(this)"
+                       onkeypress="return permitirCaracteresEmailRecuperacion(event)">
                 @error('email')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
@@ -112,5 +140,121 @@
             <i class="bi bi-arrow-left"></i> Volver al inicio de sesión
         </a>
     </div>
+
+    <!-- Incluir SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // Función para mostrar alertas personalizadas
+        function mostrarAlerta(titulo, texto, tipo = 'error') {
+            Swal.fire({
+                title: titulo,
+                text: texto,
+                icon: tipo,
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'swal-modal',
+                    title: 'swal-title',
+                    htmlContainer: 'swal-text',
+                    confirmButton: 'swal-button'
+                }
+            });
+        }
+
+        // Función para permitir solo caracteres válidos en email
+        function permitirCaracteresEmailRecuperacion(event) {
+            const charCode = event.which ? event.which : event.keyCode;
+            const charStr = String.fromCharCode(charCode);
+            
+            // Permitir letras, números, @, ., -, _ y teclas de control
+            const regex = /^[a-zA-Z0-9@._\-]$/;
+            
+            // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+            if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+                return true;
+            }
+            
+            if (!regex.test(charStr)) {
+                event.preventDefault();
+                mostrarAlerta('Carácter no permitido', 'Solo se permiten letras, números y los caracteres @ . - _');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Función para validar email en tiempo real
+        function validarEmailRecuperacion(input) {
+            let valor = input.value;
+            
+            // Filtrar caracteres no permitidos (solo letras, números, @, ., -, _)
+            valor = valor.replace(/[^a-zA-Z0-9@._\-]/g, '');
+            
+            // Validar que no haya más de 3 letras iguales consecutivas
+            const regexRepetidas = /([a-zA-Z])\1{3,}/g;
+            if (regexRepetidas.test(valor)) {
+                // Eliminar letras repetidas más allá de 3
+                valor = valor.replace(regexRepetidas, (match) => {
+                    return match.substring(0, 3);
+                });
+                
+                // Mostrar alerta
+                mostrarAlerta('Letras repetidas', 'No se permiten más de 3 letras iguales consecutivas');
+            }
+            
+            // Limitar a 50 caracteres
+            if (valor.length > 50) {
+                valor = valor.substring(0, 50);
+                mostrarAlerta('Límite de caracteres', 'El email no puede tener más de 50 caracteres');
+            }
+            
+            // Actualizar el valor del input
+            if (input.value !== valor) {
+                input.value = valor;
+            }
+        }
+
+        // Validación al enviar el formulario
+        document.getElementById('passwordResetForm').addEventListener('submit', function(e) {
+            const emailInput = document.getElementById('email');
+            const email = emailInput.value.trim();
+            
+            // Validar longitud máxima
+            if (email.length > 50) {
+                e.preventDefault();
+                mostrarAlerta('Email demasiado largo', 'El email no puede tener más de 50 caracteres');
+                emailInput.focus();
+                return false;
+            }
+            
+            // Validar que no tenga más de 3 letras iguales consecutivas
+            const regexRepetidas = /([a-zA-Z])\1{3,}/g;
+            if (regexRepetidas.test(email)) {
+                e.preventDefault();
+                mostrarAlerta('Letras repetidas', 'El email no puede tener más de 3 letras iguales consecutivas');
+                emailInput.focus();
+                return false;
+            }
+            
+            // Validar formato de email básico
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                mostrarAlerta('Formato inválido', 'Por favor ingresa un email válido');
+                emailInput.focus();
+                return false;
+            }
+            
+            return true;
+        });
+
+        // Aplicar validación inicial si hay valor en el campo
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            if (emailInput && emailInput.value) {
+                validarEmailRecuperacion(emailInput);
+            }
+        });
+    </script>
 </body>
 </html>
