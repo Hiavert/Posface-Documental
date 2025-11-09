@@ -6,14 +6,13 @@
 <div class="elegant-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <h1 class="mb-0"><i class="fas fa-file-contract mr-2 text-primary"></i> Gestión de Documentos</h1>
+            <h1 class="mb-0"><i class="fas fa-file-contract mr-2 text-primary" aria-hidden="true"></i> Gestión de Documentos</h1>
             <p class="subtitle">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
         </div>
         <div>
             @if(auth()->user()->puedeAgregar('Documentos'))
-
             <a href="{{ route('documentos.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus mr-1"></i> Nuevo Documento
+                <i class="fas fa-plus mr-1" aria-hidden="true"></i> Nuevo Documento
             </a>
             @endif
         </div>
@@ -26,14 +25,14 @@
     <!-- Filtros -->
     <div class="card card-elegant mb-4">
         <div class="card-header">
-            <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i>Filtros</h5>
+            <h2 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted" aria-hidden="true"></i>Filtros</h2>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('documentos.gestor') }}" id="filtrosForm">
+            <form method="GET" action="{{ route('documentos.gestor') }}" id="filtrosForm" role="search" aria-label="Formulario de filtros para documentos">
                 <div class="row">
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Tipo de Documento</label>
-                        <select class="form-control form-control-elegant" name="tipo">
+                        <label for="tipo_documento" class="form-label">Tipo de Documento</label>
+                        <select class="form-control form-control-elegant" name="tipo" id="tipo_documento" aria-describedby="tipo_documento_help">
                             <option value="">Todos</option>
                             <option value="oficio" {{ request('tipo') == 'oficio' ? 'selected' : '' }}>Oficio</option>
                             <option value="circular" {{ request('tipo') == 'circular' ? 'selected' : '' }}>Circular</option>
@@ -41,42 +40,54 @@
                             <option value="resolucion" {{ request('tipo') == 'resolucion' ? 'selected' : '' }}>Resolución</option>
                             <option value="acuerdo" {{ request('tipo') == 'acuerdo' ? 'selected' : '' }}>Acuerdo</option>
                         </select>
+                        <small id="tipo_documento_help" class="form-text text-muted">Seleccione el tipo de documento a filtrar</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Remitente</label>
+                        <label for="remitente" class="form-label">Remitente</label>
                         <input type="text" class="form-control form-control-elegant" name="remitente" 
-                               placeholder="Nombre del remitente" value="{{ request('remitente') }}"
+                               id="remitente" 
+                               placeholder="Nombre del remitente" 
+                               value="{{ request('remitente') }}"
                                oninput="sanitizeNombre(this)"
-                               maxlength="100">
-                        <small class="text-muted">Solo letras, espacios, puntos, comas y guiones</small>
+                               maxlength="100"
+                               aria-describedby="remitente_help">
+                        <small id="remitente_help" class="text-muted">Solo letras, espacios, puntos, comas y guiones</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Destinatario</label>
+                        <label for="destinatario" class="form-label">Destinatario</label>
                         <input type="text" class="form-control form-control-elegant" name="destinatario" 
-                               placeholder="Nombre del destinatario" value="{{ request('destinatario') }}"
+                               id="destinatario"
+                               placeholder="Nombre del destinatario" 
+                               value="{{ request('destinatario') }}"
                                oninput="sanitizeNombre(this)"
-                               maxlength="100">
-                        <small class="text-muted">Solo letras, espacios, puntos, comas y guiones</small>
+                               maxlength="100"
+                               aria-describedby="destinatario_help">
+                        <small id="destinatario_help" class="text-muted">Solo letras, espacios, puntos, comas y guiones</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Fecha</label>
-                        <input type="date" class="form-control form-control-elegant" name="fecha" value="{{ request('fecha') }}">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control form-control-elegant" name="fecha" id="fecha" value="{{ request('fecha') }}" aria-describedby="fecha_help">
+                        <small id="fecha_help" class="form-text text-muted">Seleccione la fecha del documento</small>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-8 mb-3">
-                        <label class="form-label">Palabras Clave</label>
+                        <label for="busqueda" class="form-label">Palabras Clave</label>
                         <input type="text" class="form-control form-control-elegant" name="busqueda" 
-                               placeholder="Buscar por asunto o contenido" value="{{ request('busqueda') }}"
-                               oninput="sanitizeBusqueda(this)">
+                               id="busqueda"
+                               placeholder="Buscar por asunto o contenido" 
+                               value="{{ request('busqueda') }}"
+                               oninput="sanitizeBusqueda(this)"
+                               aria-describedby="busqueda_help">
+                        <small id="busqueda_help" class="form-text text-muted">Ingrese palabras clave para buscar en asunto o contenido</small>
                     </div>
                     <div class="col-md-4 mb-3 d-flex align-items-end">
                         <div class="d-flex w-100">
-                            <button type="button" class="btn btn-outline-secondary btn-elegant w-50 mr-2" id="btnLimpiar">
-                                <i class="fas fa-redo mr-1"></i> Limpiar
+                            <button type="button" class="btn btn-outline-secondary btn-elegant w-50 mr-2" id="btnLimpiar" aria-label="Limpiar todos los filtros">
+                                <i class="fas fa-redo mr-1" aria-hidden="true"></i> Limpiar
                             </button>
-                            <button type="submit" class="btn btn-primary btn-elegant w-50">
-                                <i class="fas fa-search mr-1"></i> Buscar
+                            <button type="submit" class="btn btn-primary btn-elegant w-50" aria-label="Buscar documentos con los filtros aplicados">
+                                <i class="fas fa-search mr-1" aria-hidden="true"></i> Buscar
                             </button>
                         </div>
                     </div>
@@ -88,43 +99,44 @@
     <!-- Tabla de documentos -->
     <div class="card card-elegant">
         <div class="card-header d-flex align-items-center">
-            <h5 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted"></i> Documentos Registrados</h5>
+            <h2 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted" aria-hidden="true"></i> Documentos Registrados</h2>
             <div class="ml-auto">
                 <span class="badge badge-light">{{ $documentos->total() }} registros</span>
             </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover table-borderless">
+                <table class="table table-hover table-borderless" aria-describedby="tabla-documentos-desc">
+                    <caption id="tabla-documentos-desc" class="sr-only">Lista de documentos registrados en el sistema con sus detalles y acciones disponibles</caption>
                     <thead class="thead-elegant">
                         <tr>
-                            <th>
-                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'id', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                            <th scope="col">
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'id', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" aria-label="Ordenar por ID {{ request('sort') == 'id' ? (request('direction') == 'asc' ? 'ascendente' : 'descendente') : '' }}">
                                     ID {!! request('sort') == 'id' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-                            <th>
-                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'tipo', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                            <th scope="col">
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'tipo', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" aria-label="Ordenar por tipo {{ request('sort') == 'tipo' ? (request('direction') == 'asc' ? 'ascendente' : 'descendente') : '' }}">
                                     Tipo {!! request('sort') == 'tipo' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-                            <th>
-                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'remitente', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                            <th scope="col">
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'remitente', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" aria-label="Ordenar por remitente {{ request('sort') == 'remitente' ? (request('direction') == 'asc' ? 'ascendente' : 'descendente') : '' }}">
                                     Remitente {!! request('sort') == 'remitente' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-                            <th>
-                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'destinatario', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                            <th scope="col">
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'destinatario', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" aria-label="Ordenar por destinatario {{ request('sort') == 'destinatario' ? (request('direction') == 'asc' ? 'ascendente' : 'descendente') : '' }}">
                                     Destinatario {!! request('sort') == 'destinatario' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-                            <th>Asunto</th>
-                            <th>
-                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'fecha_documento', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
+                            <th scope="col">Asunto</th>
+                            <th scope="col">
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'fecha_documento', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" aria-label="Ordenar por fecha {{ request('sort') == 'fecha_documento' ? (request('direction') == 'asc' ? 'ascendente' : 'descendente') : '' }}">
                                     Fecha {!! request('sort') == 'fecha_documento' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-                            <th class="text-center">Acciones</th>
+                            <th scope="col" class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -137,38 +149,50 @@
                             <td>{{ \Illuminate\Support\Str::limit($documento->asunto, 40) }}</td>
                             <td>{{ $documento->fecha_documento->format('d/m/Y') }}</td>
                             <td class="text-center">
-                                <div class="btn-group">
-                                    <a href="{{ route('documentos.historial', $documento) }}" class="btn btn-sm btn-action" title="Historial de envíos">
-                                        <i class="fas fa-history text-info"></i>
+                                <div class="btn-group" role="group" aria-label="Acciones para documento {{ $documento->numero }}">
+                                    <a href="{{ route('documentos.historial', $documento) }}" class="btn btn-sm btn-action" 
+                                       title="Historial de envíos"
+                                       aria-label="Ver historial de envíos del documento {{ $documento->numero }}">
+                                        <i class="fas fa-history text-info" aria-hidden="true"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-action" title="Reenviar" data-toggle="modal" data-target="#modalReenviar{{ $documento->id }}">
-                                        <i class="fas fa-paper-plane text-primary"></i>
+                                    <button class="btn btn-sm btn-action" 
+                                            title="Reenviar" 
+                                            data-toggle="modal" 
+                                            data-target="#modalReenviar{{ $documento->id }}"
+                                            aria-label="Reenviar documento {{ $documento->numero }}">
+                                        <i class="fas fa-paper-plane text-primary" aria-hidden="true"></i>
                                     </button>
                                     <button class="btn btn-sm btn-action preview-btn" 
                                             title="Vista Previa"
                                             data-file-url="{{ asset('storage/' . $documento->archivo_path) }}"
-                                            data-file-name="{{ basename($documento->archivo_path) }}">
-                                        <i class="fas fa-eye text-info"></i>
+                                            data-file-name="{{ basename($documento->archivo_path) }}"
+                                            aria-label="Ver vista previa del documento {{ $documento->numero }}">
+                                        <i class="fas fa-eye text-info" aria-hidden="true"></i>
                                     </button>
-                                    <a href="{{ route('documentos.descargar', $documento) }}" class="btn btn-sm btn-action" title="Descargar">
-                                        <i class="fas fa-download text-success"></i>
+                                    <a href="{{ route('documentos.descargar', $documento) }}" class="btn btn-sm btn-action" 
+                                       title="Descargar"
+                                       aria-label="Descargar documento {{ $documento->numero }}">
+                                        <i class="fas fa-download text-success" aria-hidden="true"></i>
                                     </a>
                                     @if(auth()->user()->puedeEditar('Documentos'))
-
-                                    <a href="{{ route('documentos.edit', $documento) }}" class="btn btn-sm btn-action" title="Editar">
-                                        <i class="fas fa-edit text-warning"></i>
+                                    <a href="{{ route('documentos.edit', $documento) }}" class="btn btn-sm btn-action" 
+                                       title="Editar"
+                                       aria-label="Editar documento {{ $documento->numero }}">
+                                        <i class="fas fa-edit text-warning" aria-hidden="true"></i>
                                     </a>
                                     @endif
+                                    @if(auth()->user()->puedeEliminar('Documentos'))
                                     <form action="{{ route('documentos.destroy', $documento) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                         @if(auth()->user()->puedeEliminar('Documentos'))
-
-                                        <button type="submit" class="btn btn-sm btn-action" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este documento?')">
-                                            <i class="fas fa-trash-alt text-danger"></i>
+                                        <button type="submit" class="btn btn-sm btn-action" 
+                                                title="Eliminar" 
+                                                onclick="return confirm('¿Estás seguro de eliminar este documento?')"
+                                                aria-label="Eliminar documento {{ $documento->numero }}">
+                                            <i class="fas fa-trash-alt text-danger" aria-hidden="true"></i>
                                         </button>
-                                        @endif
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -176,11 +200,11 @@
                         <tr>
                             <td colspan="7" class="text-center py-5">
                                 <div class="empty-state">
-                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                    <h5>No se encontraron documentos</h5>
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3" aria-hidden="true"></i>
+                                    <h3>No se encontraron documentos</h3>
                                     <p class="text-muted">Aún no has registrado ningún documento</p>
                                     <a href="{{ route('documentos.create') }}" class="btn btn-primary mt-2">
-                                        <i class="fas fa-plus mr-1"></i> Crear primer documento
+                                        <i class="fas fa-plus mr-1" aria-hidden="true"></i> Crear primer documento
                                     </a>
                                 </div>
                             </td>
@@ -196,7 +220,7 @@
                 <div class="text-muted">
                     Mostrando {{ $documentos->firstItem() }} - {{ $documentos->lastItem() }} de {{ $documentos->total() }} registros
                 </div>
-                <div class="pagination-custom">
+                <div class="pagination-custom" role="navigation" aria-label="Paginación de documentos">
                     {{ $documentos->appends(request()->query())->links() }}
                 </div>
             </div>
@@ -206,12 +230,12 @@
 </div>
 
 <!-- Modal para vista previa -->
-<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="previewTitle">Vista Previa</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h3 class="modal-title" id="previewTitle">Vista Previa</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar ventana de vista previa">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -219,10 +243,10 @@
                 <!-- Contenido dinámico -->
             </div>
             <div class="modal-footer">
-                <a id="downloadBtn" href="#" class="btn btn-primary" download>
-                    <i class="fas fa-download mr-1"></i> Descargar
+                <a id="downloadBtn" href="#" class="btn btn-primary" download aria-label="Descargar documento">
+                    <i class="fas fa-download mr-1" aria-hidden="true"></i> Descargar
                 </a>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cerrar ventana">Cerrar</button>
             </div>
         </div>
     </div>
@@ -230,42 +254,44 @@
 
 <!-- Modales de reenvío para cada documento -->
 @foreach($documentos as $documento)
-<div class="modal fade" id="modalReenviar{{ $documento->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="modalReenviar{{ $documento->id }}" tabindex="-1" role="dialog" aria-labelledby="modalReenviarTitle{{ $documento->id }}" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #0b2e59; color: white;">
-                <h5 class="modal-title">
-                    <i class="fas fa-paper-plane mr-2"></i> Reenviar Documento
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <h3 class="modal-title" id="modalReenviarTitle{{ $documento->id }}">
+                    <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i> Reenviar Documento
+                </h3>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar ventana de reenvío">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <form action="{{ route('documentos.reenviar.store', $documento) }}" method="POST">
                 @csrf
                 <div class="modal-body">
-                    <div class="alert alert-info">
+                    <div class="alert alert-info" role="alert">
                         <p class="mb-0"><strong>Documento:</strong> {{ $documento->numero ?? 'DOC-' . $documento->id }} - {{ ucfirst($documento->tipo) }}</p>
                         <p class="mb-0"><strong>Asunto:</strong> {{ $documento->asunto }}</p>
                     </div>
                     
                     <div class="form-group">
-                        <label>Seleccionar Destinatario(s)</label>
-                        <select class="form-control select2" name="destinatarios[]" multiple required style="width: 100%;">
+                        <label for="destinatarios{{ $documento->id }}">Seleccionar Destinatario(s)</label>
+                        <select class="form-control select2" name="destinatarios[]" id="destinatarios{{ $documento->id }}" multiple required style="width: 100%;" aria-describedby="destinatarios_help{{ $documento->id }}">
                             @foreach(App\Models\User::where('id_usuario', '!=', Auth::id())->get() as $usuario)
                                 <option value="{{ $usuario->id_usuario }}">{{ $usuario->nombres }} {{ $usuario->apellidos }}</option>
                             @endforeach
                         </select>
+                        <small id="destinatarios_help{{ $documento->id }}" class="form-text text-muted">Seleccione uno o más destinatarios para reenviar el documento</small>
                     </div>
                     
                     <div class="form-group">
-                        <label>Mensaje Adicional</label>
-                        <textarea class="form-control" name="mensaje" rows="3" placeholder="Agregar un mensaje (opcional)"></textarea>
+                        <label for="mensaje{{ $documento->id }}">Mensaje Adicional</label>
+                        <textarea class="form-control" name="mensaje" id="mensaje{{ $documento->id }}" rows="3" placeholder="Agregar un mensaje (opcional)" aria-describedby="mensaje_help{{ $documento->id }}"></textarea>
+                        <small id="mensaje_help{{ $documento->id }}" class="form-text text-muted">Mensaje opcional que se incluirá en el reenvío</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Reenviar Documento</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cancelar reenvío">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" aria-label="Confirmar reenvío del documento">Reenviar Documento</button>
                 </div>
             </form>
         </div>
@@ -381,7 +407,7 @@
             margin-bottom: 20px;
         }
         
-        .empty-state h5 {
+        .empty-state h3 {
             font-weight: 600;
             color: #2c3e50;
             margin-bottom: 10px;
@@ -432,6 +458,19 @@
             border: 1px solid #dee2e6;
             color: #6c757d;
         }
+
+        /* Estilos para accesibilidad */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
     </style>
 @stop
 
@@ -463,13 +502,13 @@
                 if (fileExt === 'pdf') {
                     $('#previewContent').html(`
                         <div class="embed-responsive embed-responsive-16by9">
-                            <iframe class="embed-responsive-item" src="${fileUrl}"></iframe>
+                            <iframe class="embed-responsive-item" src="${fileUrl}" title="Vista previa del documento ${fileName}" aria-label="Vista previa del documento ${fileName}"></iframe>
                         </div>
                     `);
                 } else {
                     $('#previewContent').html(`
                         <div class="text-center">
-                            <img src="${fileUrl}" class="img-fluid" alt="Vista previa">
+                            <img src="${fileUrl}" class="img-fluid" alt="Vista previa del documento ${fileName}">
                         </div>
                     `);
                 }
