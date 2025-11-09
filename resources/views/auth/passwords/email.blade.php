@@ -32,6 +32,7 @@
         }
         .form-group {
             margin-bottom: 18px;
+            position: relative;
         }
         .form-control {
             width: 100%;
@@ -95,6 +96,13 @@
             display: none;
             animation: fadeIn 0.3s ease;
         }
+        .validation-success {
+            color: #4caf50;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
         .back-link {
             display: block;
             text-align: center;
@@ -117,6 +125,14 @@
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
     </style>
 </head>
 <body>
@@ -138,14 +154,14 @@
                 <input type="email" name="email" id="email" class="form-control" 
                        required autofocus maxlength="50"
                        placeholder="tu@correo.com"
-                       oninput="validarEmail(this)"
-                       onkeypress="return permitirCaracteresEmail(event)">
+                       oninput="validarEmail(this)">
                 <span class="validation-error" id="email-validation-error"></span>
+                <span class="validation-success" id="email-validation-success"></span>
                 @error('email')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
             </div>
-            <button type="submit" class="btn btn-primary" id="submit-btn">Enviar enlace</button>
+            <button type="submit" class="btn btn-primary" id="submit-btn" disabled>Enviar enlace</button>
         </form>
         <a href="{{ route('login') }}" class="back-link">
             <i class="bi bi-arrow-left"></i> Volver al inicio de sesión
@@ -158,6 +174,7 @@
             const form = document.getElementById('passwordResetForm');
             const submitBtn = document.getElementById('submit-btn');
             const validationError = document.getElementById('email-validation-error');
+            const validationSuccess = document.getElementById('email-validation-success');
             
             // Validación inicial si hay valor en el campo
             if (emailInput.value) {
@@ -171,43 +188,20 @@
                     mostrarError(validationError, 'Por favor corrige los errores en el campo de correo electrónico antes de enviar.');
                 }
             });
-            
-            // Función para mostrar errores
-            function mostrarError(elemento, mensaje) {
-                elemento.textContent = mensaje;
-                elemento.style.display = 'block';
-                elemento.style.color = '#d32f2f';
-                
-                // Ocultar el mensaje después de 5 segundos
-                setTimeout(() => {
-                    elemento.style.display = 'none';
-                }, 5000);
-            }
-            
-            // Función para mostrar éxito
-            function mostrarExito(elemento) {
-                elemento.textContent = '✓ Correo válido';
-                elemento.style.display = 'block';
-                elemento.style.color = '#4caf50';
-            }
-            
-            // Función para limpiar mensajes
-            function limpiarMensaje(elemento) {
-                elemento.style.display = 'none';
-                elemento.textContent = '';
-            }
         });
         
         // Función para validar email en tiempo real
         function validarEmail(input) {
             const email = input.value.trim();
             const validationError = document.getElementById('email-validation-error');
+            const validationSuccess = document.getElementById('email-validation-success');
             const submitBtn = document.getElementById('submit-btn');
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             
             // Limpiar clases y mensajes
             input.classList.remove('error', 'success');
             limpiarMensaje(validationError);
+            limpiarMensaje(validationSuccess);
             
             // Validar campo vacío
             if (email === '') {
@@ -220,6 +214,8 @@
             // Validar formato de email
             if (!emailRegex.test(email)) {
                 input.classList.add('error');
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 500);
                 mostrarError(validationError, 'Debe ser un correo electrónico válido');
                 deshabilitarBoton(true);
                 return false;
@@ -228,6 +224,8 @@
             // Validar longitud máxima
             if (email.length > 50) {
                 input.classList.add('error');
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 500);
                 mostrarError(validationError, 'El correo no puede tener más de 50 caracteres');
                 deshabilitarBoton(true);
                 return false;
@@ -236,6 +234,8 @@
             // Validar que no tenga más de 3 letras iguales consecutivas
             if (tieneMasDeTresRepetidas(email)) {
                 input.classList.add('error');
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 500);
                 mostrarError(validationError, 'El correo no puede tener más de 3 letras iguales consecutivas');
                 deshabilitarBoton(true);
                 return false;
@@ -243,7 +243,7 @@
             
             // Si pasa todas las validaciones
             input.classList.add('success');
-            mostrarExito(validationError);
+            mostrarExito(validationSuccess, '✓ Correo válido');
             deshabilitarBoton(false);
             return true;
         }
@@ -252,29 +252,21 @@
         function tieneMasDeTresRepetidas(texto) {
             // Eliminar caracteres especiales y números para verificar solo letras
             const soloLetras = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
-            const regexRepetidas = /([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/g;
-            return regexRepetidas.test(soloLetras);
-        }
-        
-        // Función para permitir solo caracteres válidos en email
-        function permitirCaracteresEmail(event) {
-            const charCode = event.which ? event.which : event.keyCode;
-            const charStr = String.fromCharCode(charCode);
             
-            // Permitir letras, números, @, ., -, _ y teclas de control
-            const regex = /^[a-zA-Z0-9@._\-]$/;
+            // Convertir a minúsculas para hacer la comparación sin distinción de mayúsculas/minúsculas
+            const textoMinusculas = soloLetras.toLowerCase();
             
-            // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
-            if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
-                return true;
+            // Verificar si hay más de 3 letras iguales consecutivas
+            for (let i = 0; i < textoMinusculas.length - 3; i++) {
+                const char = textoMinusculas[i];
+                if (char === textoMinusculas[i+1] && 
+                    char === textoMinusculas[i+2] && 
+                    char === textoMinusculas[i+3]) {
+                    return true;
+                }
             }
             
-            if (!regex.test(charStr)) {
-                event.preventDefault();
-                return false;
-            }
-            
-            return true;
+            return false;
         }
         
         // Función para mostrar errores
@@ -285,8 +277,8 @@
         }
         
         // Función para mostrar éxito
-        function mostrarExito(elemento) {
-            elemento.textContent = '✓ Correo válido';
+        function mostrarExito(elemento, mensaje) {
+            elemento.textContent = mensaje;
             elemento.style.display = 'block';
             elemento.style.color = '#4caf50';
         }
