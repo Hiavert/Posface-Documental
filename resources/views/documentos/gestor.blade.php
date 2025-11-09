@@ -40,7 +40,6 @@
                             <option value="resolucion" {{ request('tipo') == 'resolucion' ? 'selected' : '' }}>Resolución</option>
                             <option value="acuerdo" {{ request('tipo') == 'acuerdo' ? 'selected' : '' }}>Acuerdo</option>
                         </select>
-                        <small id="tipo_documento_help" class="form-text text-muted">Seleccione el tipo de documento a filtrar</small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="remitente" class="form-label">Remitente</label>
@@ -51,7 +50,6 @@
                                oninput="sanitizeNombre(this)"
                                maxlength="100"
                                aria-describedby="remitente_help">
-                        <small id="remitente_help" class="text-muted">Solo letras, espacios, puntos, comas y guiones</small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="destinatario" class="form-label">Destinatario</label>
@@ -62,12 +60,10 @@
                                oninput="sanitizeNombre(this)"
                                maxlength="100"
                                aria-describedby="destinatario_help">
-                        <small id="destinatario_help" class="text-muted">Solo letras, espacios, puntos, comas y guiones</small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="fecha" class="form-label">Fecha</label>
                         <input type="date" class="form-control form-control-elegant" name="fecha" id="fecha" value="{{ request('fecha') }}" aria-describedby="fecha_help">
-                        <small id="fecha_help" class="form-text text-muted">Seleccione la fecha del documento</small>
                     </div>
                 </div>
                 <div class="row">
