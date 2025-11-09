@@ -88,10 +88,10 @@
                         <div class="form-group">
                             <label for="nombre_objeto">Nombre del Objeto</label>
                             <input type="text" class="form-control form-control-elegant" id="nombre_objeto" name="nombre_objeto" 
-                                   required maxlength="100" 
+                                   required maxlength="50" 
                                    placeholder="Ingrese el nombre del objeto"
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                                   title="Solo letras, espacios y caracteres como . , -">
+                                   pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"
+                                   title="Solo se permiten letras y espacios. No se aceptan números ni caracteres especiales.">
                             <div class="invalid-feedback" id="nombre_objeto_error"></div>
                         </div>
                         <div class="form-group">
@@ -107,8 +107,11 @@
                         <div class="form-group">
                             <label for="descripcion_objeto">Descripción</label>
                             <textarea class="form-control form-control-elegant" id="descripcion_objeto" name="descripcion_objeto" 
-                                      rows="3" maxlength="255" 
-                                      placeholder="Ingrese una descripción del objeto (opcional)"></textarea>
+                                      rows="3" maxlength="100" 
+                                      placeholder="Ingrese una descripción del objeto (opcional)"
+                                      pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-.;]+$"
+                                      title="Solo se permiten letras, espacios, guiones, puntos y punto y coma."></textarea>
+                            <div class="invalid-feedback" id="descripcion_objeto_error"></div>
                         </div>
                     </div>
                     <div class="card-footer text-right">
@@ -238,21 +241,79 @@
 @section('js')
 <script>
     $(document).ready(function() {
+        // Función para validar repetición de letras
+        function validarRepeticionLetras(texto) {
+            return /(.)\1{3,}/.test(texto);
+        }
+
+        // Función para validar caracteres especiales en nombre
+        function validarCaracteresNombre(texto) {
+            return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(texto);
+        }
+
+        // Función para validar caracteres descripción
+        function validarCaracteresDescripcion(texto) {
+            return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-.;]*$/.test(texto);
+        }
+
         // Validación en tiempo real para el nombre
         $('#nombre_objeto').on('input', function() {
             let nombre = $(this).val();
-            let regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+$/;
+            let errorElement = $('#nombre_objeto_error');
             
-            if (!regex.test(nombre)) {
+            // Validar longitud
+            if (nombre.length > 50) {
                 $(this).addClass('is-invalid');
-                $('#nombre_objeto_error').text('Solo se permiten letras, espacios y caracteres como . , -');
-            } else if (nombre.length > 100) {
-                $(this).addClass('is-invalid');
-                $('#nombre_objeto_error').text('El nombre no puede exceder los 100 caracteres');
-            } else {
-                $(this).removeClass('is-invalid');
-                $('#nombre_objeto_error').text('');
+                errorElement.text('El nombre no puede exceder los 50 caracteres');
+                return;
             }
+            
+            // Validar caracteres especiales y números
+            if (!validarCaracteresNombre(nombre)) {
+                $(this).addClass('is-invalid');
+                errorElement.text('Solo se permiten letras y espacios. No se aceptan números ni caracteres especiales.');
+                return;
+            }
+            
+            // Validar repetición de letras
+            if (validarRepeticionLetras(nombre)) {
+                $(this).addClass('is-invalid');
+                errorElement.text('No se permite que la misma letra se repita más de tres veces consecutivas.');
+                return;
+            }
+            
+            $(this).removeClass('is-invalid');
+            errorElement.text('');
+        });
+
+        // Validación en tiempo real para la descripción
+        $('#descripcion_objeto').on('input', function() {
+            let descripcion = $(this).val();
+            let errorElement = $('#descripcion_objeto_error');
+            
+            // Validar longitud
+            if (descripcion.length > 100) {
+                $(this).addClass('is-invalid');
+                errorElement.text('La descripción no puede exceder los 100 caracteres');
+                return;
+            }
+            
+            // Validar caracteres permitidos
+            if (!validarCaracteresDescripcion(descripcion)) {
+                $(this).addClass('is-invalid');
+                errorElement.text('Solo se permiten letras, espacios, guiones, puntos y punto y coma.');
+                return;
+            }
+            
+            // Validar repetición de letras
+            if (validarRepeticionLetras(descripcion)) {
+                $(this).addClass('is-invalid');
+                errorElement.text('No se permite que la misma letra se repita más de tres veces consecutivas.');
+                return;
+            }
+            
+            $(this).removeClass('is-invalid');
+            errorElement.text('');
         });
 
         // Validación en tiempo real para el tipo
@@ -270,14 +331,44 @@
         $('#formCrearObjeto').on('submit', function(e) {
             let valid = true;
             let nombre = $('#nombre_objeto').val();
+            let descripcion = $('#descripcion_objeto').val();
             let tipo = $('#tipo_objeto').val();
 
+            // Validar nombre
             if (nombre === '') {
                 $('#nombre_objeto').addClass('is-invalid');
                 $('#nombre_objeto_error').text('El nombre es obligatorio.');
                 valid = false;
+            } else if (!validarCaracteresNombre(nombre)) {
+                $('#nombre_objeto').addClass('is-invalid');
+                $('#nombre_objeto_error').text('Solo se permiten letras y espacios. No se aceptan números ni caracteres especiales.');
+                valid = false;
+            } else if (validarRepeticionLetras(nombre)) {
+                $('#nombre_objeto').addClass('is-invalid');
+                $('#nombre_objeto_error').text('No se permite que la misma letra se repita más de tres veces consecutivas.');
+                valid = false;
+            } else if (nombre.length > 50) {
+                $('#nombre_objeto').addClass('is-invalid');
+                $('#nombre_objeto_error').text('El nombre no puede exceder los 50 caracteres');
+                valid = false;
             }
 
+            // Validar descripción
+            if (descripcion.length > 100) {
+                $('#descripcion_objeto').addClass('is-invalid');
+                $('#descripcion_objeto_error').text('La descripción no puede exceder los 100 caracteres');
+                valid = false;
+            } else if (!validarCaracteresDescripcion(descripcion)) {
+                $('#descripcion_objeto').addClass('is-invalid');
+                $('#descripcion_objeto_error').text('Solo se permiten letras, espacios, guiones, puntos y punto y coma.');
+                valid = false;
+            } else if (validarRepeticionLetras(descripcion)) {
+                $('#descripcion_objeto').addClass('is-invalid');
+                $('#descripcion_objeto_error').text('No se permite que la misma letra se repita más de tres veces consecutivas.');
+                valid = false;
+            }
+
+            // Validar tipo
             if (tipo === '') {
                 $('#tipo_objeto').addClass('is-invalid');
                 $('#tipo_objeto_error').text('Seleccione un tipo.');
