@@ -32,7 +32,6 @@
         }
         .form-group {
             margin-bottom: 18px;
-            position: relative;
         }
         .form-control {
             width: 100%;
@@ -96,13 +95,6 @@
             display: none;
             animation: fadeIn 0.3s ease;
         }
-        .validation-success {
-            color: #4caf50;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
         .back-link {
             display: block;
             text-align: center;
@@ -133,7 +125,7 @@
             <i class="bi bi-lock"></i>
         </span>
         <h2>¿Olvidaste tu contraseña?</h2>
-        <p>Ingresa tu correo electrónico y te enviaremos un enlace para restablecerla.</p>
+        <p>Ingresa tu correo electrónico institucional y te enviaremos un enlace para restablecerla.</p>
         
         @if (session('status'))
             <div class="alert alert-success">{{ session('status') }}</div>
@@ -142,19 +134,18 @@
         <form method="POST" action="{{ route('password.email') }}" id="passwordResetForm">
             @csrf
             <div class="form-group">
-                <label for="email">Correo electrónico</label>
+                <label for="email">Correo electrónico institucional</label>
                 <input type="email" name="email" id="email" class="form-control" 
                        required autofocus maxlength="50"
-                       placeholder="tu@correo.com"
+                       placeholder="tu@correoinstitucional.com"
                        oninput="validarEmail(this)"
-                       onkeypress="return evitarMasDeTresRepetidas(event, this)">
+                       onkeypress="return permitirCaracteresEmail(event)">
                 <span class="validation-error" id="email-validation-error"></span>
-                <span class="validation-success" id="email-validation-success"></span>
                 @error('email')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
             </div>
-            <button type="submit" class="btn btn-primary" id="submit-btn" disabled>Enviar enlace</button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">Enviar enlace</button>
         </form>
         <a href="{{ route('login') }}" class="back-link">
             <i class="bi bi-arrow-left"></i> Volver al inicio de sesión
@@ -167,7 +158,6 @@
             const form = document.getElementById('passwordResetForm');
             const submitBtn = document.getElementById('submit-btn');
             const validationError = document.getElementById('email-validation-error');
-            const validationSuccess = document.getElementById('email-validation-success');
             
             // Validación inicial si hay valor en el campo
             if (emailInput.value) {
@@ -181,46 +171,43 @@
                     mostrarError(validationError, 'Por favor corrige los errores en el campo de correo electrónico antes de enviar.');
                 }
             });
-        });
-        
-        // Función para evitar más de 3 letras iguales consecutivas
-        function evitarMasDeTresRepetidas(event, input) {
-            const char = String.fromCharCode(event.keyCode || event.which);
             
-            // Solo validar si es una letra
-            if (/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(char)) {
-                const currentValue = input.value;
-                const selectionStart = input.selectionStart;
-                const selectionEnd = input.selectionEnd;
+            // Función para mostrar errores
+            function mostrarError(elemento, mensaje) {
+                elemento.textContent = mensaje;
+                elemento.style.display = 'block';
+                elemento.style.color = '#d32f2f';
                 
-                // Obtener las últimas 3 letras antes de la posición del cursor
-                const textBeforeCursor = currentValue.substring(0, selectionStart);
-                const lastThreeChars = textBeforeCursor.slice(-3).toLowerCase();
-                
-                // Si las últimas 3 letras son iguales y la nueva letra es igual, prevenir la escritura
-                if (lastThreeChars.length === 3 && 
-                    lastThreeChars[0] === lastThreeChars[1] && 
-                    lastThreeChars[1] === lastThreeChars[2] && 
-                    lastThreeChars[0] === char.toLowerCase()) {
-                    event.preventDefault();
-                    return false;
-                }
+                // Ocultar el mensaje después de 5 segundos
+                setTimeout(() => {
+                    elemento.style.display = 'none';
+                }, 5000);
             }
-            return true;
-        }
+            
+            // Función para mostrar éxito
+            function mostrarExito(elemento) {
+                elemento.textContent = '✓ Correo válido';
+                elemento.style.display = 'block';
+                elemento.style.color = '#4caf50';
+            }
+            
+            // Función para limpiar mensajes
+            function limpiarMensaje(elemento) {
+                elemento.style.display = 'none';
+                elemento.textContent = '';
+            }
+        });
         
         // Función para validar email en tiempo real
         function validarEmail(input) {
             const email = input.value.trim();
             const validationError = document.getElementById('email-validation-error');
-            const validationSuccess = document.getElementById('email-validation-success');
             const submitBtn = document.getElementById('submit-btn');
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             
             // Limpiar clases y mensajes
             input.classList.remove('error', 'success');
             limpiarMensaje(validationError);
-            limpiarMensaje(validationSuccess);
             
             // Validar campo vacío
             if (email === '') {
@@ -246,10 +233,47 @@
                 return false;
             }
             
+            // Validar que no tenga más de 3 letras iguales consecutivas
+            if (tieneMasDeTresRepetidas(email)) {
+                input.classList.add('error');
+                mostrarError(validationError, 'El correo no puede tener más de 3 letras iguales consecutivas');
+                deshabilitarBoton(true);
+                return false;
+            }
+            
             // Si pasa todas las validaciones
             input.classList.add('success');
-            mostrarExito(validationSuccess, '✓ Correo válido');
+            mostrarExito(validationError);
             deshabilitarBoton(false);
+            return true;
+        }
+        
+        // Función para verificar más de 3 letras iguales consecutivas
+        function tieneMasDeTresRepetidas(texto) {
+            // Eliminar caracteres especiales y números para verificar solo letras
+            const soloLetras = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
+            const regexRepetidas = /([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/g;
+            return regexRepetidas.test(soloLetras);
+        }
+        
+        // Función para permitir solo caracteres válidos en email
+        function permitirCaracteresEmail(event) {
+            const charCode = event.which ? event.which : event.keyCode;
+            const charStr = String.fromCharCode(charCode);
+            
+            // Permitir letras, números, @, ., -, _ y teclas de control
+            const regex = /^[a-zA-Z0-9@._\-]$/;
+            
+            // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+            if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+                return true;
+            }
+            
+            if (!regex.test(charStr)) {
+                event.preventDefault();
+                return false;
+            }
+            
             return true;
         }
         
@@ -261,8 +285,8 @@
         }
         
         // Función para mostrar éxito
-        function mostrarExito(elemento, mensaje) {
-            elemento.textContent = mensaje;
+        function mostrarExito(elemento) {
+            elemento.textContent = '✓ Correo válido';
             elemento.style.display = 'block';
             elemento.style.color = '#4caf50';
         }
