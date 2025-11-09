@@ -284,3 +284,75 @@ h2::after {
     font-size: 15px;
   }
 }
+
+/* Estilos para mensajes de error del servidor */
+#server-error-alert,
+#login-error-alert {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease-in;
+}
+
+#server-error-alert ul,
+#login-error-alert ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+#server-error-alert li,
+#login-error-alert li {
+    margin-bottom: 5px;
+}
+
+/* Animación para mensajes */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos para campos con error mejorados */
+.input-container.error input {
+    border-color: #e53935;
+    background: #fff5f5;
+    box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1);
+}
+
+.input-container.success input {
+    border-color: #4caf50;
+    background: #f8fff8;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* Mejora visual para mensajes de error */
+.error-message {
+    color: #e53935;
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+    padding-left: 5px;
+    font-weight: 500;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive para mensajes de error */
+@media (max-width: 480px) {
+    #server-error-alert,
+    #login-error-alert {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .error-message {
+        font-size: 12px;
+    }
+}
