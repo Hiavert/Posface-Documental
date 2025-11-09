@@ -6,14 +6,14 @@
 <div class="elegant-header">
     <div class="d-flex align-items-center justify-content-between">
         <div>
-            <h1 class="mb-0"><i class="fas fa-file-contract mr-2 text-primary"></i> Gestión de Acuses de Recibo</h1>
+            <h1 class="mb-0"><i class="fas fa-file-contract mr-2 text-primary" aria-hidden="true"></i> Gestión de Acuses de Recibo</h1>
             <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
         </div>
         <div class="d-flex align-items-center">
             <!-- Notificaciones movidas aquí -->
             <div class="notifications-dropdown ml-3">
-                <button class="btn btn-notification" type="button" id="notifDropdown" data-toggle="dropdown">
-                    <i class="fas fa-bell"></i>
+                <button class="btn btn-notification" type="button" id="notifDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Notificaciones">
+                    <i class="fas fa-bell" aria-hidden="true"></i>
                     <span class="badge badge-danger" id="notifCounter">{{ auth()->user()->notificacionesNoLeidas->count() }}</span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notifDropdown">
@@ -36,14 +36,14 @@
                         @endforeach
                     @else
                         <div class="text-center py-3">
-                            <i class="fas fa-bell-slash fa-2x mb-2 text-muted"></i>
+                            <i class="fas fa-bell-slash fa-2x mb-2 text-muted" aria-hidden="true"></i>
                             <p class="text-muted">No hay notificaciones</p>
                         </div>
                     @endif
                 </div>
             </div>
             <div class="header-icon ml-3">
-                <i class="fas fa-envelope-open-text"></i>
+                <i class="fas fa-envelope-open-text" aria-hidden="true"></i>
             </div>
         </div>
     </div>
@@ -56,17 +56,17 @@
     @if(session('success') || session('error'))
     <div class="alert-container">
         @if(session('success'))
-        <div class="alert alert-elegant-success alert-dismissible fade show">
-            <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <div class="alert alert-elegant-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2" aria-hidden="true"></i> {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
         @endif
         @if(session('error'))
-        <div class="alert alert-elegant-danger alert-dismissible fade show">
-            <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <div class="alert alert-elegant-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle mr-2" aria-hidden="true"></i> {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -77,52 +77,62 @@
     <!-- Filtros -->
     <div class="card card-elegant mb-4">
         <div class="card-header">
-            <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i>Filtros</h5>
+            <h2 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted" aria-hidden="true"></i>Filtros</h2>
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('acuses.index') }}">
                 <div class="row">
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Estado</label>
-                        <select class="form-control form-control-elegant" name="estado">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control form-control-elegant" name="estado" id="estado" aria-describedby="help-estado">
                             <option value="">Todos</option>
                             <option value="enviado" {{ request('estado') == 'enviado' ? 'selected' : '' }}>Enviado</option>
                             <option value="recibido" {{ request('estado') == 'recibido' ? 'selected' : '' }}>Recibido</option>
                             <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
                         </select>
+                        <small id="help-estado" class="form-text text-muted">Seleccione el estado del acuse</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Remitente</label>
-                        <input type="text" class="form-control form-control-elegant" name="remitente" 
+                        <label for="remitente" class="form-label">Remitente</label>
+                        <input type="text" class="form-control form-control-elegant" name="remitente" id="remitente"
                                placeholder="Nombre del remitente" value="{{ request('remitente') }}"
-                               maxlength="30" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                               title="Solo letras, espacios y caracteres como . , - (máximo 30 caracteres)">
+                               maxlength="50"
+                               oninput="validarYFiltrarRemitente(this)"
+                               onkeypress="return permitirCaracteresRemitente(event)"
+                               aria-describedby="help-remitente">
+                        <small id="help-remitente" class="form-text text-muted">Solo letras, espacios, puntos, comas y guiones. Máximo 50 caracteres.</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Destinatario</label>
-                        <input type="text" class="form-control form-control-elegant" name="destinatario" 
+                        <label for="destinatario" class="form-label">Destinatario</label>
+                        <input type="text" class="form-control form-control-elegant" name="destinatario" id="destinatario"
                                placeholder="Nombre del destinatario" value="{{ request('destinatario') }}"
-                               maxlength="30" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                               title="Solo letras, espacios y caracteres como . , - (máximo 30 caracteres)">
+                               maxlength="50"
+                               oninput="validarYFiltrarDestinatario(this)"
+                               onkeypress="return permitirCaracteresDestinatario(event)"
+                               aria-describedby="help-destinatario">
+                        <small id="help-destinatario" class="form-text text-muted">Solo letras, espacios, puntos, comas y guiones. Máximo 50 caracteres.</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Elemento</label>
-                        <input type="text" class="form-control form-control-elegant" name="elemento" 
+                        <label for="elemento" class="form-label">Elemento</label>
+                        <input type="text" class="form-control form-control-elegant" name="elemento" id="elemento"
                                placeholder="Nombre del elemento" value="{{ request('elemento') }}"
-                               maxlength="30" pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                               title="Solo letras, números y caracteres como . , - (máximo 30 caracteres)">
+                               maxlength="50"
+                               oninput="validarYFiltrarElemento(this)"
+                               onkeypress="return permitirCaracteresElemento(event)"
+                               aria-describedby="help-elemento">
+                        <small id="help-elemento" class="form-text text-muted">Solo letras, espacios, puntos, comas y guiones. Máximo 50 caracteres.</small>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-2">
-                    <a href="{{ route('acuses.index') }}" class="btn btn-outline-secondary btn-elegant mr-2">
-                        <i class="fas fa-redo mr-1"></i> Restablecer
+                    <a href="{{ route('acuses.index') }}" class="btn btn-outline-secondary btn-elegant mr-2" aria-label="Restablecer filtros">
+                        <i class="fas fa-redo mr-1" aria-hidden="true"></i> Restablecer
                     </a>
-                    <button type="submit" class="btn btn-primary btn-elegant mr-2">
-                        <i class="fas fa-filter mr-1"></i> Aplicar Filtros
+                    <button type="submit" class="btn btn-primary btn-elegant mr-2" aria-label="Aplicar filtros">
+                        <i class="fas fa-filter mr-1" aria-hidden="true"></i> Aplicar Filtros
                     </button>
                     @if(Auth::user()->puedeAgregar('GestionAcuses'))
-                    <button type="button" class="btn btn-success btn-elegant" data-toggle="modal" data-target="#modalEnviarAcuse">
-                        <i class="fas fa-plus mr-1"></i> Nuevo Acuse
+                    <button type="button" class="btn btn-success btn-elegant" data-toggle="modal" data-target="#modalEnviarAcuse" aria-label="Crear nuevo acuse">
+                        <i class="fas fa-plus mr-1" aria-hidden="true"></i> Nuevo Acuse
                     </button>
                     @endif
                 </div>
@@ -133,39 +143,40 @@
     <!-- Tabla de acuses -->
     <div class="card card-elegant">
         <div class="card-header d-flex align-items-center">
-            <h5 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted"></i> Acuses de Recibo</h5>
+            <h2 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted" aria-hidden="true"></i> Acuses de Recibo</h2>
             <div class="ml-auto">
                 <span class="badge badge-light">{{ $acuses->total() }} registros</span>
             </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover table-borderless">
+                <table class="table table-hover table-borderless" aria-describedby="tabla-descripcion">
+                    <caption id="tabla-descripcion" class="sr-only">Lista de acuses de recibo con opciones de ordenamiento y acciones</caption>
                     <thead class="thead-elegant">
                         <tr>
-                            <th>
-                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'id_acuse', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
+                            <th scope="col">
+                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'id_acuse', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" aria-label="Ordenar por ID">
                                     ID {!! request('sort') == 'id_acuse' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-                            <th>
-                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'titulo', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
+                            <th scope="col">
+                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'titulo', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" aria-label="Ordenar por título">
                                     Título {!! request('sort') == 'titulo' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-                            <th>Remitente</th>
-                            <th>Destinatario</th>
-                            <th>
-                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'estado', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
+                            <th scope="col">Remitente</th>
+                            <th scope="col">Destinatario</th>
+                            <th scope="col">
+                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'estado', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" aria-label="Ordenar por estado">
                                     Estado {!! request('sort') == 'estado' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-                            <th>
-                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'fecha_envio', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
+                            <th scope="col">
+                                <a href="{{ route('acuses.index', array_merge(request()->query(), ['sort' => 'fecha_envio', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" aria-label="Ordenar por fecha de envío">
                                     Fecha Envío {!! request('sort') == 'fecha_envio' ? (request('direction') == 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-                            <th class="text-center">Acciones</th>
+                            <th scope="col" class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -212,37 +223,37 @@
                                 </td>
                                 <td>{{ $acuse->fecha_envio->format('d/m/Y H:i') }}</td>
                                 <td class="text-center">
-                                    <div class="btn-group btn-group-actions" role="group">
-                                        <a href="{{ route('acuses.show', $acuse->id_acuse) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
+                                    <div class="btn-group btn-group-actions" role="group" aria-label="Acciones para acuse {{ $acuse->id_acuse }}">
+                                        <a href="{{ route('acuses.show', $acuse->id_acuse) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Ver detalles" aria-label="Ver detalles del acuse {{ $acuse->id_acuse }}">
+                                            <i class="fas fa-eye" aria-hidden="true"></i>
                                         </a>
                                         
                                         @if($acuse->estado == 'pendiente' && $acuse->fk_id_usuario_destinatario == auth()->user()->id_usuario)
                                             <form action="{{ route('acuses.aceptar', $acuse->id_acuse) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 @method('PUT')
-                                                <button type="submit" class="btn btn-sm btn-action" data-toggle="tooltip" title="Aceptar acuse">
-                                                    <i class="fas fa-check text-success"></i>
+                                                <button type="submit" class="btn btn-sm btn-action" data-toggle="tooltip" title="Aceptar acuse" aria-label="Aceptar acuse {{ $acuse->id_acuse }}">
+                                                    <i class="fas fa-check text-success" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         @endif
                                         
                                         @if($acuse->estado == 'recibido' && $acuse->fk_id_usuario_destinatario == auth()->user()->id_usuario)
-                                            <a href="{{ route('acuses.reenviar.form', $acuse->id_acuse) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Reenviar">
-                                                <i class="fas fa-share text-warning"></i>
+                                            <a href="{{ route('acuses.reenviar.form', $acuse->id_acuse) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Reenviar" aria-label="Reenviar acuse {{ $acuse->id_acuse }}">
+                                                <i class="fas fa-share text-warning" aria-hidden="true"></i>
                                             </a>
                                         @endif
                                         
-                                        <a href="{{ route('acuses.rastrear', $acuse->id_acuse) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Rastrear">
-                                            <i class="fas fa-search-location text-info"></i>
+                                        <a href="{{ route('acuses.rastrear', $acuse->id_acuse) }}" class="btn btn-sm btn-action" data-toggle="tooltip" title="Rastrear" aria-label="Rastrear acuse {{ $acuse->id_acuse }}">
+                                            <i class="fas fa-search-location text-info" aria-hidden="true"></i>
                                         </a>
                                         
                                         @if(auth()->user()->puedeEliminar('GestionAcuses'))
                                             <form action="{{ route('acuses.destroy', $acuse->id_acuse) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-action" data-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este acuse?')">
-                                                    <i class="fas fa-trash-alt text-danger"></i>
+                                                <button type="submit" class="btn btn-sm btn-action" data-toggle="tooltip" title="Eliminar" aria-label="Eliminar acuse {{ $acuse->id_acuse }}" onclick="return confirm('¿Está seguro de eliminar este acuse?')">
+                                                    <i class="fas fa-trash-alt text-danger" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         @endif
@@ -253,12 +264,12 @@
                             <tr>
                                 <td colspan="7" class="text-center py-5">
                                     <div class="empty-state">
-                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                        <h5>No se encontraron acuses de recibo</h5>
+                                        <i class="fas fa-inbox fa-3x text-muted mb-3" aria-hidden="true"></i>
+                                        <h3>No se encontraron acuses de recibo</h3>
                                         <p class="text-muted">Parece que aún no hay acuses registrados en el sistema</p>
                                         @if(Auth::user()->puedeAgregar('GestionAcuses'))
-                                        <button type="button" class="btn btn-primary mt-2" data-toggle="modal" data-target="#modalEnviarAcuse">
-                                            <i class="fas fa-plus mr-1"></i> Crear primer acuse
+                                        <button type="button" class="btn btn-primary mt-2" data-toggle="modal" data-target="#modalEnviarAcuse" aria-label="Crear primer acuse">
+                                            <i class="fas fa-plus mr-1" aria-hidden="true"></i> Crear primer acuse
                                         </button>
                                         @endif
                                     </div>
@@ -274,9 +285,11 @@
                 <div class="text-muted">
                     Mostrando {{ $acuses->firstItem() }} - {{ $acuses->lastItem() }} de {{ $acuses->total() }} registros
                 </div>
-                <div class="pagination-custom">
-                    {{ $acuses->appends(request()->query())->links() }}
-                </div>
+                <nav aria-label="Paginación de acuses">
+                    <div class="pagination-custom">
+                        {{ $acuses->appends(request()->query())->links() }}
+                    </div>
+                </nav>
             </div>
             @endif
         </div>
@@ -288,10 +301,10 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #0b2e59; color: white;">
-                <h5 class="modal-title" id="modalEnviarAcuseLabel">
-                    <i class="fas fa-paper-plane mr-2"></i> Nuevo Acuse de Recibo
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <h3 class="modal-title" id="modalEnviarAcuseLabel">
+                    <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i> Nuevo Acuse de Recibo
+                </h3>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -299,8 +312,8 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Destinatario</label>
-                        <select class="form-control" name="destinatario" required>
+                        <label for="destinatario">Destinatario</label>
+                        <select class="form-control" name="destinatario" id="destinatario" required aria-describedby="help-destinatario-modal">
                             <option value="">Seleccionar destinatario</option>
                             @foreach($usuarios as $usuario)
                                 @if($usuario->id_usuario != auth()->user()->id_usuario)
@@ -310,32 +323,33 @@
                                 @endif
                             @endforeach
                         </select>
+                        <small id="help-destinatario-modal" class="form-text text-muted">Seleccione el destinatario del acuse</small>
                     </div>
                     <div class="form-group">
-                        <label>Título</label>
-                        <input type="text" class="form-control" name="titulo" required 
+                        <label for="titulo">Título</label>
+                        <input type="text" class="form-control" name="titulo" id="titulo" required 
                                placeholder="Título del acuse" maxlength="50"
-                               oninput="sanitizeTitulo(this)">
-                        <small class="form-text text-muted">Máximo 50 caracteres. Solo letras, números, espacios, puntos, comas y guiones.</small>
+                               oninput="sanitizeTitulo(this)" aria-describedby="help-titulo">
+                        <small id="help-titulo" class="form-text text-muted">Máximo 50 caracteres. Solo letras, números, espacios, puntos, comas y guiones.</small>
                     </div>
                     <div class="form-group">
-                        <label>Descripción</label>
-                        <textarea class="form-control" name="descripcion" rows="3" 
+                        <label for="descripcion">Descripción</label>
+                        <textarea class="form-control" name="descripcion" id="descripcion" rows="3" 
                                   placeholder="Descripción del acuse" maxlength="100"
-                                  oninput="sanitizeDescripcion(this)"></textarea>
-                        <small class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
+                                  oninput="sanitizeDescripcion(this)" aria-describedby="help-descripcion"></textarea>
+                        <small id="help-descripcion" class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
                     </div>
                     
                     <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-                        <h5 class="mb-0">
-                            <i class="fas fa-file-alt mr-2"></i> Elementos
-                        </h5>
+                        <h4 class="mb-0">
+                            <i class="fas fa-file-alt mr-2" aria-hidden="true"></i> Elementos
+                        </h4>
                         <div>
-                            <button type="button" class="btn btn-sm btn-success" id="addElement">
-                                <i class="fas fa-plus mr-1"></i> Agregar
+                            <button type="button" class="btn btn-sm btn-success" id="addElement" aria-label="Agregar nuevo elemento">
+                                <i class="fas fa-plus mr-1" aria-hidden="true"></i> Agregar
                             </button>
-                            <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalNuevoTipo">
-                                <i class="fas fa-plus-circle mr-1"></i> Nuevo Tipo
+                            <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalNuevoTipo" aria-label="Crear nuevo tipo de elemento">
+                                <i class="fas fa-plus-circle mr-1" aria-hidden="true"></i> Nuevo Tipo
                             </button>
                         </div>
                     </div>
@@ -344,8 +358,8 @@
                         <div class="elemento-item mb-3 border p-3 rounded">
                             <div class="row">
                                 <div class="col-md-4">
-                                    <label>Tipo</label>
-                                    <select class="form-control tipo-select" name="elementos[0][fk_id_tipo]" required>
+                                    <label for="tipo-elemento-0">Tipo</label>
+                                    <select class="form-control tipo-select" name="elementos[0][fk_id_tipo]" id="tipo-elemento-0" required aria-describedby="help-tipo-0">
                                         <option value="">Seleccionar tipo</option>
                                         @foreach($tiposElemento as $tipo)
                                             <option value="{{ $tipo->id_tipo }}">
@@ -353,32 +367,34 @@
                                             </option>
                                         @endforeach
                                     </select>
+                                    <small id="help-tipo-0" class="form-text text-muted">Seleccione el tipo de elemento</small>
                                 </div>
                                 <div class="col-md-4">
-                                    <label>Nombre</label>
-                                    <input type="text" class="form-control" name="elementos[0][nombre]" required 
+                                    <label for="nombre-elemento-0">Nombre</label>
+                                    <input type="text" class="form-control" name="elementos[0][nombre]" id="nombre-elemento-0" required 
                                            placeholder="Nombre del elemento" maxlength="50"
-                                           oninput="sanitizeNombreElemento(this)">
-                                    <small class="form-text text-muted">Máximo 50 caracteres. Solo letras, números y espacios.</small>
+                                           oninput="sanitizeNombreElemento(this)" aria-describedby="help-nombre-0">
+                                    <small id="help-nombre-0" class="form-text text-muted">Máximo 50 caracteres. Solo letras, números y espacios.</small>
                                 </div>
                                 <div class="col-md-2">
-                                    <label>Cantidad</label>
-                                    <input type="number" class="form-control" name="elementos[0][cantidad]" 
-                                           value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                    <label for="cantidad-elemento-0">Cantidad</label>
+                                    <input type="number" class="form-control" name="elementos[0][cantidad]" id="cantidad-elemento-0"
+                                           value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')" aria-describedby="help-cantidad-0">
+                                    <small id="help-cantidad-0" class="form-text text-muted">Solo números</small>
                                 </div>
                                 <div class="col-md-2 d-flex align-items-end">
-                                    <button type="button" class="btn btn-danger btn-block remove-element">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="button" class="btn btn-danger btn-block remove-element" aria-label="Eliminar elemento">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-12">
-                                    <label>Descripción</label>
-                                    <textarea class="form-control" name="elementos[0][descripcion]" rows="2" 
+                                    <label for="descripcion-elemento-0">Descripción</label>
+                                    <textarea class="form-control" name="elementos[0][descripcion]" id="descripcion-elemento-0" rows="2" 
                                               placeholder="Descripción del elemento" maxlength="100"
-                                              oninput="sanitizeDescripcionElemento(this)"></textarea>
-                                    <small class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
+                                              oninput="sanitizeDescripcionElemento(this)" aria-describedby="help-desc-elemento-0"></textarea>
+                                    <small id="help-desc-elemento-0" class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
                                 </div>
                             </div>
                         </div>
@@ -386,24 +402,26 @@
                     
                     <!-- Sección para adjuntos -->
                     <div class="mt-4">
-                        <h5><i class="fas fa-paperclip mr-2"></i> Documentos Adjuntos (PDF, Word, Excel)</h5>
+                        <h4><i class="fas fa-paperclip mr-2" aria-hidden="true"></i> Documentos Adjuntos (PDF, Word, Excel)</h4>
                         <div class="form-group">
-                            <input type="file" class="form-control-file" name="adjuntos_documentos[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx">
-                            <small class="form-text text-muted">Solo para elementos de tipo documento</small>
+                            <label for="adjuntos_documentos">Seleccionar archivos</label>
+                            <input type="file" class="form-control-file" name="adjuntos_documentos[]" id="adjuntos_documentos" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" aria-describedby="help-adjuntos-doc">
+                            <small id="help-adjuntos-doc" class="form-text text-muted">Solo para elementos de tipo documento</small>
                         </div>
                     </div>
                     
                     <div class="mt-3">
-                        <h5><i class="fas fa-image mr-2"></i> Imágenes Adjuntas (JPG, PNG, GIF)</h5>
+                        <h4><i class="fas fa-image mr-2" aria-hidden="true"></i> Imágenes Adjuntas (JPG, PNG, GIF)</h4>
                         <div class="form-group">
-                            <input type="file" class="form-control-file" name="adjuntos_imagenes[]" multiple accept="image/*">
-                            <small class="form-text text-muted">Solo para elementos de tipo objeto o kit</small>
+                            <label for="adjuntos_imagenes">Seleccionar imágenes</label>
+                            <input type="file" class="form-control-file" name="adjuntos_imagenes[]" id="adjuntos_imagenes" multiple accept="image/*" aria-describedby="help-adjuntos-img">
+                            <small id="help-adjuntos-img" class="form-text text-muted">Solo para elementos de tipo objeto o kit</small>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Enviar Acuse</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cancelar operación">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" aria-label="Enviar acuse">Enviar Acuse</button>
                 </div>
             </form>
         </div>
@@ -415,10 +433,10 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #0b2e59; color: white;">
-                <h5 class="modal-title" id="modalNuevoTipoLabel">
-                    <i class="fas fa-plus-circle mr-2"></i> Nuevo Tipo de Elemento
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <h3 class="modal-title" id="modalNuevoTipoLabel">
+                    <i class="fas fa-plus-circle mr-2" aria-hidden="true"></i> Nuevo Tipo de Elemento
+                </h3>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -426,25 +444,26 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Nombre</label>
-                        <input type="text" class="form-control" name="nombre" required 
+                        <label for="nombre_tipo">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" id="nombre_tipo" required 
                                placeholder="Nombre del tipo" maxlength="50"
-                               oninput="sanitizeNombreTipo(this)">
-                        <small class="form-text text-muted">Máximo 50 caracteres. Solo letras y espacios.</small>
+                               oninput="sanitizeNombreTipo(this)" aria-describedby="help-nombre-tipo">
+                        <small id="help-nombre-tipo" class="form-text text-muted">Máximo 50 caracteres. Solo letras y espacios.</small>
                     </div>
                     <div class="form-group">
-                        <label>Categoría</label>
-                        <select class="form-control" name="categoria" required>
+                        <label for="categoria_tipo">Categoría</label>
+                        <select class="form-control" name="categoria" id="categoria_tipo" required aria-describedby="help-categoria-tipo">
                             <option value="">Seleccionar categoría</option>
                             <option value="documento">Documento</option>
                             <option value="objeto">Objeto</option>
                             <option value="kit">Kit</option>
                         </select>
+                        <small id="help-categoria-tipo" class="form-text text-muted">Seleccione la categoría del tipo</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Tipo</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cancelar operación">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" aria-label="Guardar tipo">Guardar Tipo</button>
                 </div>
             </form>
         </div>
@@ -790,6 +809,19 @@
     .dropdown-item:hover {
         background-color: #f8f9fc;
     }
+
+    /* Clase para contenido visualmente oculto pero accesible */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
 </style>
 @stop
 
@@ -824,8 +856,8 @@
                 <div class="elemento-item mb-3 border p-3 rounded">
                     <div class="row">
                         <div class="col-md-4">
-                            <label>Tipo</label>
-                            <select class="form-control tipo-select" name="elementos[${elementoCount}][fk_id_tipo]" required>
+                            <label for="tipo-elemento-${elementoCount}">Tipo</label>
+                            <select class="form-control tipo-select" name="elementos[${elementoCount}][fk_id_tipo]" id="tipo-elemento-${elementoCount}" required aria-describedby="help-tipo-${elementoCount}">
                                 <option value="">Seleccionar tipo</option>
                                 @foreach($tiposElemento as $tipo)
                                     <option value="{{ $tipo->id_tipo }}">
@@ -833,32 +865,34 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <small id="help-tipo-${elementoCount}" class="form-text text-muted">Seleccione el tipo de elemento</small>
                         </div>
                         <div class="col-md-4">
-                            <label>Nombre</label>
-                            <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" required 
+                            <label for="nombre-elemento-${elementoCount}">Nombre</label>
+                            <input type="text" class="form-control" name="elementos[${elementoCount}][nombre]" id="nombre-elemento-${elementoCount}" required 
                                    placeholder="Nombre del elemento" maxlength="50"
-                                   oninput="sanitizeNombreElemento(this)">
-                            <small class="form-text text-muted">Máximo 50 caracteres. Solo letras, números y espacios.</small>
+                                   oninput="sanitizeNombreElemento(this)" aria-describedby="help-nombre-${elementoCount}">
+                            <small id="help-nombre-${elementoCount}" class="form-text text-muted">Máximo 50 caracteres. Solo letras, números y espacios.</small>
                         </div>
                         <div class="col-md-2">
-                            <label>Cantidad</label>
-                            <input type="number" class="form-control" name="elementos[${elementoCount}][cantidad]" 
-                                   value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <label for="cantidad-elemento-${elementoCount}">Cantidad</label>
+                            <input type="number" class="form-control" name="elementos[${elementoCount}][cantidad]" id="cantidad-elemento-${elementoCount}"
+                                   value="1" min="1" max="999" oninput="this.value = this.value.replace(/[^0-9]/g, '')" aria-describedby="help-cantidad-${elementoCount}">
+                            <small id="help-cantidad-${elementoCount}" class="form-text text-muted">Solo números</small>
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
-                            <button type="button" class="btn btn-danger btn-block remove-element">
-                                <i class="fas fa-trash"></i>
+                            <button type="button" class="btn btn-danger btn-block remove-element" aria-label="Eliminar elemento">
+                                <i class="fas fa-trash" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
                     <div class="row mt-2">
                         <div class="col-md-12">
-                            <label>Descripción</label>
-                            <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" rows="2" 
+                            <label for="descripcion-elemento-${elementoCount}">Descripción</label>
+                            <textarea class="form-control" name="elementos[${elementoCount}][descripcion]" id="descripcion-elemento-${elementoCount}" rows="2" 
                                       placeholder="Descripción del elemento" maxlength="100"
-                                      oninput="sanitizeDescripcionElemento(this)"></textarea>
-                            <small class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
+                                      oninput="sanitizeDescripcionElemento(this)" aria-describedby="help-desc-elemento-${elementoCount}"></textarea>
+                            <small id="help-desc-elemento-${elementoCount}" class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
                         </div>
                     </div>
                 </div>
@@ -876,9 +910,176 @@
         $('body').on('input', 'input[type="number"]', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
+
+        // Aplicar validación inicial si hay valores en los campos de filtro
+        document.addEventListener('DOMContentLoaded', function() {
+            const remitenteInput = document.getElementById('remitente');
+            const destinatarioInput = document.getElementById('destinatario');
+            const elementoInput = document.getElementById('elemento');
+            
+            if (remitenteInput && remitenteInput.value) {
+                validarYFiltrarRemitente(remitenteInput);
+            }
+            
+            if (destinatarioInput && destinatarioInput.value) {
+                validarYFiltrarDestinatario(destinatarioInput);
+            }
+            
+            if (elementoInput && elementoInput.value) {
+                validarYFiltrarElemento(elementoInput);
+            }
+        });
     });
 
-    // Funciones de sanitización
+    // =============================================
+    // VALIDACIONES PARA FILTROS
+    // =============================================
+
+    // Función para permitir solo caracteres válidos en campo de remitente
+    function permitirCaracteresRemitente(event) {
+        const charCode = event.which ? event.which : event.keyCode;
+        const charStr = String.fromCharCode(charCode);
+        
+        // Permitir letras (con acentos), espacios, puntos, comas y guiones
+        const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s.,\-]$/;
+        
+        // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+        if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+            return true;
+        }
+        
+        if (!regex.test(charStr)) {
+            event.preventDefault();
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Función para permitir solo caracteres válidos en campo de destinatario
+    function permitirCaracteresDestinatario(event) {
+        const charCode = event.which ? event.which : event.keyCode;
+        const charStr = String.fromCharCode(charCode);
+        
+        // Permitir letras (con acentos), espacios, puntos, comas y guiones
+        const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s.,\-]$/;
+        
+        // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+        if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+            return true;
+        }
+        
+        if (!regex.test(charStr)) {
+            event.preventDefault();
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Función para permitir solo caracteres válidos en campo de elemento
+    function permitirCaracteresElemento(event) {
+        const charCode = event.which ? event.which : event.keyCode;
+        const charStr = String.fromCharCode(charCode);
+        
+        // Permitir letras (con acentos), espacios, puntos, comas y guiones
+        const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s.,\-]$/;
+        
+        // Permitir teclas de control (backspace, delete, tab, flechas, etc.)
+        if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+            return true;
+        }
+        
+        if (!regex.test(charStr)) {
+            event.preventDefault();
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Función para validar y filtrar el campo de remitente en tiempo real
+    function validarYFiltrarRemitente(input) {
+        let valor = input.value;
+        
+        // Filtrar caracteres no permitidos (solo letras, espacios, puntos, comas y guiones)
+        valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+        
+        // Validar que no haya más de 3 letras iguales consecutivas
+        const regexRepetidas = /([A-Za-z])\1{3,}/g;
+        if (regexRepetidas.test(valor)) {
+            // Eliminar letras repetidas más allá de 3
+            valor = valor.replace(regexRepetidas, (match) => {
+                return match.substring(0, 3);
+            });
+        }
+        
+        // Limitar a 50 caracteres
+        if (valor.length > 50) {
+            valor = valor.substring(0, 50);
+        }
+        
+        // Actualizar el valor del input
+        if (input.value !== valor) {
+            input.value = valor;
+        }
+    }
+
+    // Función para validar y filtrar el campo de destinatario en tiempo real
+    function validarYFiltrarDestinatario(input) {
+        let valor = input.value;
+        
+        // Filtrar caracteres no permitidos (solo letras, espacios, puntos, comas y guiones)
+        valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+        
+        // Validar que no haya más de 3 letras iguales consecutivas
+        const regexRepetidas = /([A-Za-z])\1{3,}/g;
+        if (regexRepetidas.test(valor)) {
+            // Eliminar letras repetidas más allá de 3
+            valor = valor.replace(regexRepetidas, (match) => {
+                return match.substring(0, 3);
+            });
+        }
+        
+        // Limitar a 50 caracteres
+        if (valor.length > 50) {
+            valor = valor.substring(0, 50);
+        }
+        
+        // Actualizar el valor del input
+        if (input.value !== valor) {
+            input.value = valor;
+        }
+    }
+
+    // Función para validar y filtrar el campo de elemento en tiempo real
+    function validarYFiltrarElemento(input) {
+        let valor = input.value;
+        
+        // Filtrar caracteres no permitidos (solo letras, espacios, puntos, comas y guiones)
+        valor = valor.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s.,\-]/g, '');
+        
+        // Validar que no haya más de 3 letras iguales consecutivas
+        const regexRepetidas = /([A-Za-z])\1{3,}/g;
+        if (regexRepetidas.test(valor)) {
+            // Eliminar letras repetidas más allá de 3
+            valor = valor.replace(regexRepetidas, (match) => {
+                return match.substring(0, 3);
+            });
+        }
+        
+        // Limitar a 50 caracteres
+        if (valor.length > 50) {
+            valor = valor.substring(0, 50);
+        }
+        
+        // Actualizar el valor del input
+        if (input.value !== valor) {
+            input.value = valor;
+        }
+    }
+
+    // Funciones de sanitización existentes
     function sanitizeTitulo(input) {
         let value = input.value;
         
