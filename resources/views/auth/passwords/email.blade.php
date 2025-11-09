@@ -125,14 +125,6 @@
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .shake {
-            animation: shake 0.5s ease-in-out;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
     </style>
 </head>
 <body>
@@ -154,7 +146,8 @@
                 <input type="email" name="email" id="email" class="form-control" 
                        required autofocus maxlength="50"
                        placeholder="tu@correo.com"
-                       oninput="validarEmail(this)">
+                       oninput="validarEmail(this)"
+                       onkeypress="return evitarMasDeTresRepetidas(event, this)">
                 <span class="validation-error" id="email-validation-error"></span>
                 <span class="validation-success" id="email-validation-success"></span>
                 @error('email')
@@ -190,6 +183,32 @@
             });
         });
         
+        // Función para evitar más de 3 letras iguales consecutivas
+        function evitarMasDeTresRepetidas(event, input) {
+            const char = String.fromCharCode(event.keyCode || event.which);
+            
+            // Solo validar si es una letra
+            if (/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(char)) {
+                const currentValue = input.value;
+                const selectionStart = input.selectionStart;
+                const selectionEnd = input.selectionEnd;
+                
+                // Obtener las últimas 3 letras antes de la posición del cursor
+                const textBeforeCursor = currentValue.substring(0, selectionStart);
+                const lastThreeChars = textBeforeCursor.slice(-3).toLowerCase();
+                
+                // Si las últimas 3 letras son iguales y la nueva letra es igual, prevenir la escritura
+                if (lastThreeChars.length === 3 && 
+                    lastThreeChars[0] === lastThreeChars[1] && 
+                    lastThreeChars[1] === lastThreeChars[2] && 
+                    lastThreeChars[0] === char.toLowerCase()) {
+                    event.preventDefault();
+                    return false;
+                }
+            }
+            return true;
+        }
+        
         // Función para validar email en tiempo real
         function validarEmail(input) {
             const email = input.value.trim();
@@ -214,8 +233,6 @@
             // Validar formato de email
             if (!emailRegex.test(email)) {
                 input.classList.add('error');
-                input.classList.add('shake');
-                setTimeout(() => input.classList.remove('shake'), 500);
                 mostrarError(validationError, 'Debe ser un correo electrónico válido');
                 deshabilitarBoton(true);
                 return false;
@@ -224,19 +241,7 @@
             // Validar longitud máxima
             if (email.length > 50) {
                 input.classList.add('error');
-                input.classList.add('shake');
-                setTimeout(() => input.classList.remove('shake'), 500);
                 mostrarError(validationError, 'El correo no puede tener más de 50 caracteres');
-                deshabilitarBoton(true);
-                return false;
-            }
-            
-            // Validar que no tenga más de 3 letras iguales consecutivas
-            if (tieneMasDeTresRepetidas(email)) {
-                input.classList.add('error');
-                input.classList.add('shake');
-                setTimeout(() => input.classList.remove('shake'), 500);
-                mostrarError(validationError, 'El correo no puede tener más de 3 letras iguales consecutivas');
                 deshabilitarBoton(true);
                 return false;
             }
@@ -246,27 +251,6 @@
             mostrarExito(validationSuccess, '✓ Correo válido');
             deshabilitarBoton(false);
             return true;
-        }
-        
-        // Función para verificar más de 3 letras iguales consecutivas
-        function tieneMasDeTresRepetidas(texto) {
-            // Eliminar caracteres especiales y números para verificar solo letras
-            const soloLetras = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
-            
-            // Convertir a minúsculas para hacer la comparación sin distinción de mayúsculas/minúsculas
-            const textoMinusculas = soloLetras.toLowerCase();
-            
-            // Verificar si hay más de 3 letras iguales consecutivas
-            for (let i = 0; i < textoMinusculas.length - 3; i++) {
-                const char = textoMinusculas[i];
-                if (char === textoMinusculas[i+1] && 
-                    char === textoMinusculas[i+2] && 
-                    char === textoMinusculas[i+3]) {
-                    return true;
-                }
-            }
-            
-            return false;
         }
         
         // Función para mostrar errores
