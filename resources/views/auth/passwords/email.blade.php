@@ -125,7 +125,7 @@
             <i class="bi bi-lock"></i>
         </span>
         <h2>¿Olvidaste tu contraseña?</h2>
-        <p>Ingresa tu correo electrónico institucional y te enviaremos un enlace para restablecerla.</p>
+        <p>Ingresa tu correo electrónico y te enviaremos un enlace para restablecerla.</p>
         
         @if (session('status'))
             <div class="alert alert-success">{{ session('status') }}</div>
@@ -134,10 +134,10 @@
         <form method="POST" action="{{ route('password.email') }}" id="passwordResetForm">
             @csrf
             <div class="form-group">
-                <label for="email">Correo electrónico institucional</label>
+                <label for="email">Correo electrónico</label>
                 <input type="email" name="email" id="email" class="form-control" 
                        required autofocus maxlength="50"
-                       placeholder="tu@correoinstitucional.com"
+                       placeholder="tu@correo.com"
                        oninput="validarEmail(this)"
                        onkeypress="return permitirCaracteresEmail(event)">
                 <span class="validation-error" id="email-validation-error"></span>
