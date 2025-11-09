@@ -198,8 +198,8 @@
                 }
                 
                 // Validar longitud máxima
-                if (password.length > 50) {
-                    showError(input, errorElement, 'La contraseña no puede tener más de 50 caracteres');
+                if (password.length > 20) {
+                    showError(input, errorElement, 'La contraseña no puede tener más de 20 caracteres');
                     return false;
                 }
                 
