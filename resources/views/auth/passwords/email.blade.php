@@ -39,6 +39,16 @@
             border: 1px solid #cfd8dc;
             border-radius: 6px;
             font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #003366;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+        }
+        .form-control.error {
+            border-color: #d32f2f;
+            background-color: #fff5f5;
         }
         .btn-primary {
             background: #003366;
@@ -50,9 +60,14 @@
             font-size: 16px;
             font-weight: 600;
             transition: background 0.2s;
+            cursor: pointer;
         }
         .btn-primary:hover {
             background: #002244;
+        }
+        .btn-primary:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
         }
         .alert-success {
             background: #e6f4ea;
@@ -66,6 +81,15 @@
         .text-danger {
             color: #d32f2f;
             font-size: 14px;
+            margin-top: 5px;
+            display: block;
+        }
+        .validation-error {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+            font-weight: 500;
         }
         .back-link {
             display: block;
@@ -85,30 +109,16 @@
             text-align: center;
             margin-bottom: 12px;
         }
-        
-        /* Estilos para el SweetAlert personalizado */
-        .swal-overlay {
-            background-color: rgba(0, 51, 102, 0.4);
+        .input-container {
+            position: relative;
         }
-        .swal-modal {
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .swal-title {
-            color: #003366;
-            font-weight: 600;
-        }
-        .swal-text {
-            color: #555;
-            text-align: center;
-        }
-        .swal-button {
-            background: #003366;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-        .swal-button:hover {
-            background: #002244 !important;
+        .input-container i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -119,50 +129,110 @@
         </span>
         <h2>¿Olvidaste tu contraseña?</h2>
         <p>Ingresa tu email institucional y te enviaremos un enlace para restablecerla.</p>
+        
         @if (session('status'))
             <div class="alert alert-success">{{ session('status') }}</div>
         @endif
+        
         <form method="POST" action="{{ route('password.email') }}" id="passwordResetForm">
             @csrf
             <div class="form-group">
                 <label for="email">Email institucional</label>
-                <input type="email" name="email" id="email" class="form-control" 
-                       required autofocus maxlength="50"
-                       oninput="validarEmailRecuperacion(this)"
-                       onkeypress="return permitirCaracteresEmailRecuperacion(event)">
+                <div class="input-container">
+                    <input type="email" name="email" id="email" class="form-control" 
+                           required autofocus maxlength="50"
+                           placeholder="usuario@correo.com"
+                           oninput="validarEmail(this)"
+                           onkeypress="return permitirCaracteresEmail(event)">
+                    <i class="bi bi-x-circle" id="email-clear" title="Limpiar campo" onclick="limpiarEmail()"></i>
+                </div>
                 @error('email')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
+                <span class="validation-error" id="email-error"></span>
             </div>
-            <button type="submit" class="btn btn-primary">Enviar enlace</button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">Enviar enlace</button>
         </form>
+        
         <a href="{{ route('login') }}" class="back-link">
             <i class="bi bi-arrow-left"></i> Volver al inicio de sesión
         </a>
     </div>
 
-    <!-- Incluir SweetAlert -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <script>
-        // Función para mostrar alertas personalizadas
-        function mostrarAlerta(titulo, texto, tipo = 'error') {
-            Swal.fire({
-                title: titulo,
-                text: texto,
-                icon: tipo,
-                confirmButtonText: 'Aceptar',
-                customClass: {
-                    popup: 'swal-modal',
-                    title: 'swal-title',
-                    htmlContainer: 'swal-text',
-                    confirmButton: 'swal-button'
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            const submitBtn = document.getElementById('submit-btn');
+            const form = document.getElementById('passwordResetForm');
+            
+            // Validar email al cargar si hay valor
+            if (emailInput.value) {
+                validarEmail(emailInput);
+            }
+            
+            // Validar formulario al enviar
+            form.addEventListener('submit', function(e) {
+                if (!validarEmail(emailInput)) {
+                    e.preventDefault();
+                    mostrarError(emailInput, 'Por favor corrige los errores en el campo de email');
                 }
             });
+            
+            // Habilitar/deshabilitar botón según validación
+            emailInput.addEventListener('input', function() {
+                const esValido = validarEmail(this);
+                submitBtn.disabled = !esValido;
+            });
+        });
+        
+        function validarEmail(input) {
+            const email = input.value.trim();
+            const errorElement = document.getElementById('email-error');
+            
+            // Resetear estado
+            input.classList.remove('error');
+            errorElement.style.display = 'none';
+            errorElement.textContent = '';
+            
+            // Validar campo vacío
+            if (email === '') {
+                mostrarError(input, 'El correo electrónico es obligatorio');
+                return false;
+            }
+            
+            // Validar formato de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                mostrarError(input, 'Debe ser un correo electrónico válido');
+                return false;
+            }
+            
+            // Validar longitud máxima
+            if (email.length > 50) {
+                mostrarError(input, 'El correo no puede tener más de 50 caracteres');
+                return false;
+            }
+            
+            // Validar que no tenga más de 3 letras iguales consecutivas
+            if (tieneMasDeTresRepetidas(email)) {
+                mostrarError(input, 'El correo no puede tener más de 3 letras iguales consecutivas');
+                return false;
+            }
+            
+            // Si pasa todas las validaciones
+            input.classList.remove('error');
+            errorElement.style.display = 'none';
+            return true;
         }
-
-        // Función para permitir solo caracteres válidos en email
-        function permitirCaracteresEmailRecuperacion(event) {
+        
+        function tieneMasDeTresRepetidas(texto) {
+            // Eliminar caracteres especiales y números para verificar solo letras
+            const soloLetras = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
+            const regexRepetidas = /([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,}/g;
+            return regexRepetidas.test(soloLetras);
+        }
+        
+        function permitirCaracteresEmail(event) {
             const charCode = event.which ? event.which : event.keyCode;
             const charStr = String.fromCharCode(charCode);
             
@@ -176,18 +246,39 @@
             
             if (!regex.test(charStr)) {
                 event.preventDefault();
-                mostrarAlerta('Carácter no permitido', 'Solo se permiten letras, números y los caracteres @ . - _');
                 return false;
             }
             
             return true;
         }
-
-        // Función para validar email en tiempo real
-        function validarEmailRecuperacion(input) {
+        
+        function mostrarError(input, mensaje) {
+            input.classList.add('error');
+            const errorElement = document.getElementById('email-error');
+            errorElement.textContent = mensaje;
+            errorElement.style.display = 'block';
+            
+            // Enfocar el campo con error
+            input.focus();
+        }
+        
+        function limpiarEmail() {
+            const emailInput = document.getElementById('email');
+            const errorElement = document.getElementById('email-error');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            emailInput.value = '';
+            emailInput.classList.remove('error');
+            errorElement.style.display = 'none';
+            submitBtn.disabled = false;
+            emailInput.focus();
+        }
+        
+        // Validación en tiempo real mientras se escribe
+        function validarEmailEnTiempoReal(input) {
             let valor = input.value;
             
-            // Filtrar caracteres no permitidos (solo letras, números, @, ., -, _)
+            // Filtrar caracteres no permitidos
             valor = valor.replace(/[^a-zA-Z0-9@._\-]/g, '');
             
             // Validar que no haya más de 3 letras iguales consecutivas
@@ -197,64 +288,21 @@
                 valor = valor.replace(regexRepetidas, (match) => {
                     return match.substring(0, 3);
                 });
-                
-                // Mostrar alerta
-                mostrarAlerta('Letras repetidas', 'No se permiten más de 3 letras iguales consecutivas');
             }
             
             // Limitar a 50 caracteres
             if (valor.length > 50) {
                 valor = valor.substring(0, 50);
-                mostrarAlerta('Límite de caracteres', 'El email no puede tener más de 50 caracteres');
             }
             
-            // Actualizar el valor del input
+            // Actualizar el valor del input si cambió
             if (input.value !== valor) {
                 input.value = valor;
             }
+            
+            // Validar el email
+            validarEmail(input);
         }
-
-        // Validación al enviar el formulario
-        document.getElementById('passwordResetForm').addEventListener('submit', function(e) {
-            const emailInput = document.getElementById('email');
-            const email = emailInput.value.trim();
-            
-            // Validar longitud máxima
-            if (email.length > 50) {
-                e.preventDefault();
-                mostrarAlerta('Email demasiado largo', 'El email no puede tener más de 50 caracteres');
-                emailInput.focus();
-                return false;
-            }
-            
-            // Validar que no tenga más de 3 letras iguales consecutivas
-            const regexRepetidas = /([a-zA-Z])\1{3,}/g;
-            if (regexRepetidas.test(email)) {
-                e.preventDefault();
-                mostrarAlerta('Letras repetidas', 'El email no puede tener más de 3 letras iguales consecutivas');
-                emailInput.focus();
-                return false;
-            }
-            
-            // Validar formato de email básico
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                e.preventDefault();
-                mostrarAlerta('Formato inválido', 'Por favor ingresa un email válido');
-                emailInput.focus();
-                return false;
-            }
-            
-            return true;
-        });
-
-        // Aplicar validación inicial si hay valor en el campo
-        document.addEventListener('DOMContentLoaded', function() {
-            const emailInput = document.getElementById('email');
-            if (emailInput && emailInput.value) {
-                validarEmailRecuperacion(emailInput);
-            }
-        });
     </script>
 </body>
 </html>
