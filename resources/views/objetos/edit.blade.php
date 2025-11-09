@@ -89,10 +89,10 @@
                         <div class="form-group">
                             <label for="nombre_objeto">Nombre del Objeto</label>
                             <input type="text" class="form-control form-control-elegant" id="nombre_objeto" name="nombre_objeto" 
-                                   required maxlength="100" value="{{ $objeto->nombre_objeto }}"
+                                   required maxlength="50" value="{{ $objeto->nombre_objeto }}"
                                    placeholder="Ingrese el nombre del objeto"
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+"
-                                   title="Solo letras, espacios y caracteres como . , -">
+                                   pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"
+                                   title="Solo se permiten letras y espacios. No se aceptan números ni caracteres especiales.">
                             <div class="invalid-feedback" id="nombre_objeto_error"></div>
                         </div>
                         <div class="form-group">
@@ -108,8 +108,11 @@
                         <div class="form-group">
                             <label for="descripcion_objeto">Descripción</label>
                             <textarea class="form-control form-control-elegant" id="descripcion_objeto" name="descripcion_objeto" 
-                                      rows="3" maxlength="255"
-                                      placeholder="Ingrese una descripción del objeto (opcional)">{{ $objeto->descripcion_objeto }}</textarea>
+                                      rows="3" maxlength="100"
+                                      placeholder="Ingrese una descripción del objeto (opcional)"
+                                      pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-.;]*$"
+                                      title="Solo se permiten letras, espacios, guiones, puntos y punto y coma.">{{ $objeto->descripcion_objeto }}</textarea>
+                            <div class="invalid-feedback" id="descripcion_objeto_error"></div>
                         </div>
                         <div class="form-group">
                             <label for="estado_objeto">Estado</label>
@@ -246,20 +249,100 @@
 @section('js')
 <script>
     $(document).ready(function() {
-        // Validación en tiempo real para el nombre
-        $('#nombre_objeto').on('input', function() {
-            let nombre = $(this).val();
-            let regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-]+$/;
+        // Función para validar y prevenir repetición de letras
+        function prevenirRepeticion(input, maxRepeticiones = 3) {
+            let value = input.val();
+            if (value.length > 0) {
+                let lastChar = value[value.length - 1];
+                let repeticiones = 1;
+                
+                // Contar repeticiones consecutivas desde el final
+                for (let i = value.length - 2; i >= 0; i--) {
+                    if (value[i] === lastChar) {
+                        repeticiones++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // Si excede el máximo de repeticiones, eliminar el último carácter
+                if (repeticiones > maxRepeticiones) {
+                    input.val(value.slice(0, -1));
+                    return true; // Se previno la repetición
+                }
+            }
+            return false; // No se previno nada
+        }
+
+        // Función para validar caracteres especiales en nombre
+        function validarCaracteresNombre(texto) {
+            return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(texto);
+        }
+
+        // Función para validar caracteres descripción
+        function validarCaracteresDescripcion(texto) {
+            return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-.;]*$/.test(texto);
+        }
+
+        // Validación en tiempo real para el nombre - PREVENIR repetición
+        $('#nombre_objeto').on('input', function(e) {
+            let input = $(this);
+            let nombre = input.val();
+            let errorElement = $('#nombre_objeto_error');
             
-            if (!regex.test(nombre)) {
-                $(this).addClass('is-invalid');
-                $('#nombre_objeto_error').text('Solo se permiten letras, espacios y caracteres como . , -');
-            } else if (nombre.length > 100) {
-                $(this).addClass('is-invalid');
-                $('#nombre_objeto_error').text('El nombre no puede exceder los 100 caracteres');
-            } else {
-                $(this).removeClass('is-invalid');
-                $('#nombre_objeto_error').text('');
+            // Primero prevenir repetición excesiva
+            let sePrevinioRepeticion = prevenirRepeticion(input, 3);
+            
+            // Si se previno repetición, salir de la función
+            if (sePrevinioRepeticion) {
+                return;
+            }
+            
+            // Actualizar valor después de posible prevención
+            nombre = input.val();
+            
+            // Validar longitud
+            if (nombre.length > 50) {
+                input.val(nombre.substring(0, 50));
+                nombre = input.val();
+            }
+            
+            // Validar caracteres especiales y números
+            if (!validarCaracteresNombre(nombre)) {
+                // Remover caracteres no permitidos
+                let cleaned = nombre.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+                input.val(cleaned);
+            }
+        });
+
+        // Validación en tiempo real para la descripción - PREVENIR repetición
+        $('#descripcion_objeto').on('input', function() {
+            let input = $(this);
+            let descripcion = input.val();
+            let errorElement = $('#descripcion_objeto_error');
+            
+            // Primero prevenir repetición excesiva
+            let sePrevinioRepeticion = prevenirRepeticion(input, 3);
+            
+            // Si se previno repetición, salir de la función
+            if (sePrevinioRepeticion) {
+                return;
+            }
+            
+            // Actualizar valor después de posible prevención
+            descripcion = input.val();
+            
+            // Validar longitud
+            if (descripcion.length > 100) {
+                input.val(descripcion.substring(0, 100));
+                descripcion = input.val();
+            }
+            
+            // Validar caracteres permitidos
+            if (!validarCaracteresDescripcion(descripcion)) {
+                // Remover caracteres no permitidos
+                let cleaned = descripcion.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-.;]/g, '');
+                input.val(cleaned);
             }
         });
 
@@ -278,18 +361,46 @@
         $('#formEditarObjeto').on('submit', function(e) {
             let valid = true;
             let nombre = $('#nombre_objeto').val();
+            let descripcion = $('#descripcion_objeto').val();
             let tipo = $('#tipo_objeto').val();
 
+            // Validar nombre
             if (nombre === '') {
                 $('#nombre_objeto').addClass('is-invalid');
                 $('#nombre_objeto_error').text('El nombre es obligatorio.');
                 valid = false;
+            } else if (!validarCaracteresNombre(nombre)) {
+                $('#nombre_objeto').addClass('is-invalid');
+                $('#nombre_objeto_error').text('Solo se permiten letras y espacios. No se aceptan números ni caracteres especiales.');
+                valid = false;
+            } else if (nombre.length > 50) {
+                $('#nombre_objeto').addClass('is-invalid');
+                $('#nombre_objeto_error').text('El nombre no puede exceder los 50 caracteres');
+                valid = false;
+            } else {
+                $('#nombre_objeto').removeClass('is-invalid');
             }
 
+            // Validar descripción
+            if (descripcion.length > 100) {
+                $('#descripcion_objeto').addClass('is-invalid');
+                $('#descripcion_objeto_error').text('La descripción no puede exceder los 100 caracteres');
+                valid = false;
+            } else if (!validarCaracteresDescripcion(descripcion)) {
+                $('#descripcion_objeto').addClass('is-invalid');
+                $('#descripcion_objeto_error').text('Solo se permiten letras, espacios, guiones, puntos y punto y coma.');
+                valid = false;
+            } else {
+                $('#descripcion_objeto').removeClass('is-invalid');
+            }
+
+            // Validar tipo
             if (tipo === '') {
                 $('#tipo_objeto').addClass('is-invalid');
                 $('#tipo_objeto_error').text('Seleccione un tipo.');
                 valid = false;
+            } else {
+                $('#tipo_objeto').removeClass('is-invalid');
             }
 
             if (!valid) {
