@@ -1057,7 +1057,7 @@
             var estado = $(this).data('estado');
             var tareaId = $(this).closest('tr').data('id');
             var url = "{{ route('tareas.estado', ['id' => ':id']) }}";
-            url = url.replace(':id', tareaId); 
+            url = url.replace(':id', tareaId);
 
             $.ajax({
                 url: url,
@@ -1085,4 +1085,4 @@
         });
     });
 </script>
-@stop
+@stop 
