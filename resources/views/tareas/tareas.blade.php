@@ -186,104 +186,245 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-borderless" aria-describedby="tabla-tareas-desc">
-                    <caption id="tabla-tareas-desc" class="sr-only">Lista de tareas documentales con información de ID, nombre, responsable, estado, fecha de creación, documentos y acciones disponibles</caption>
-                    <thead class="thead-elegant">
-                        <tr>
-                            <th scope="col">
-                                <a href="{{ route('tareas.index', [
-                                    'sort' => 'id_tarea',
-                                    'direction' => ($sort == 'id_tarea' && $direction == 'asc') ? 'desc' : 'asc',
-                                    'estado' => request('estado'),
-                                    'responsable' => request('responsable'),
-                                    'fecha_inicio' => request('fecha_inicio'),
-                                    'fecha_fin' => request('fecha_fin'),
-                                    'tipo_documento' => request('tipo_documento')
-                                ]) }}" class="sort-link" aria-label="Ordenar por ID {{ $sort == 'id_tarea' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
-                                    ID
-                                    @if ($sort == 'id_tarea')
-                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
+            <div id="tabla-container">
+                <div class="table-responsive">
+                    <table class="table table-hover table-borderless" aria-describedby="tabla-tareas-desc">
+                        <caption id="tabla-tareas-desc" class="sr-only">Lista de tareas documentales con información de ID, nombre, responsable, estado, fecha de creación, documentos y acciones disponibles</caption>
+                        <thead class="thead-elegant">
+                            <tr>
+                                <th scope="col">
+                                    <a href="{{ route('tareas.index', [
+                                        'sort' => 'id_tarea',
+                                        'direction' => ($sort == 'id_tarea' && $direction == 'asc') ? 'desc' : 'asc',
+                                        'estado' => request('estado'),
+                                        'responsable' => request('responsable'),
+                                        'fecha_inicio' => request('fecha_inicio'),
+                                        'fecha_fin' => request('fecha_fin'),
+                                        'tipo_documento' => request('tipo_documento')
+                                    ]) }}" class="sort-link" aria-label="Ordenar por ID {{ $sort == 'id_tarea' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
+                                        ID
+                                        @if ($sort == 'id_tarea')
+                                            <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
+                                        @else
+                                            <i class="fas fa-sort" aria-hidden="true"></i>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <a href="{{ route('tareas.index', [
+                                        'sort' => 'nombre',
+                                        'direction' => ($sort == 'nombre' && $direction == 'asc') ? 'desc' : 'asc',
+                                        'estado' => request('estado'),
+                                        'responsable' => request('responsable'),
+                                        'fecha_inicio' => request('fecha_inicio'),
+                                        'fecha_fin' => request('fecha_fin'),
+                                        'tipo_documento' => request('tipo_documento')
+                                    ]) }}" class="sort-link" aria-label="Ordenar por nombre {{ $sort == 'nombre' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
+                                        Nombre
+                                        @if ($sort == 'nombre')
+                                            <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
+                                        @else
+                                            <i class="fas fa-sort" aria-hidden="true"></i>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th scope="col">Responsable</th>
+                                <th scope="col">
+                                    <a href="{{ route('tareas.index', [
+                                        'sort' => 'estado',
+                                        'direction' => ($sort == 'estado' && $direction == 'asc') ? 'desc' : 'asc',
+                                        'estado' => request('estado'),
+                                        'responsable' => request('responsable'),
+                                        'fecha_inicio' => request('fecha_inicio'),
+                                        'fecha_fin' => request('fecha_fin'),
+                                        'tipo_documento' => request('tipo_documento')
+                                    ]) }}" class="sort-link" aria-label="Ordenar por estado {{ $sort == 'estado' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
+                                        Estado
+                                        @if ($sort == 'estado')
+                                            <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
+                                        @else
+                                            <i class="fas fa-sort" aria-hidden="true"></i>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <a href="{{ route('tareas.index', [
+                                        'sort' => 'fecha_creacion',
+                                        'direction' => ($sort == 'fecha_creacion' && $direction == 'asc') ? 'desc' : 'asc',
+                                        'estado' => request('estado'),
+                                        'responsable' => request('responsable'),
+                                        'fecha_inicio' => request('fecha_inicio'),
+                                        'fecha_fin' => request('fecha_fin'),
+                                        'tipo_documento' => request('tipo_documento')
+                                    ]) }}" class="sort-link" aria-label="Ordenar por fecha de creación {{ $sort == 'fecha_creacion' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
+                                        Fecha Creación
+                                        @if ($sort == 'fecha_creacion')
+                                            <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
+                                        @else
+                                            <i class="fas fa-sort" aria-hidden="true"></i>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th scope="col">Documentos</th>
+                                <th scope="col" class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($tareas as $tarea)
+                            <tr class="table-row" data-id="{{ $tarea->id_tarea }}">
+                                <td class="font-weight-bold">{{ $tarea->id_tarea }}</td>
+                                <td>{{ $tarea->nombre }}</td>
+                                <td>{{ $tarea->responsable->nombres }} {{ $tarea->responsable->apellidos }}</td>
+                                <td>
+                                    <span class="badge badge-pill 
+                                        @if($tarea->estado == 'Pendiente') badge-warning
+                                        @elseif($tarea->estado == 'En Proceso') badge-info
+                                        @elseif($tarea->estado == 'Completada') badge-success
+                                        @elseif($tarea->estado == 'Rechazada') badge-primary
+                                        @endif">
+                                        {{ $tarea->estado }}
+                                    </span>
+                                </td>
+                                <td>{{ \Carbon\Carbon::parse($tarea->fecha_creacion)->format('d/m/Y') }}</td>
+                                <td>
+                                    @if($tarea->documentos->count() > 0)
+                                        <div class="btn-group" role="group" aria-label="Acciones de documentos">
+                                            @foreach($tarea->documentos as $documento)
+                                                @php
+                                                    $tipo = '';
+                                                    $icono = '';
+                                                    if (strpos($documento->tipo_documento, 'image') !== false) {
+                                                        $tipo = 'imagen';
+                                                        $icono = 'fa-file-image text-info';
+                                                    } elseif (strpos($documento->tipo_documento, 'pdf') !== false) {
+                                                        $tipo = 'pdf';
+                                                        $icono = 'fa-file-pdf text-danger';
+                                                    } else {
+                                                        $tipo = 'otro';
+                                                        $icono = 'fa-file text-secondary';
+                                                    }
+                                                @endphp
+                                                <button class="btn btn-sm btn-link ver-documento p-0 mr-1" 
+                                                    data-url="{{ Storage::url($documento->ruta_documento) }}" 
+                                                    data-tipo="{{ $tipo }}"
+                                                    data-nombre="{{ $documento->nombre_documento }}"
+                                                    data-id="{{ $documento->id_documento }}"
+                                                    aria-label="Ver documento {{ $documento->nombre_documento }}">
+                                                    <i class="fas {{ $icono }}" aria-hidden="true"></i>
+                                                </button>
+                                            @endforeach
+                                        </div>
                                     @else
-                                        <i class="fas fa-sort" aria-hidden="true"></i>
+                                        <span class="text-muted">Sin documentos</span>
                                     @endif
-                                </a>
-                            </th>
-                            <th scope="col">
-                                <a href="{{ route('tareas.index', [
-                                    'sort' => 'nombre',
-                                    'direction' => ($sort == 'nombre' && $direction == 'asc') ? 'desc' : 'asc',
-                                    'estado' => request('estado'),
-                                    'responsable' => request('responsable'),
-                                    'fecha_inicio' => request('fecha_inicio'),
-                                    'fecha_fin' => request('fecha_fin'),
-                                    'tipo_documento' => request('tipo_documento')
-                                ]) }}" class="sort-link" aria-label="Ordenar por nombre {{ $sort == 'nombre' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
-                                    Nombre
-                                    @if ($sort == 'nombre')
-                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
-                                    @else
-                                        <i class="fas fa-sort" aria-hidden="true"></i>
-                                    @endif
-                                </a>
-                            </th>
-                            <th scope="col">Responsable</th>
-                            <th scope="col">
-                                <a href="{{ route('tareas.index', [
-                                    'sort' => 'estado',
-                                    'direction' => ($sort == 'estado' && $direction == 'asc') ? 'desc' : 'asc',
-                                    'estado' => request('estado'),
-                                    'responsable' => request('responsable'),
-                                    'fecha_inicio' => request('fecha_inicio'),
-                                    'fecha_fin' => request('fecha_fin'),
-                                    'tipo_documento' => request('tipo_documento')
-                                ]) }}" class="sort-link" aria-label="Ordenar por estado {{ $sort == 'estado' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
-                                    Estado
-                                    @if ($sort == 'estado')
-                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
-                                    @else
-                                        <i class="fas fa-sort" aria-hidden="true"></i>
-                                    @endif
-                                </a>
-                            </th>
-                            <th scope="col">
-                                <a href="{{ route('tareas.index', [
-                                    'sort' => 'fecha_creacion',
-                                    'direction' => ($sort == 'fecha_creacion' && $direction == 'asc') ? 'desc' : 'asc',
-                                    'estado' => request('estado'),
-                                    'responsable' => request('responsable'),
-                                    'fecha_inicio' => request('fecha_inicio'),
-                                    'fecha_fin' => request('fecha_fin'),
-                                    'tipo_documento' => request('tipo_documento')
-                                ]) }}" class="sort-link" aria-label="Ordenar por fecha de creación {{ $sort == 'fecha_creacion' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
-                                    Fecha Creación
-                                    @if ($sort == 'fecha_creacion')
-                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
-                                    @else
-                                        <i class="fas fa-sort" aria-hidden="true"></i>
-                                    @endif
-                                </a>
-                            </th>
-                            <th scope="col">Documentos</th>
-                            <th scope="col" class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @include('tareas.tabla', ['tareas' => $tareas])
-                    </tbody>
-                </table>
-            </div>
-            
-            @if($tareas->hasPages())
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <div class="text-muted">
-                    Mostrando {{ $tareas->firstItem() }} - {{ $tareas->lastItem() }} de {{ $tareas->total() }} registros
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group" aria-label="Acciones de tarea">
+                                        <!-- Botón Ver Detalles -->
+                                        <button type="button" class="btn btn-action" data-toggle="modal" data-target="#modalDetalleTarea"
+                                                data-id="{{ $tarea->id_tarea }}"
+                                                data-nombre="{{ $tarea->nombre }}"
+                                                data-responsable="{{ $tarea->responsable->nombres }} {{ $tarea->responsable->apellidos }}"
+                                                data-estado="{{ $tarea->estado }}"
+                                                data-fecha="{{ \Carbon\Carbon::parse($tarea->fecha_creacion)->format('d/m/Y') }}"
+                                                data-vencimiento="{{ $tarea->fecha_vencimiento ? \Carbon\Carbon::parse($tarea->fecha_vencimiento)->format('d/m/Y') : '' }}"
+                                                data-descripcion="{{ $tarea->descripcion }}"
+                                                data-documentos='@json($tarea->documentos->map(function($doc) {
+                                                    $tipo = '';
+                                                    if (strpos($doc->tipo_documento, 'image') !== false) {
+                                                        $tipo = 'imagen';
+                                                    } elseif (strpos($doc->tipo_documento, 'pdf') !== false) {
+                                                        $tipo = 'pdf';
+                                                    } else {
+                                                        $tipo = 'otro';
+                                                    }
+                                                    return [
+                                                        'id' => $doc->id_documento,
+                                                        'nombre' => $doc->nombre_documento,
+                                                        'tipo' => $tipo,
+                                                        'tipo_documento' => $doc->tipo_documento,
+                                                        'url' => Storage::url($doc->ruta_documento)
+                                                    ];
+                                                }))'
+                                                aria-label="Ver detalles de la tarea {{ $tarea->nombre }}">
+                                            <i class="fas fa-eye" aria-hidden="true"></i>
+                                        </button>
+
+                                        <!-- Botón Editar -->
+                                        @if(Auth::user()->puedeEditar('TareasDocumentales'))
+                                        <button type="button" class="btn btn-action" data-toggle="modal" data-target="#modalNuevaTarea"
+                                                data-id="{{ $tarea->id_tarea }}"
+                                                data-nombre="{{ $tarea->nombre }}"
+                                                data-responsable="{{ $tarea->fk_id_usuario_asignado }}"
+                                                data-fecha="{{ $tarea->fecha_creacion }}"
+                                                data-vencimiento="{{ $tarea->fecha_vencimiento }}"
+                                                data-descripcion="{{ $tarea->descripcion }}"
+                                                aria-label="Editar tarea {{ $tarea->nombre }}">
+                                            <i class="fas fa-edit" aria-hidden="true"></i>
+                                        </button>
+                                        @endif
+
+                                        <!-- Botón Cambiar Estado -->
+                                        @if(Auth::user()->puedeEditar('TareasDocumentales'))
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-action dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Cambiar estado de la tarea">
+                                                <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                @if($tarea->estado != 'Pendiente')
+                                                <a class="dropdown-item cambiar-estado" href="#" data-estado="Pendiente" aria-label="Marcar como pendiente">Pendiente</a>
+                                                @endif
+                                                @if($tarea->estado != 'En Proceso')
+                                                <a class="dropdown-item cambiar-estado" href="#" data-estado="En Proceso" aria-label="Marcar como en proceso">En Proceso</a>
+                                                @endif
+                                                @if($tarea->estado != 'Completada')
+                                                <a class="dropdown-item cambiar-estado" href="#" data-estado="Completada" aria-label="Marcar como completada">Completada</a>
+                                                @endif
+                                                @if($tarea->estado != 'Rechazada')
+                                                <a class="dropdown-item cambiar-estado" href="#" data-estado="Rechazada" aria-label="Marcar como rechazada">Rechazada</a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        <!-- Botón Delegar -->
+                                        @if(Auth::user()->puedeEditar('TareasDocumentales'))
+                                        <button type="button" class="btn btn-action" data-toggle="modal" data-target="#modalDelegarTarea"
+                                                data-id="{{ $tarea->id_tarea }}"
+                                                aria-label="Delegar tarea {{ $tarea->nombre }}">
+                                            <i class="fas fa-user-friends" aria-hidden="true"></i>
+                                        </button>
+                                        @endif
+
+                                        <!-- Botón Eliminar -->
+                                        @if(Auth::user()->puedeEliminar('TareasDocumentales'))
+                                        <form action="{{ route('tareas.destroy', $tarea->id_tarea) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de que desea eliminar esta tarea?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-action" aria-label="Eliminar tarea {{ $tarea->nombre }}">
+                                                <i class="fas fa-trash" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-                <div class="pagination-custom" role="navigation" aria-label="Paginación de tareas">
-                    {{ $tareas->appends(request()->query())->links() }}
+                
+                @if($tareas->hasPages())
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div class="text-muted">
+                        Mostrando {{ $tareas->firstItem() }} - {{ $tareas->lastItem() }} de {{ $tareas->total() }} registros
+                    </div>
+                    <div class="pagination-custom" role="navigation" aria-label="Paginación de tareas">
+                        {{ $tareas->appends(request()->query())->links() }}
+                    </div>
                 </div>
+                @endif
             </div>
-            @endif
         </div>
     </div>
 </div>
@@ -722,7 +863,6 @@
     }
     
     /* Paginación */
-    /* Paginación */
     .pagination-custom .pagination {
         margin: 0;
     }
@@ -1038,12 +1178,13 @@
         $('#filtroTareas').on('submit', function(e) {
             e.preventDefault();
             var form = $(this);
+            var url = form.attr('action');
             $.ajax({
-                url: form.attr('action'),
+                url: url,
                 type: 'GET',
                 data: form.serialize(),
                 success: function(data) {
-                    $(".table tbody").html(data);
+                    $('#tabla-container').html($(data).find('#tabla-container').html());
                 },
                 error: function() {
                     alert('Error al filtrar las tareas.');
@@ -1083,6 +1224,42 @@
             form.attr('action', "{{ route('tareas.delegar', ['id' => ':id']) }}".replace(':id', tareaId));
             $('#tareaIdDelegar').val(tareaId);
         });
+
+        // Manejar paginación con AJAX
+        $(document).on('click', '.pagination a', function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    $('#tabla-container').html($(data).find('#tabla-container').html());
+                    // Scroll suave hacia la parte superior de la tabla
+                    $('html, body').animate({
+                        scrollTop: $("#tabla-container").offset().top - 100
+                    }, 500);
+                },
+                error: function() {
+                    alert('Error al cargar la página.');
+                }
+            });
+        });
+
+        // Manejar ordenamiento con AJAX
+        $(document).on('click', '.sort-link', function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    $('#tabla-container').html($(data).find('#tabla-container').html());
+                },
+                error: function() {
+                    alert('Error al ordenar las tareas.');
+                }
+            });
+        });
     });
 </script>
-@stop 
+@stop
