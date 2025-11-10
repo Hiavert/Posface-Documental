@@ -726,23 +726,17 @@
         margin: 0;
     }
     
-    .pagination-custom .page-item .page-link {
-        border: none;
+    .page-item .page-link {
         border-radius: 8px;
         margin: 0 3px;
-        color: #6c757d;
-        transition: all 0.3s ease;
-    }
-    
-    .pagination-custom .page-item.active .page-link {
-        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
-        color: white;
-        box-shadow: 0 4px 10px rgba(58, 123, 213, 0.25);
-    }
-    
-    .pagination-custom .page-item .page-link:hover {
-        background-color: #f0f4f8;
         color: #3a7bd5;
+        border: 1px solid #dee2e6;
+    }
+    
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        border-color: #3a7bd5;
+        color: white;
     }
     
     /* Formularios */
