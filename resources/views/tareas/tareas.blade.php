@@ -6,12 +6,12 @@
 <div class="elegant-header">
     <div class="d-flex align-items-center justify-content-between">
         <div>
-            <h1 class="mb-0"><i class="fas fa-tasks mr-2 text-primary"></i> Gestión de Tareas Documentales</h1>
+            <h1 class="mb-0"><i class="fas fa-tasks mr-2 text-primary" aria-hidden="true"></i> Gestión de Tareas Documentales</h1>
            <p class="mb-0">Universidad Nacional Autónoma de Honduras - Posgrado de la Facultad de Ciencias Económicas Administrativas y Contables</p>
         </div>
         <div class="d-flex align-items-center">
             <div class="header-icon ml-3">
-                <i class="fas fa-file-alt"></i>
+                <i class="fas fa-file-alt" aria-hidden="true"></i>
             </div>
         </div>
     </div>
@@ -22,22 +22,22 @@
 <div class="container-fluid">
     <!-- Alertas -->
     @if (session('success'))
-        <div class="alert alert-elegant-success alert-dismissible fade show">
-            <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <div class="alert alert-elegant-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2" aria-hidden="true"></i> {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar alerta">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     @endif
     @if ($errors->any())
-        <div class="alert alert-elegant-danger alert-dismissible fade show">
-            <i class="fas fa-exclamation-circle mr-2"></i>
+        <div class="alert alert-elegant-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle mr-2" aria-hidden="true"></i>
             <ul class="mb-0">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar alerta">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -50,11 +50,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="icon-bg bg-secondary">
-                            <i class="fas fa-clock"></i>
+                            <i class="fas fa-clock" aria-hidden="true"></i>
                         </div>
                         <div class="ml-3">
-                            <h5 class="card-title">Pendientes</h5>
-                            <h2 class="card-value">{{ $estadisticas['pendientes'] ?? 0 }}</h2>
+                            <h2 class="card-title">Pendientes</h2>
+                            <p class="card-value" aria-label="{{ $estadisticas['pendientes'] ?? 0 }} tareas pendientes">{{ $estadisticas['pendientes'] ?? 0 }}</p>
                         </div>
                     </div>
                 </div>
@@ -65,11 +65,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="icon-bg bg-info">
-                            <i class="fas fa-spinner"></i>
+                            <i class="fas fa-spinner" aria-hidden="true"></i>
                         </div>
                         <div class="ml-3">
-                            <h5 class="card-title">En Proceso</h5>
-                            <h2 class="card-value">{{ $estadisticas['en_proceso'] ?? 0 }}</h2>
+                            <h2 class="card-title">En Proceso</h2>
+                            <p class="card-value" aria-label="{{ $estadisticas['en_proceso'] ?? 0 }} tareas en proceso">{{ $estadisticas['en_proceso'] ?? 0 }}</p>
                         </div>
                     </div>
                 </div>
@@ -80,11 +80,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="icon-bg bg-success">
-                            <i class="fas fa-check"></i>
+                            <i class="fas fa-check" aria-hidden="true"></i>
                         </div>
                         <div class="ml-3">
-                            <h5 class="card-title">Completadas</h5>
-                            <h2 class="card-value">{{ $estadisticas['completadas'] ?? 0 }}</h2>
+                            <h2 class="card-title">Completadas</h2>
+                            <p class="card-value" aria-label="{{ $estadisticas['completadas'] ?? 0 }} tareas completadas">{{ $estadisticas['completadas'] ?? 0 }}</p>
                         </div>
                     </div>
                 </div>
@@ -95,11 +95,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="icon-bg bg-primary">
-                            <i class="fas fa-user-check"></i>
+                            <i class="fas fa-user-check" aria-hidden="true"></i>
                         </div>
                         <div class="ml-3">
-                            <h5 class="card-title">Rechazadas</h5>
-                            <h2 class="card-value">{{ $estadisticas['rechazadas'] ?? 0 }}</h2>
+                            <h2 class="card-title">Rechazadas</h2>
+                            <p class="card-value" aria-label="{{ $estadisticas['rechazadas'] ?? 0 }} tareas rechazadas">{{ $estadisticas['rechazadas'] ?? 0 }}</p>
                         </div>
                     </div>
                 </div>
@@ -110,24 +110,25 @@
     <!-- Filtros -->
     <div class="card card-elegant mb-4">
         <div class="card-header">
-            <h5 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted"></i>Filtros</h5>
+            <h2 class="card-title mb-0"><i class="fas fa-filter mr-2 text-muted" aria-hidden="true"></i>Filtros</h2>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('tareas.index') }}" id="filtroTareas">
+            <form method="GET" action="{{ route('tareas.index') }}" id="filtroTareas" role="search" aria-label="Formulario de filtros para tareas documentales">
                 <div class="row">
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Estado</label>
-                        <select class="form-control form-control-elegant" name="estado">
+                        <label for="estado_filtro" class="form-label">Estado</label>
+                        <select class="form-control form-control-elegant" name="estado" id="estado_filtro" aria-describedby="estado_help">
                             <option value="">Todos</option>
                             <option value="Pendiente" {{ request('estado') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
                             <option value="En Proceso" {{ request('estado') == 'En Proceso' ? 'selected' : '' }}>En Proceso</option>
                             <option value="Completada" {{ request('estado') == 'Completada' ? 'selected' : '' }}>Completada</option>
                             <option value="Rechazada" {{ request('estado') == 'Rechazada' ? 'selected' : '' }}>Rechazada</option>
                         </select>
+                        <small id="estado_help" class="form-text text-muted">Filtrar por estado de la tarea</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Responsable</label>
-                        <select class="form-control form-control-elegant" name="responsable">
+                        <label for="responsable_filtro" class="form-label">Responsable</label>
+                        <select class="form-control form-control-elegant" name="responsable" id="responsable_filtro" aria-describedby="responsable_help">
                             <option value="">Todos</option>
                             @foreach($responsables as $responsable)
                                 <option value="{{ $responsable->id_usuario }}" {{ request('responsable') == $responsable->id_usuario ? 'selected' : '' }}>
@@ -135,31 +136,35 @@
                                 </option>
                             @endforeach
                         </select>
+                        <small id="responsable_help" class="form-text text-muted">Filtrar por responsable asignado</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Tipo de Documento</label>
-                        <select class="form-control form-control-elegant" name="tipo_documento">
+                        <label for="tipo_documento_filtro" class="form-label">Tipo de Documento</label>
+                        <select class="form-control form-control-elegant" name="tipo_documento" id="tipo_documento_filtro" aria-describedby="tipo_documento_help">
                             <option value="">Todos</option>
                             @foreach($tiposDocumento as $tipo)
                                 <option value="{{ $tipo->id_tipo }}" {{ request('tipo_documento') == $tipo->id_tipo ? 'selected' : '' }}>{{ $tipo->nombre_tipo }}</option>
                             @endforeach
                         </select>
+                        <small id="tipo_documento_help" class="form-text text-muted">Filtrar por tipo de documento</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Fecha Inicio</label>
-                        <input type="date" class="form-control form-control-elegant" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
+                        <label for="fecha_inicio_filtro" class="form-label">Fecha Inicio</label>
+                        <input type="date" class="form-control form-control-elegant" name="fecha_inicio" id="fecha_inicio_filtro" value="{{ request('fecha_inicio') }}" aria-describedby="fecha_inicio_help">
+                        <small id="fecha_inicio_help" class="form-text text-muted">Fecha de inicio para el filtro</small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Fecha Fin</label>
-                        <input type="date" class="form-control form-control-elegant" name="fecha_fin" value="{{ request('fecha_fin') }}">
+                        <label for="fecha_fin_filtro" class="form-label">Fecha Fin</label>
+                        <input type="date" class="form-control form-control-elegant" name="fecha_fin" id="fecha_fin_filtro" value="{{ request('fecha_fin') }}" aria-describedby="fecha_fin_help">
+                        <small id="fecha_fin_help" class="form-text text-muted">Fecha de fin para el filtro</small>
                     </div>
                     <div class="col-md-3 mb-3 d-flex align-items-end">
-                        <div class="btn-group w-100" role="group">
-                            <button type="submit" class="btn btn-primary btn-elegant">
-                                <i class="fas fa-filter mr-1"></i> Aplicar
+                        <div class="btn-group w-100" role="group" aria-label="Acciones de filtros">
+                            <button type="submit" class="btn btn-primary btn-elegant" aria-label="Aplicar filtros">
+                                <i class="fas fa-filter mr-1" aria-hidden="true"></i> Aplicar
                             </button>
-                            <a href="{{ route('tareas.index') }}" class="btn btn-outline-secondary btn-elegant">
-                                <i class="fas fa-redo mr-1"></i> Limpiar
+                            <a href="{{ route('tareas.index') }}" class="btn btn-outline-secondary btn-elegant" aria-label="Limpiar filtros">
+                                <i class="fas fa-redo mr-1" aria-hidden="true"></i> Limpiar
                             </a>
                         </div>
                     </div>
@@ -171,21 +176,22 @@
     <!-- Listado de tareas -->
     <div class="card card-elegant">
         <div class="card-header d-flex align-items-center">
-            <h5 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted"></i> Tareas Documentales</h5>
+            <h2 class="card-title mb-0"><i class="fas fa-list mr-2 text-muted" aria-hidden="true"></i> Tareas Documentales</h2>
             <div class="ml-auto">
                 @if(Auth::user()->puedeAgregar('TareasDocumentales'))
-                <button class="btn btn-success btn-elegant" type="button" data-toggle="modal" data-target="#modalNuevaTarea" id="btnNuevaTarea">
-                    <i class="fas fa-plus mr-1"></i> Nueva Tarea
+                <button class="btn btn-success btn-elegant" type="button" data-toggle="modal" data-target="#modalNuevaTarea" id="btnNuevaTarea" aria-label="Crear nueva tarea documental">
+                    <i class="fas fa-plus mr-1" aria-hidden="true"></i> Nueva Tarea
                 </button>
                 @endif
             </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover table-borderless">
+                <table class="table table-hover table-borderless" aria-describedby="tabla-tareas-desc">
+                    <caption id="tabla-tareas-desc" class="sr-only">Lista de tareas documentales con información de ID, nombre, responsable, estado, fecha de creación, documentos y acciones disponibles</caption>
                     <thead class="thead-elegant">
                         <tr>
-                            <th>
+                            <th scope="col">
                                 <a href="{{ route('tareas.index', [
                                     'sort' => 'id_tarea',
                                     'direction' => ($sort == 'id_tarea' && $direction == 'asc') ? 'desc' : 'asc',
@@ -194,16 +200,16 @@
                                     'fecha_inicio' => request('fecha_inicio'),
                                     'fecha_fin' => request('fecha_fin'),
                                     'tipo_documento' => request('tipo_documento')
-                                ]) }}" class="sort-link">
+                                ]) }}" class="sort-link" aria-label="Ordenar por ID {{ $sort == 'id_tarea' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
                                     ID
                                     @if ($sort == 'id_tarea')
-                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
                                     @else
-                                        <i class="fas fa-sort"></i>
+                                        <i class="fas fa-sort" aria-hidden="true"></i>
                                     @endif
                                 </a>
                             </th>
-                            <th>
+                            <th scope="col">
                                 <a href="{{ route('tareas.index', [
                                     'sort' => 'nombre',
                                     'direction' => ($sort == 'nombre' && $direction == 'asc') ? 'desc' : 'asc',
@@ -212,17 +218,17 @@
                                     'fecha_inicio' => request('fecha_inicio'),
                                     'fecha_fin' => request('fecha_fin'),
                                     'tipo_documento' => request('tipo_documento')
-                                ]) }}" class="sort-link">
+                                ]) }}" class="sort-link" aria-label="Ordenar por nombre {{ $sort == 'nombre' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
                                     Nombre
                                     @if ($sort == 'nombre')
-                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
                                     @else
-                                        <i class="fas fa-sort"></i>
+                                        <i class="fas fa-sort" aria-hidden="true"></i>
                                     @endif
                                 </a>
                             </th>
-                            <th>Responsable</th>
-                            <th>
+                            <th scope="col">Responsable</th>
+                            <th scope="col">
                                 <a href="{{ route('tareas.index', [
                                     'sort' => 'estado',
                                     'direction' => ($sort == 'estado' && $direction == 'asc') ? 'desc' : 'asc',
@@ -231,16 +237,16 @@
                                     'fecha_inicio' => request('fecha_inicio'),
                                     'fecha_fin' => request('fecha_fin'),
                                     'tipo_documento' => request('tipo_documento')
-                                ]) }}" class="sort-link">
+                                ]) }}" class="sort-link" aria-label="Ordenar por estado {{ $sort == 'estado' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
                                     Estado
                                     @if ($sort == 'estado')
-                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
                                     @else
-                                        <i class="fas fa-sort"></i>
+                                        <i class="fas fa-sort" aria-hidden="true"></i>
                                     @endif
                                 </a>
                             </th>
-                            <th>
+                            <th scope="col">
                                 <a href="{{ route('tareas.index', [
                                     'sort' => 'fecha_creacion',
                                     'direction' => ($sort == 'fecha_creacion' && $direction == 'asc') ? 'desc' : 'asc',
@@ -249,17 +255,17 @@
                                     'fecha_inicio' => request('fecha_inicio'),
                                     'fecha_fin' => request('fecha_fin'),
                                     'tipo_documento' => request('tipo_documento')
-                                ]) }}" class="sort-link">
+                                ]) }}" class="sort-link" aria-label="Ordenar por fecha de creación {{ $sort == 'fecha_creacion' ? ($direction == 'asc' ? 'ascendente' : 'descendente') : '' }}">
                                     Fecha Creación
                                     @if ($sort == 'fecha_creacion')
-                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}"></i>
+                                        <i class="fas fa-sort-{{ $direction == 'asc' ? 'up' : 'down' }}" aria-hidden="true"></i>
                                     @else
-                                        <i class="fas fa-sort"></i>
+                                        <i class="fas fa-sort" aria-hidden="true"></i>
                                     @endif
                                 </a>
                             </th>
-                            <th>Documentos</th>
-                            <th class="text-center">Acciones</th>
+                            <th scope="col">Documentos</th>
+                            <th scope="col" class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -273,7 +279,7 @@
                 <div class="text-muted">
                     Mostrando {{ $tareas->firstItem() }} - {{ $tareas->lastItem() }} de {{ $tareas->total() }} registros
                 </div>
-                <div class="pagination-custom">
+                <div class="pagination-custom" role="navigation" aria-label="Paginación de tareas">
                     {{ $tareas->appends(request()->query())->links() }}
                 </div>
             </div>
@@ -287,12 +293,11 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #0b2e59; color: white;">
-                <h5 class="modal-title" id="modalNuevaTareaLabel">
-                    <i class="fas fa-plus-circle mr-2"></i> <span id="modalTareaTitle">Nueva Tarea Documental</span>
-                </h5>
+                <h3 class="modal-title" id="modalNuevaTareaLabel">
+                    <i class="fas fa-plus-circle mr-2" aria-hidden="true"></i> <span id="modalTareaTitle">Nueva Tarea Documental</span>
+                </h3>
                 @if(auth()->user()->puedeEditar('TareasDocumentales'))
-
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar modal de tarea">
                     <span aria-hidden="true">&times;</span>
                 </button>
                 @endif
@@ -305,17 +310,18 @@
                         <div class="form-group col-md-6">
                             <label for="nombreTarea">Nombre de la tarea *</label>
                             <input type="text" class="form-control" id="nombreTarea" name="nombre" required 
-                                   maxlength="50" oninput="sanitizeNombreTarea(this)">
-                            <small class="form-text text-muted">Máximo 50 caracteres. Solo letras, números, espacios, puntos, comas y guiones.</small>
+                                   maxlength="50" oninput="sanitizeNombreTarea(this)" aria-describedby="nombreTarea_help">
+                            <small id="nombreTarea_help" class="form-text text-muted">Máximo 50 caracteres. Solo letras, números, espacios, puntos, comas y guiones.</small>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="responsableTarea">Responsable *</label>
-                            <select class="form-control" id="responsableTarea" name="fk_id_usuario_asignado" required>
+                            <select class="form-control" id="responsableTarea" name="fk_id_usuario_asignado" required aria-describedby="responsableTarea_help">
                                 <option value="">Seleccionar responsable</option>
                                 @foreach($responsables as $responsable)
                                     <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
                                 @endforeach
                             </select>
+                            <small id="responsableTarea_help" class="form-text text-muted">Seleccione el responsable de la tarea</small>
                         </div>
                     </div>
                     
@@ -324,43 +330,46 @@
                     <div class="form-group">
                         <label for="descripcionTarea">Descripción (opcional)</label>
                         <textarea class="form-control" id="descripcionTarea" name="descripcion" rows="3" 
-                                  maxlength="100" oninput="sanitizeDescripcionTarea(this)"></textarea>
-                        <small class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
+                                  maxlength="100" oninput="sanitizeDescripcionTarea(this)" aria-describedby="descripcionTarea_help"></textarea>
+                        <small id="descripcionTarea_help" class="form-text text-muted">Máximo 100 caracteres. Solo letras, números, espacios, puntos (pueden ser dos seguidos), comas y guiones.</small>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="fechaCreacionTarea">Fecha de Creación *</label>
-                            <input type="date" class="form-control" id="fechaCreacionTarea" name="fecha_creacion" value="{{ date('Y-m-d') }}" required>
+                            <input type="date" class="form-control" id="fechaCreacionTarea" name="fecha_creacion" value="{{ date('Y-m-d') }}" required aria-describedby="fechaCreacionTarea_help">
+                            <small id="fechaCreacionTarea_help" class="form-text text-muted">Fecha en que se crea la tarea</small>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="fechaVencimientoTarea">Fecha de Vencimiento (opcional)</label>
-                            <input type="date" class="form-control" id="fechaVencimientoTarea" name="fecha_vencimiento">
+                            <input type="date" class="form-control" id="fechaVencimientoTarea" name="fecha_vencimiento" aria-describedby="fechaVencimientoTarea_help">
+                            <small id="fechaVencimientoTarea_help" class="form-text text-muted">Fecha límite para completar la tarea</small>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label for="documentoTarea">Documento adjunto (opcional)</label>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="documentoTarea" name="documento" accept="application/pdf,image/*">
+                            <input type="file" class="custom-file-input" id="documentoTarea" name="documento" accept="application/pdf,image/*" aria-describedby="documentoTarea_help">
                             <label class="custom-file-label" for="documentoTarea" id="documentoLabel">Seleccionar archivo</label>
                         </div>
-                        <small class="form-text text-muted">Tamaño máximo: 10MB</small>
+                        <small id="documentoTarea_help" class="form-text text-muted">Tamaño máximo: 10MB</small>
                     </div>
                     
                     <div class="form-group" id="tipoDocumentoContainer">
                         <label for="fk_id_tipo">Tipo de Documento *</label>
-                        <select name="fk_id_tipo" id="fk_id_tipo" class="form-control" required>
+                        <select name="fk_id_tipo" id="fk_id_tipo" class="form-control" required aria-describedby="fk_id_tipo_help">
                             <option value="">Seleccionar tipo...</option>
                             @foreach($tiposDocumento as $tipo)
                                 <option value="{{ $tipo->id_tipo }}">{{ $tipo->nombre_tipo }}</option>
                             @endforeach
                         </select>
+                        <small id="fk_id_tipo_help" class="form-text text-muted">Seleccione el tipo de documento</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" id="btnGuardarTarea">Guardar Tarea</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cancelar creación de tarea">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnGuardarTarea" aria-label="Guardar tarea">Guardar Tarea</button>
                 </div>
             </form>
         </div>
@@ -372,10 +381,10 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #0b2e59; color: white;">
-                <h5 class="modal-title" id="modalDetalleTareaLabel">
-                    <i class="fas fa-info-circle mr-2"></i> Detalle de Tarea
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <h3 class="modal-title" id="modalDetalleTareaLabel">
+                    <i class="fas fa-info-circle mr-2" aria-hidden="true"></i> Detalle de Tarea
+                </h3>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar modal de detalle">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -405,7 +414,7 @@
                         </dl>
                     </div>
                     <div class="col-md-4 border-left">
-                        <h6><i class="fas fa-file-alt mr-2"></i> Documentos</h6>
+                        <h4><i class="fas fa-file-alt mr-2" aria-hidden="true"></i> Documentos</h4>
                         <div id="detalle-documentos" class="mb-3">
                             <div class="text-center text-muted py-3">Sin documentos adjuntos</div>
                         </div>
@@ -421,9 +430,9 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <span id="iconoDocumento" style="font-size:2.5rem; margin-right:10px;"></span>
-                <h5 class="modal-title" id="modalVerDocumentoLabel"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span id="iconoDocumento" style="font-size:2.5rem; margin-right:10px;" aria-hidden="true"></span>
+                <h3 class="modal-title" id="modalVerDocumentoLabel"></h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar visor de documento">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -435,15 +444,15 @@
                     @csrf
                     @method('DELETE')
                     @if(auth()->user()->puedeEliminar('TareasDocumentales'))
-                    <button type="submit" class="btn btn-danger" id="btnEliminarDocumento" onclick="return confirm('¿Seguro que desea eliminar este documento?')">
-                        <i class="fas fa-trash"></i> Eliminar
+                    <button type="submit" class="btn btn-danger" id="btnEliminarDocumento" onclick="return confirm('¿Seguro que desea eliminar este documento?')" aria-label="Eliminar documento">
+                        <i class="fas fa-trash" aria-hidden="true"></i> Eliminar
                     </button>
                     @endif
                 </form>
-                <a href="#" id="descargarDocumento" class="btn btn-primary" download target="_blank">
-                    <i class="fas fa-download"></i> Descargar
+                <a href="#" id="descargarDocumento" class="btn btn-primary" download target="_blank" aria-label="Descargar documento">
+                    <i class="fas fa-download" aria-hidden="true"></i> Descargar
                 </a>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cerrar ventana">Cerrar</button>
             </div>
         </div>
     </div>
@@ -454,10 +463,10 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #0b2e59; color: white;">
-                <h5 class="modal-title" id="modalDelegarTareaLabel">
-                    <i class="fas fa-user-friends mr-2"></i> Delegar Tarea
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <h3 class="modal-title" id="modalDelegarTareaLabel">
+                    <i class="fas fa-user-friends mr-2" aria-hidden="true"></i> Delegar Tarea
+                </h3>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar modal de delegación">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -467,17 +476,18 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="nuevoResponsable">Seleccionar nuevo responsable</label>
-                        <select class="form-control" id="nuevoResponsable" name="nuevo_responsable" required>
+                        <select class="form-control" id="nuevoResponsable" name="nuevo_responsable" required aria-describedby="nuevoResponsable_help">
                             <option value="">Seleccionar responsable</option>
                             @foreach($responsables as $responsable)
                                 <option value="{{ $responsable->id_usuario }}">{{ $responsable->nombres }} {{ $responsable->apellidos }}</option>
                             @endforeach
                         </select>
+                        <small id="nuevoResponsable_help" class="form-text text-muted">Seleccione el nuevo responsable para la tarea</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Delegar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cancelar delegación">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" aria-label="Confirmar delegación de tarea">Delegar</button>
                 </div>
             </form>
         </div>
@@ -815,6 +825,19 @@
         font-size: 0.75em;
         margin-right: 8px;
     }
+
+    /* Estilos para accesibilidad */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
 </style>
 @stop
 
@@ -898,11 +921,11 @@
                 documentos.forEach(function(doc) {
                     var icono = '';
                     if(doc.tipo === 'imagen') {
-                        icono = '<i class="fas fa-file-image text-info documento-icon"></i>';
+                        icono = '<i class="fas fa-file-image text-info documento-icon" aria-hidden="true"></i>';
                     } else if(doc.tipo === 'pdf') {
-                        icono = '<i class="fas fa-file-pdf text-danger documento-icon"></i>';
+                        icono = '<i class="fas fa-file-pdf text-danger documento-icon" aria-hidden="true"></i>';
                     } else {
-                        icono = '<i class="fas fa-file text-secondary documento-icon"></i>';
+                        icono = '<i class="fas fa-file text-secondary documento-icon" aria-hidden="true"></i>';
                     }
                     
                     documentosHtml += `
@@ -916,8 +939,9 @@
                                 data-url="${doc.url}" 
                                 data-tipo="${doc.tipo}"
                                 data-nombre="${doc.nombre}"
-                                data-id="${doc.id}">
-                                <i class="fas fa-eye"></i>
+                                data-id="${doc.id}"
+                                aria-label="Ver documento ${doc.nombre}">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
                             </button>
                         </div>
                     `;
@@ -976,13 +1000,13 @@
             var html = '';
 
             if(tipo === 'imagen') {
-                icono = '<i class="fas fa-file-image text-info"></i>';
-                html = '<img src="' + url + '" alt="' + nombre + '" class="img-fluid">';
+                icono = '<i class="fas fa-file-image text-info" aria-hidden="true"></i>';
+                html = '<img src="' + url + '" alt="Documento: ' + nombre + '" class="img-fluid">';
             } else if(tipo === 'pdf') {
-                icono = '<i class="fas fa-file-pdf text-danger"></i>';
-                html = '<iframe src="' + url + '" width="100%" height="500px" style="border:none;"></iframe>';
+                icono = '<i class="fas fa-file-pdf text-danger" aria-hidden="true"></i>';
+                html = '<iframe src="' + url + '" width="100%" height="500px" style="border:none;" title="Visor de documento PDF: ' + nombre + '"></iframe>';
             } else {
-                icono = '<i class="fas fa-file text-secondary"></i>';
+                icono = '<i class="fas fa-file text-secondary" aria-hidden="true"></i>';
                 html = '<p>No es posible visualizar este tipo de archivo.</p>';
             }
 
