@@ -1,3 +1,5 @@
+@extends('adminlte::page')
+
 @section('title', 'Gestión de Tareas Documentales')
 
 @section('content_header')
@@ -1083,5 +1085,5 @@
         });
     });
 </script>
-@stop
+@stop 
 
