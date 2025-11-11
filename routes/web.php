@@ -137,6 +137,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/limpiar-exportacion', [TesisController::class, 'limpiarExportacion'])->name('tesis.limpiar-exportacion');
         });
     });
+
     // Backup routes
     Route::prefix('backup')->group(function () {
         Route::get('/', [BackupController::class, 'index'])->name('backup.index');
@@ -145,7 +146,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/delete/{filename}', [BackupController::class, 'deleteBackup'])->name('backup.delete');
     });
     
-
     // Rutas para administrador de terna
     Route::prefix('terna/admin')->group(function () {
         Route::get('/', [TernaAdminController::class, 'index'])->name('terna.admin.index');
