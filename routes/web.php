@@ -52,6 +52,18 @@ Route::prefix('documentos')->group(function () {
     Route::get('/historial/{documento}', [DocumentoEnvioController::class, 'historial'])->name('documentos.historial');
     Route::post('/marcar-leido/{envio}', [DocumentoEnvioController::class, 'marcarLeido'])->name('documentos.marcar-leido');
 });
+// En routes/web.php
+Route::get('/test-email', function() {
+    try {
+        \Mail::raw('Test Email from Railway', function($message) {
+            $message->to('grupoanalisis60@gmail.com')
+                    ->subject('Test Email');
+        });
+        return "Email enviado exitosamente!";
+    } catch (\Exception $e) {
+        return "Error enviando email: " . $e->getMessage();
+    }
+});
 
 Route::middleware('auth')->group(function () {
     // Perfil con rutas y nombres unificados a /profile y profile.*
