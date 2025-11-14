@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Documento;
 use App\Models\DocumentoEnvio;
 use App\Models\User;
+use App\Models\Bitacora; // Agregado
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -108,10 +109,21 @@ class DocumentoController extends Controller
             if ($envio && !$envio->leido) {
                 $envio->update([
                     'leido' => true,
-                    'fecha_leido' => now()
+                    'fecha_leido' => now()                         
                 ]);
             }
         }
+
+        // REGISTRO EN BITÁCORA - AGREGAR ESTAS LÍNEAS JUSTO ANTES DE LA DESCARGA
+    Bitacora::create([
+        'usuario_id' => auth()->id(),
+        'usuario_nombre' => auth()->user()->name,
+        'accion' => 'DESCARGA',
+        'modulo' => 'Documentos',
+        'registro_id' => $documento->id,
+        'ip' => request()->ip(),
+        'created_at' => now()
+    ]);
 
         return Storage::disk('public')->download($documento->archivo_path);
     }
