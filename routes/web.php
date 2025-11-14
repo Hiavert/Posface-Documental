@@ -52,17 +52,7 @@ Route::prefix('documentos')->group(function () {
     Route::get('/historial/{documento}', [DocumentoEnvioController::class, 'historial'])->name('documentos.historial');
     Route::post('/marcar-leido/{envio}', [DocumentoEnvioController::class, 'marcarLeido'])->name('documentos.marcar-leido');
 });
-Route::get('/test-resend', function() {
-    try {
-        \Mail::raw('Test Resend API - ' . now()->format('Y-m-d H:i:s'), function($message) {
-            $message->to('grupoanalisis60@gmail.com')
-                    ->subject('✅ Test Resend - POSFACE');
-        });
-        return "✅ Email enviado via Resend API! Revisa tu email.";
-    } catch (\Exception $e) {
-        return "❌ Error: " . $e->getMessage();
-    }
-});
+
 
 Route::middleware('auth')->group(function () {
     // Perfil con rutas y nombres unificados a /profile y profile.*
