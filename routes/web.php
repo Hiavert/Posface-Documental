@@ -52,17 +52,15 @@ Route::prefix('documentos')->group(function () {
     Route::get('/historial/{documento}', [DocumentoEnvioController::class, 'historial'])->name('documentos.historial');
     Route::post('/marcar-leido/{envio}', [DocumentoEnvioController::class, 'marcarLeido'])->name('documentos.marcar-leido');
 });
-// routes/web.php - Agrega esto temporalmente
-Route::get('/test-sendgrid', function() {
+Route::get('/test-resend', function() {
     try {
-        \Mail::raw('Test SendGrid API desde Railway - ' . now(), function($message) {
+        \Mail::raw('Test Resend API - ' . now()->format('Y-m-d H:i:s'), function($message) {
             $message->to('grupoanalisis60@gmail.com')
-                    ->subject('✅ Test SendGrid API - ' . now());
+                    ->subject('✅ Test Resend - POSFACE');
         });
-        return "✅ Email enviado exitosamente via SendGrid API! Revisa tu bandeja de entrada.";
+        return "✅ Email enviado via Resend API! Revisa tu email.";
     } catch (\Exception $e) {
-        \Log::error('Error SendGrid: ' . $e->getMessage());
-        return "❌ Error enviando email: " . $e->getMessage();
+        return "❌ Error: " . $e->getMessage();
     }
 });
 
