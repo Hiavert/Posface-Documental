@@ -160,91 +160,30 @@ class TesisController extends Controller
         }
     }
 
-    // Método para comprimir directorio sin ZipArchive
-   // Método alternativo para comprimir directorio usando comandos del sistema
-private function zipFolderAlternative($sourcePath, $zipPath)
-{
-    // Verificar si el comando zip está disponible
-    $zipCommand = null;
-    if ($this->isCommandAvailable('zip')) {
-        $zipCommand = "cd " . escapeshellarg($sourcePath) . " && zip -r " . escapeshellarg($zipPath) . " .";
-    } elseif ($this->isCommandAvailable('tar')) {
-        // Usar tar como alternativa (común en sistemas Unix)
-        $zipCommand = "cd " . escapeshellarg($sourcePath) . " && tar -czf " . escapeshellarg($zipPath) . " .";
-    } elseif (DIRECTORY_SEPARATOR === '\\' && $this->isCommandAvailable('powershell')) {
-        // Para Windows con PowerShell
-        $sourcePath = str_replace('/', '\\', $sourcePath);
-        $zipPath = str_replace('/', '\\', $zipPath);
-        $zipCommand = "powershell -Command \"Compress-Archive -Path '" . $sourcePath . "\\*' -DestinationPath '" . $zipPath . "' -Force\"";
-    }
-    
-    if ($zipCommand) {
-        exec($zipCommand, $output, $returnVar);
-        
-        if ($returnVar === 0 && file_exists($zipPath)) {
-            Log::info('ZIP creado exitosamente usando comando del sistema: ' . $zipCommand);
-            return true;
-        } else {
-            Log::error('Error al ejecutar comando ZIP: ' . $zipCommand . ' | Código: ' . $returnVar);
-        }
-    }
-    
-    // Último recurso: compresión manual simple (para pocos archivos)
-    return $this->createSimpleZip($sourcePath, $zipPath);
-}
-
-// Verificar si un comando está disponible
-private function isCommandAvailable($command)
-{
-    $isWindows = (DIRECTORY_SEPARATOR === '\\');
-    
-    if ($isWindows) {
-        $checkCommand = "where $command >nul 2>&1";
-    } else {
-        $checkCommand = "command -v $command >/dev/null 2>&1";
-    }
-    
-    exec($checkCommand, $output, $returnVar);
-    return $returnVar === 0;
-}
-
-// Método de compresión manual simple como último recurso
-private function createSimpleZip($sourcePath, $zipPath)
-{
-    try {
-        // Solo funciona para PHP >= 7.2 con extensión zip
-        if (!class_exists('ZipArchive')) {
-            return false;
-        }
-        
+ // Método para comprimir directorio sin ZipArchive
+    private function zipFolder($sourcePath, $zipPath)
+    {
+        // Crear archivo ZIP
         $zip = new \ZipArchive();
-        if ($zip->open($zipPath, \ZipArchive::CREATE) !== TRUE) {
-            return false;
-        }
-        
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($sourcePath),
-            \RecursiveIteratorIterator::LEAVES_ONLY
-        );
+        if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($sourcePath),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
 
-        foreach ($files as $name => $file) {
-            if (!$file->isDir()) {
-                $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($sourcePath) + 1);
-                
-                // Asegurar que las barras sean consistentes
-                $relativePath = str_replace('\\', '/', $relativePath);
-                
-                $zip->addFile($filePath, $relativePath);
+            foreach ($files as $name => $file) {
+                if (!$file->isDir()) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($sourcePath) + 1);
+                    $zip->addFile($filePath, $relativePath);
+                }
             }
+            $zip->close();
+            return true;
         }
-        
-        return $zip->close();
-    } catch (\Exception $e) {
-        Log::error('Error en compresión manual: ' . $e->getMessage());
         return false;
     }
-}
+    
     public function update(Request $request, $id)
     {
         try {
