@@ -722,6 +722,7 @@
     }
     
 /* Paginación - Estilos corregidos para Tailwind */
+/* Paginación - Estilos corregidos para Tailwind con estilo elegant */
 .pagination-custom nav[role="navigation"] .flex-1 {
     display: none !important;
 }
@@ -745,32 +746,32 @@
     justify-content: center !important;
     padding: 8px 12px !important;
     border: 1px solid #d1d5db !important;
-    border-radius: 4px !important;
+    border-radius: 8px !important; /* Cambiado de 4px a 8px */
     text-decoration: none !important;
     font-size: 14px !important;
     font-weight: 500 !important;
-    transition: all 0.2s ease !important;
+    transition: all 0.3s ease !important; /* Cambiado de 0.2s a 0.3s */
     min-width: 40px !important;
 }
 
-/* Botones normales */
+/* Botones normales - Estilo elegant aplicado */
 .pagination-custom nav[role="navigation"] a {
     background: white !important;
-    color: #6b7280 !important;
-    border-color: #d1d5db !important;
+    color: #6c757d !important; /* Cambiado a color del estilo elegant */
+    border-color: #dee2e6 !important; /* Cambiado a border del estilo elegant */
 }
 
 .pagination-custom nav[role="navigation"] a:hover {
-    background: #f3f4f6 !important;
-    border-color: #9ca3af !important;
-    color: #374151 !important;
+    background: #f8f9fa !important; /* Cambiado al hover del estilo elegant */
+    border-color: #dee2e6 !important;
+    color: #6c757d !important;
 }
 
-/* Botones Previous y Next específicos */
+/* Botones Previous y Next específicos - Estilo elegant aplicado */
 .pagination-custom nav[role="navigation"] a[rel="prev"],
 .pagination-custom nav[role="navigation"] a[rel="next"] {
-    background: linear-gradient(135deg, #6b7280, #4b5563) !important;
-    border-color: #4b5563 !important;
+    background: linear-gradient(135deg, #3a7bd5, #00d2ff) !important; /* Cambiado al gradiente primary elegant */
+    border: none !important; /* Cambiado a border none del estilo elegant */
     color: white !important;
     padding: 8px 16px !important;
 }
@@ -786,20 +787,20 @@
     font-weight: bold !important;
 }
 
-/* Hover para Previous y Next */
+/* Hover para Previous y Next - Estilo elegant aplicado */
 .pagination-custom nav[role="navigation"] a[rel="prev"]:hover,
 .pagination-custom nav[role="navigation"] a[rel="next"]:hover {
-    background: linear-gradient(135deg, #5a6268, #3d4348) !important;
-    border-color: #3d4348 !important;
+    background: linear-gradient(135deg, #2a6bc9, #00bde3) !important; /* Cambiado al hover del estilo elegant */
+    border: none !important;
     color: white !important;
     transform: translateY(-1px) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Página activa */
+/* Página activa - Estilo elegant aplicado */
 .pagination-custom nav[role="navigation"] span[aria-current="page"] {
-    background: #3b82f6 !important;
-    border-color: #3b82f6 !important;
+    background: linear-gradient(135deg, #00b09b, #96c93d) !important; /* Cambiado al gradiente success elegant */
+    border: none !important; /* Cambiado a border none del estilo elegant */
     color: white !important;
 }
 
@@ -817,7 +818,7 @@
 }
 
 .pagination-custom nav[role="navigation"] .rounded-md {
-    border-radius: 4px !important;
+    border-radius: 8px !important; /* Cambiado de 4px a 8px */
 }
 
 .pagination-custom nav[role="navigation"] .rtl\\:flex-row-reverse {
