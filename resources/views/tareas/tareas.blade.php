@@ -837,25 +837,50 @@
     flex-direction: row !important;
 }
 
-/* Ocultar completamente el texto "Showing X to Y of Z results" */
-.pagination-custom nav[role="navigation"] .flex-1 .text-sm {
+/* NUEVAS REGLAS ESPECÍFICAS PARA OCULTAR EL TEXTO DE RESULTADOS */
+.pagination-custom nav[role="navigation"] .flex.justify-between.items-center {
     display: none !important;
 }
 
-/* Ocultar cualquier elemento que contenga el texto de resultados */
-.pagination-custom nav[role="navigation"] .flex-1 > div:first-child {
+.pagination-custom nav[role="navigation"] .text-sm.text-gray-700 {
     display: none !important;
 }
 
-/* Asegurar que solo se muestren los 3 elementos: Anterior - Número - Siguiente */
+.pagination-custom nav[role="navigation"] .leading-5 {
+    display: none !important;
+}
+
 .pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > div:first-child,
 .pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > div:last-child {
     display: none !important;
 }
 
-/* Mostrar solo el contenedor central con los botones */
 .pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > .relative.z-0 {
     display: flex !important;
+}
+
+/* Ocultar cualquier elemento que pueda contener el texto */
+.pagination-custom nav[role="navigation"] div:contains("Showing"),
+.pagination-custom nav[role="navigation"] div:contains("results"),
+.pagination-custom nav[role="navigation"] span:contains("Showing"),
+.pagination-custom nav[role="navigation"] span:contains("results") {
+    display: none !important;
+}
+
+/* Regla más agresiva para ocultar el texto */
+.pagination-custom nav[role="navigation"] > div:first-child {
+    display: none !important;
+}
+
+.pagination-custom nav[role="navigation"] .sm\\:flex-1 {
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* Asegurar que solo se muestre el contenedor de botones */
+.pagination-custom nav[role="navigation"] .sm\\:flex-1 .relative.z-0 {
+    display: flex !important;
+    margin: 0 auto !important;
 }
     
     /* Formularios */
