@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Tesis;
 use App\Models\TipoTesis;
 use App\Models\Region;
+use App\Models\Bitacora;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -80,7 +81,7 @@ class TesisController extends Controller
             $filename = 'tesis_'.time().'.'.$file->extension();
             $path = $file->storeAs('tesis', $filename, 'public');
 
-            Tesis::create([
+            $tesis = Tesis::create([
                 'titulo' => strip_tags($request->titulo),
                 'fk_id_tipo_tesis' => $request->tipo_tesis,
                 'fk_id_region' => $request->region,
@@ -95,6 +96,9 @@ class TesisController extends Controller
                 'fecha_subida' => now()->toDateString()
             ]);
 
+            // Registrar en bitácora
+            $this->registrarBitacora('subir_tesis', $tesis->id_tesis, [], $tesis->toArray());
+
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             Log::error('Error en store: '.$e->getMessage());
@@ -106,6 +110,9 @@ class TesisController extends Controller
     {
         try {
             $tesis = Tesis::findOrFail($id);
+            
+            // Guardar datos antes de la actualización
+            $datos_antes = $tesis->toArray();
             
             $request->validate([
                 'titulo' => 'required|max:255|string',
@@ -145,6 +152,9 @@ class TesisController extends Controller
 
             $tesis->update($data);
 
+            // Registrar en bitácora
+            $this->registrarBitacora('editar_tesis', $tesis->id_tesis, $datos_antes, $tesis->fresh()->toArray());
+
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             Log::error('Error en update: '.$e->getMessage());
@@ -157,11 +167,18 @@ class TesisController extends Controller
         try {
             $tesis = Tesis::findOrFail($id);
             
+            // Guardar datos antes de eliminar
+            $datos_antes = $tesis->toArray();
+            
             if ($tesis->ruta_archivo) {
                 Storage::disk('public')->delete('tesis/'.$tesis->ruta_archivo);
             }
             
             $tesis->delete();
+
+            // Registrar en bitácora
+            $this->registrarBitacora('eliminar_tesis', $id, $datos_antes, []);
+
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             Log::error('Error en destroy: '.$e->getMessage());
@@ -175,6 +192,14 @@ class TesisController extends Controller
         if (!Storage::disk('public')->exists('tesis/'.$filename)) {
             abort(404, "El archivo no existe: $filename");
         }
+
+        // Obtener la tesis relacionada con el archivo
+        $tesis = Tesis::where('ruta_archivo', $filename)->first();
+        
+        if ($tesis) {
+            // Registrar en bitácora
+            $this->registrarBitacora('descargar_tesis', $tesis->id_tesis, [], []);
+        }
         
         return Storage::disk('public')->download('tesis/'.$filename);
     }
@@ -184,9 +209,39 @@ class TesisController extends Controller
         if (!Storage::disk('public')->exists('tesis/'.$filename)) {
             abort(404, "El archivo no existe: $filename");
         }
+
+        // Obtener la tesis relacionada con el archivo
+        $tesis = Tesis::where('ruta_archivo', $filename)->first();
+        
+        if ($tesis) {
+            // Registrar en bitácora
+            $this->registrarBitacora('previsualizar_tesis', $tesis->id_tesis, [], []);
+        }
         
         return Storage::disk('public')->response('tesis/'.$filename, null, [
             'Content-Type' => 'application/pdf'
+        ]);
+    }
+
+    /**
+     * Registra una acción en la bitácora
+     */
+    protected function registrarBitacora($accion, $registro_id, $datos_antes = [], $datos_despues = [])
+    {
+        // Verificar permisos si es necesario
+        // if (!auth()->user()->puedeEditar('Tesis')) {
+        //     return;
+        // }
+
+        Bitacora::create([
+            'user_id' => auth()->id(),
+            'usuario_nombre' => auth()->user()->name ?? 'Usuario no autenticado',
+            'accion' => $accion,
+            'modulo' => 'Tesis',
+            'registro_id' => $registro_id,
+            'datos_antes' => $datos_antes,
+            'datos_despues' => $datos_despues,
+            'ip' => request()->ip(),
         ]);
     }
 }
