@@ -147,7 +147,7 @@ class TesisController extends Controller
             $zipFileName = 'tesis_seleccionadas_'.time().'.zip';
             $zipPath = storage_path('app/public/'.$zipFileName);
             
-             // Comprimir directorio manualmente
+            // Comprimir directorio manualmente
             $this->zipFolder($tempDir, $zipPath);
             
             // Eliminar directorio temporal
@@ -183,7 +183,7 @@ class TesisController extends Controller
         }
         return false;
     }
-    
+
     public function update(Request $request, $id)
     {
         try {
@@ -267,6 +267,11 @@ class TesisController extends Controller
             abort(404, "El archivo no existe: $filename");
         }
         
+        return Storage::disk('public')->response('tesis/'.$filename, null, [
+            'Content-Type' => 'application/pdf'
+        ]);
+    }
+}
         return Storage::disk('public')->response('tesis/'.$filename, null, [
             'Content-Type' => 'application/pdf'
         ]);
