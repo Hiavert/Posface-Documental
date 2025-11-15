@@ -97,7 +97,7 @@ class TesisController extends Controller
             ]);
 
             // Registrar en bitácora
-            $this->registrarBitacora('subir_tesis', $tesis->id_tesis, [], $tesis->toArray());
+            $this->registrarBitacora('subir_tesis', 'Tesis', $tesis->id_tesis, [], $tesis->toArray());
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
@@ -153,7 +153,7 @@ class TesisController extends Controller
             $tesis->update($data);
 
             // Registrar en bitácora
-            $this->registrarBitacora('editar_tesis', $tesis->id_tesis, $datos_antes, $tesis->fresh()->toArray());
+            $this->registrarBitacora('editar_tesis', 'Tesis', $tesis->id_tesis, $datos_antes, $tesis->fresh()->toArray());
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
@@ -177,7 +177,7 @@ class TesisController extends Controller
             $tesis->delete();
 
             // Registrar en bitácora
-            $this->registrarBitacora('eliminar_tesis', $id, $datos_antes, []);
+            $this->registrarBitacora('eliminar_tesis', 'Tesis', $id, $datos_antes, []);
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
@@ -198,7 +198,7 @@ class TesisController extends Controller
         
         if ($tesis) {
             // Registrar en bitácora
-            $this->registrarBitacora('descargar_tesis', $tesis->id_tesis, [], []);
+            $this->registrarBitacora('descargar_tesis', 'Tesis', $tesis->id_tesis, [], []);
         }
         
         return Storage::disk('public')->download('tesis/'.$filename);
@@ -215,7 +215,7 @@ class TesisController extends Controller
         
         if ($tesis) {
             // Registrar en bitácora
-            $this->registrarBitacora('previsualizar_tesis', $tesis->id_tesis, [], []);
+            $this->registrarBitacora('previsualizar_tesis', 'Tesis', $tesis->id_tesis, [], []);
         }
         
         return Storage::disk('public')->response('tesis/'.$filename, null, [
@@ -225,8 +225,9 @@ class TesisController extends Controller
 
     /**
      * Registra una acción en la bitácora
+     * Nota: Esta firma debe ser compatible con el método en Controller padre
      */
-    protected function registrarBitacora($accion, $registro_id, $datos_antes = [], $datos_despues = [])
+    protected function registrarBitacora($accion, $modulo, $registro_id = null, $datos_antes = null, $datos_despues = null)
     {
         // Verificar permisos si es necesario
         // if (!auth()->user()->puedeEditar('Tesis')) {
@@ -237,7 +238,7 @@ class TesisController extends Controller
             'user_id' => auth()->id(),
             'usuario_nombre' => auth()->user()->name ?? 'Usuario no autenticado',
             'accion' => $accion,
-            'modulo' => 'Tesis',
+            'modulo' => $modulo,
             'registro_id' => $registro_id,
             'datos_antes' => $datos_antes,
             'datos_despues' => $datos_despues,
