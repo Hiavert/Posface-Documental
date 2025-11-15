@@ -721,78 +721,82 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
     
-    /* Paginación - Nuevos estilos basados en la segunda imagen */
+/* Paginación - Estilos corregidos con !important */
 .pagination-custom .pagination {
-    margin: 0;
+    margin: 0 !important;
+    display: flex !important;
+    gap: 5px !important;
 }
 
 .pagination-custom .page-item .page-link {
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    margin: 0 2px;
-    color: #6c757d;
-    background-color: white;
-    padding: 6px 12px;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-    min-width: 36px;
-    text-align: center;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
+    margin: 0 2px !important;
+    color: #6c757d !important;
+    background-color: white !important;
+    padding: 6px 12px !important;
+    font-size: 0.875rem !important;
+    transition: all 0.2s ease !important;
+    min-width: 36px !important;
+    text-align: center !important;
+    text-decoration: none !important;
 }
 
 .pagination-custom .page-item.active .page-link {
-    background-color: #007bff;
-    border-color: #007bff;
-    color: white;
-    box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3);
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+    box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3) !important;
 }
 
 .pagination-custom .page-item .page-link:hover {
-    background-color: #e9ecef;
-    border-color: #dee2e6;
-    color: #495057;
+    background-color: #e9ecef !important;
+    border-color: #dee2e6 !important;
+    color: #495057 !important;
+    text-decoration: none !important;
 }
 
 .pagination-custom .page-item.disabled .page-link {
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-    color: #6c757d;
-    opacity: 0.6;
+    background-color: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+    color: #6c757d !important;
+    opacity: 0.6 !important;
 }
 
 /* Estilos específicos para los botones Previous y Next */
 .pagination-custom .page-item:first-child .page-link,
 .pagination-custom .page-item:last-child .page-link {
-    background: linear-gradient(135deg, #6c757d, #495057);
-    border-color: #495057;
-    color: white;
-    font-weight: 500;
-    padding: 6px 16px;
+    background: linear-gradient(135deg, #6c757d, #495057) !important;
+    border-color: #495057 !important;
+    color: white !important;
+    font-weight: 500 !important;
+    padding: 6px 16px !important;
 }
 
 .pagination-custom .page-item:first-child .page-link:hover,
 .pagination-custom .page-item:last-child .page-link:hover {
-    background: linear-gradient(135deg, #5a6268, #3d4348);
-    border-color: #3d4348;
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #5a6268, #3d4348) !important;
+    border-color: #3d4348 !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
 }
 
 .pagination-custom .page-item:first-child .page-link:active,
 .pagination-custom .page-item:last-child .page-link:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Iconos para los botones Previous y Next */
 .pagination-custom .page-item:first-child .page-link::before {
-    content: "← ";
-    font-weight: bold;
+    content: "← " !important;
+    font-weight: bold !important;
 }
 
 .pagination-custom .page-item:last-child .page-link::after {
-    content: " →";
-    font-weight: bold;
+    content: " →" !important;
+    font-weight: bold !important;
 }
     
     /* Formularios */
