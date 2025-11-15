@@ -721,30 +721,79 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
     
-    /* Paginación */
-    /* Paginación */
-    .pagination-custom .pagination {
-        margin: 0;
-    }
-    
-    .pagination-custom .page-item .page-link {
-        border: none;
-        border-radius: 8px;
-        margin: 0 3px;
-        color: #6c757d;
-        transition: all 0.3s ease;
-    }
-    
-    .pagination-custom .page-item.active .page-link {
-        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
-        color: white;
-        box-shadow: 0 4px 10px rgba(58, 123, 213, 0.25);
-    }
-    
-    .pagination-custom .page-item .page-link:hover {
-        background-color: #f0f4f8;
-        color: #3a7bd5;
-    }
+    /* Paginación - Nuevos estilos basados en la segunda imagen */
+.pagination-custom .pagination {
+    margin: 0;
+}
+
+.pagination-custom .page-item .page-link {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin: 0 2px;
+    color: #6c757d;
+    background-color: white;
+    padding: 6px 12px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    min-width: 36px;
+    text-align: center;
+}
+
+.pagination-custom .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+    box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3);
+}
+
+.pagination-custom .page-item .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.pagination-custom .page-item.disabled .page-link {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #6c757d;
+    opacity: 0.6;
+}
+
+/* Estilos específicos para los botones Previous y Next */
+.pagination-custom .page-item:first-child .page-link,
+.pagination-custom .page-item:last-child .page-link {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    border-color: #495057;
+    color: white;
+    font-weight: 500;
+    padding: 6px 16px;
+}
+
+.pagination-custom .page-item:first-child .page-link:hover,
+.pagination-custom .page-item:last-child .page-link:hover {
+    background: linear-gradient(135deg, #5a6268, #3d4348);
+    border-color: #3d4348;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.pagination-custom .page-item:first-child .page-link:active,
+.pagination-custom .page-item:last-child .page-link:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Iconos para los botones Previous y Next */
+.pagination-custom .page-item:first-child .page-link::before {
+    content: "← ";
+    font-weight: bold;
+}
+
+.pagination-custom .page-item:last-child .page-link::after {
+    content: " →";
+    font-weight: bold;
+}
     
     /* Formularios */
     .form-control-elegant {
