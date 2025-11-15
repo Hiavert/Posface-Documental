@@ -147,199 +147,42 @@ class TesisController extends Controller
             $zipFileName = 'tesis_seleccionadas_'.time().'.zip';
             $zipPath = storage_path('app/public/'.$zipFileName);
             
-            // Comprimir directorio manualmente
-$success = $this->zipFolder($tempDir, $zipPath);
-
-if (!$success || !file_exists($zipPath)) {
-    // Limpiar archivos temporales
-    File::deleteDirectory($tempDir);
-    if (file_exists($zipPath)) {
-        unlink($zipPath);
+             // Comprimir directorio manualmente
+            $this->zipFolder($tempDir, $zipPath);
+            
+            // Eliminar directorio temporal
+            File::deleteDirectory($tempDir);
+            
+            return response()->download($zipPath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            Log::error('Error en exportar: '.$e->getMessage());
+            return response()->json(['error' => 'Error interno: '.$e->getMessage()], 500);
+        }
     }
-    Log::error('Error al crear archivo comprimido. Verifique permisos de escritura.');
-    return response()->json(['error' => 'No se pudo crear el archivo comprimido. Contacte al administrador.'], 500);
-}
 
- // Método para comprimir directorio sin ZipArchive
+    // Método para comprimir directorio sin ZipArchive
     private function zipFolder($sourcePath, $zipPath)
-{
-    // Verificar si podemos usar comandos del sistema
-    if (function_exists('shell_exec')) {
-        // Intentar con comando zip
-        $zipCheck = shell_exec('which zip 2>/dev/null');
-        if (!empty($zipCheck)) {
-            $command = "cd " . escapeshellarg($sourcePath) . " && zip -r " . escapeshellarg($zipPath) . " . 2>/dev/null";
-            exec($command, $output, $returnVar);
-            
-            if ($returnVar === 0 && file_exists($zipPath)) {
-                return true;
-            }
-        }
-        
-        // Intentar con tar + gzip
-        $tarCheck = shell_exec('which tar 2>/dev/null');
-        if (!empty($tarCheck)) {
-            $tarPath = $zipPath . '.tar.gz';
-            $command = "cd " . escapeshellarg($sourcePath) . " && tar -czf " . escapeshellarg($tarPath) . " . 2>/dev/null";
-            exec($command, $output, $returnVar);
-            
-            if ($returnVar === 0 && file_exists($tarPath)) {
-                // Renombrar para mantener extensión .zip
-                rename($tarPath, $zipPath);
-                return true;
-            }
-        }
-    }
-    
-    // Si todo falla, crear un ZIP manual con PHP puro
-    return $this->createZipManual($sourcePath, $zipPath);
-}
+    {
+        // Crear archivo ZIP
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($sourcePath),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
 
-// Método para crear ZIP manualmente con PHP
-private function createZipManual($sourcePath, $zipPath)
-{
-    $files = [];
-    
-    // Recoger todos los archivos
-    $iterator = new \RecursiveIteratorIterator(
-        new \RecursiveDirectoryIterator($sourcePath),
-        \RecursiveIteratorIterator::LEAVES_ONLY
-    );
-    
-    foreach ($iterator as $file) {
-        if (!$file->isDir()) {
-            $filePath = $file->getRealPath();
-            $relativePath = str_replace($sourcePath . '/', '', $filePath);
-            $files[$relativePath] = $filePath;
+            foreach ($files as $name => $file) {
+                if (!$file->isDir()) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($sourcePath) + 1);
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+            $zip->close();
+            return true;
         }
-    }
-    
-    if (empty($files)) {
-        Log::error('No se encontraron archivos para comprimir en: ' . $sourcePath);
         return false;
     }
-    
-    // Crear archivo ZIP manual
-    $zipContent = $this->buildZipContent($files);
-    
-    if (file_put_contents($zipPath, $zipContent) !== false) {
-        return true;
-    }
-    
-    Log::error('No se pudo escribir el archivo ZIP en: ' . $zipPath);
-    return false;
-}
-
-// Construir contenido ZIP manualmente
-private function buildZipContent($files)
-{
-    $zipContent = '';
-    $centralDirectory = '';
-    $offset = 0;
-    
-    foreach ($files as $relativePath => $filePath) {
-        // Leer contenido del archivo
-        $fileContent = file_get_contents($filePath);
-        if ($fileContent === false) {
-            continue;
-        }
-        
-        $compressedSize = strlen($fileContent);
-        $uncompressedSize = strlen($fileContent);
-        $crc = crc32($fileContent);
-        
-        // Header local del archivo
-        $localHeader = $this->buildLocalFileHeader(
-            $relativePath,
-            $fileContent,
-            $crc,
-            $compressedSize,
-            $uncompressedSize
-        );
-        
-        $zipContent .= $localHeader;
-        
-        // Entrada del directorio central
-        $centralDirectory .= $this->buildCentralDirectoryHeader(
-            $relativePath,
-            $fileContent,
-            $crc,
-            $compressedSize,
-            $uncompressedSize,
-            $offset
-        );
-        
-        $offset += strlen($localHeader);
-    }
-    
-    // Final del directorio central
-    $endOfCentralDirectory = $this->buildEndOfCentralDirectory(count($files), strlen($centralDirectory), $offset);
-    
-    return $zipContent . $centralDirectory . $endOfCentralDirectory;
-}
-
-// Construir header local de archivo
-private function buildLocalFileHeader($filename, $content, $crc, $compressedSize, $uncompressedSize)
-{
-    $filenameLength = strlen($filename);
-    $header = pack('VvvvVVVVvv', 
-        0x04034b50, // Signature
-        10,         // Version needed
-        0,          // Flags
-        0,          // Compression method (0 = store)
-        0,          // Mod time
-        0,          // Mod date
-        $crc,       // CRC32
-        $compressedSize, // Compressed size
-        $uncompressedSize, // Uncompressed size
-        $filenameLength, // Filename length
-        0           // Extra field length
-    );
-    
-    return $header . $filename . $content;
-}
-
-// Construir entrada del directorio central
-private function buildCentralDirectoryHeader($filename, $content, $crc, $compressedSize, $uncompressedSize, $offset)
-{
-    $filenameLength = strlen($filename);
-    $header = pack('VvvvvVVVVvvvvvVV', 
-        0x02014b50, // Signature
-        20,         // Version made by
-        10,         // Version needed
-        0,          // Flags
-        0,          // Compression method
-        0,          // Mod time
-        0,          // Mod date
-        $crc,       // CRC32
-        $compressedSize, // Compressed size
-        $uncompressedSize, // Uncompressed size
-        $filenameLength, // Filename length
-        0,          // Extra field length
-        0,          // File comment length
-        0,          // Disk number start
-        0,          // Internal file attributes
-        0,          // External file attributes
-        $offset     // Relative offset of local header
-    );
-    
-    return $header . $filename;
-}
-
-// Construir fin del directorio central
-private function buildEndOfCentralDirectory($fileCount, $centralDirectorySize, $offset)
-{
-    return pack('VvvvvVVv', 
-        0x06054b50, // Signature
-        0,          // Disk number
-        0,          // Disk number start
-        $fileCount, // Entries in this disk
-        $fileCount, // Total entries
-        $centralDirectorySize, // Central directory size
-        $offset,    // Offset of central directory
-        0           // Comment length
-    );
-}
     
     public function update(Request $request, $id)
     {
