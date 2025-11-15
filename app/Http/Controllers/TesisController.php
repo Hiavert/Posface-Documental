@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 class TesisController extends Controller
 {
@@ -101,87 +100,6 @@ class TesisController extends Controller
             Log::error('Error en store: '.$e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    }
-
-    public function exportar(Request $request)
-    {
-        try {
-            $selectedIds = $request->input('ids');
-            
-            // Convertir a array si es JSON string
-            if (!is_array($selectedIds)) {
-                $selectedIds = json_decode($selectedIds, true);
-            }
-            
-            if (empty($selectedIds)) {
-                return response()->json(['error' => 'No se seleccionaron tesis'], 400);
-            }
-
-            $tesis = Tesis::whereIn('id_tesis', $selectedIds)
-                      ->whereNotNull('ruta_archivo')
-                      ->get();
-            
-            if ($tesis->isEmpty()) {
-                return response()->json(['error' => 'No se encontraron tesis para exportar'], 404);
-            }
-
-            // Crear directorio temporal
-            $tempDir = storage_path('app/public/temp_export_' . time());
-            File::makeDirectory($tempDir, 0755, true, true);
-            
-            // Copiar archivos al directorio temporal
-            foreach ($tesis as $tesisItem) {
-                $filePath = storage_path('app/public/tesis/'.$tesisItem->ruta_archivo);
-                if (file_exists($filePath)) {
-                    // Crear nombre seguro para el archivo
-                    $safeTitle = Str::slug($tesisItem->titulo, '_');
-                    $newFileName = $safeTitle . '.pdf';
-                    $newFilePath = $tempDir . '/' . $newFileName;
-                    
-                    // Copiar archivo con nuevo nombre
-                    copy($filePath, $newFilePath);
-                }
-            }
-
-            // Crear archivo ZIP manualmente
-            $zipFileName = 'tesis_seleccionadas_'.time().'.zip';
-            $zipPath = storage_path('app/public/'.$zipFileName);
-            
-            // Comprimir directorio manualmente
-            $this->zipFolder($tempDir, $zipPath);
-            
-            // Eliminar directorio temporal
-            File::deleteDirectory($tempDir);
-            
-            return response()->download($zipPath)->deleteFileAfterSend(true);
-        } catch (\Exception $e) {
-            Log::error('Error en exportar: '.$e->getMessage());
-            return response()->json(['error' => 'Error interno: '.$e->getMessage()], 500);
-        }
-    }
-
-    // Método para comprimir directorio sin ZipArchive
-    private function zipFolder($sourcePath, $zipPath)
-    {
-        // Crear archivo ZIP
-        $zip = new \ZipArchive();
-        if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
-            $files = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($sourcePath),
-                \RecursiveIteratorIterator::LEAVES_ONLY
-            );
-
-            foreach ($files as $name => $file) {
-                if (!$file->isDir()) {
-                    $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($sourcePath) + 1);
-                    $zip->addFile($filePath, $relativePath);
-                }
-            }
-            $zip->close();
-            return true;
-        }
-        return false;
     }
 
     public function update(Request $request, $id)

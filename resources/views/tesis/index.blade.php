@@ -90,11 +90,6 @@
                                aria-describedby="help-busqueda">
                     </div>
                 </div>
-                <div class="col-md-6 text-right">
-                    <button class="btn btn-outline-primary btn-elegant" id="btn-exportar" aria-label="Exportar tesis seleccionadas">
-                        <i class="fas fa-file-export mr-1" aria-hidden="true"></i> Exportar Seleccionados
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -739,12 +734,10 @@ $(document).ready(function() {
         store: "{{ route('tesis.store') }}",
         update: (id) => `{{ url('tesis') }}/${id}`,
         destroy: (id) => `{{ url('tesis') }}/${id}`,
-        exportar: "{{ route('tesis.exportar') }}",
         // CORRECCIÓN: Generar rutas correctamente con parámetros
         download: (filename) => "{{ url('storage/tesis') }}/" + filename,
         preview: (filename) => "{{ url('storage/tesis') }}/" + filename
     };
-
 
     // Inicializar
     cargarTesis();
@@ -1101,43 +1094,6 @@ $(document).ready(function() {
                     }
                 });
             }
-        });
-        
-        // Exportar tesis (ZIP)
-        $('#btn-exportar').click(function() {
-            const selectedIds = $('.select-item:checked').map(function() {
-                return $(this).val();
-            }).get();
-            
-            if (selectedIds.length === 0) {
-                showToast('Seleccione al menos una tesis para exportar', 'danger');
-                return;
-            }
-            
-            showLoadingModal('Preparando archivos para exportar...');
-            
-            // Crear formulario temporal para descarga
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = routes.exportar;
-            
-            const token = document.createElement('input');
-            token.type = 'hidden';
-            token.name = '_token';
-            token.value = "{{ csrf_token() }}";
-            form.appendChild(token);
-            
-            const idsInput = document.createElement('input');
-            idsInput.type = 'hidden';
-            idsInput.name = 'ids';
-            idsInput.value = JSON.stringify(selectedIds);
-            form.appendChild(idsInput);
-            
-            document.body.appendChild(form);
-            form.submit();
-            
-            // Ocultar modal después de un breve retraso
-            setTimeout(hideLoadingModal, 2000);
         });
         
         // Mostrar detalles
