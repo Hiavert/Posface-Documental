@@ -722,7 +722,7 @@
     }
     
 /* Paginación - Estilos corregidos para Tailwind */
-/* Paginación - Estilo minimalista como en la segunda imagen */
+/* Paginación - Solo botones como en la segunda imagen */
 .pagination-custom nav[role="navigation"] .flex-1 {
     display: none !important;
 }
@@ -837,9 +837,25 @@
     flex-direction: row !important;
 }
 
-/* Ocultar el texto "Showing X to Y of Z results" */
+/* Ocultar completamente el texto "Showing X to Y of Z results" */
 .pagination-custom nav[role="navigation"] .flex-1 .text-sm {
     display: none !important;
+}
+
+/* Ocultar cualquier elemento que contenga el texto de resultados */
+.pagination-custom nav[role="navigation"] .flex-1 > div:first-child {
+    display: none !important;
+}
+
+/* Asegurar que solo se muestren los 3 elementos: Anterior - Número - Siguiente */
+.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > div:first-child,
+.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > div:last-child {
+    display: none !important;
+}
+
+/* Mostrar solo el contenedor central con los botones */
+.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > .relative.z-0 {
+    display: flex !important;
 }
     
     /* Formularios */
