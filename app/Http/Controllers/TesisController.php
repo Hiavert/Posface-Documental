@@ -272,8 +272,3 @@ class TesisController extends Controller
         ]);
     }
 }
-        return Storage::disk('public')->response('tesis/'.$filename, null, [
-            'Content-Type' => 'application/pdf'
-        ]);
-    }
-}
