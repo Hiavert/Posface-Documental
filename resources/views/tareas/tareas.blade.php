@@ -721,82 +721,72 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
     
-/* Paginación - Estilos corregidos con !important */
+/* Paginación - Solución alternativa más específica */
+.pagination-custom .flex.justify-between.flex-1 {
+    display: none !important;
+}
+
 .pagination-custom .pagination {
     margin: 0 !important;
     display: flex !important;
     gap: 5px !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 
-.pagination-custom .page-item .page-link {
+.pagination-custom .pagination li {
+    list-style: none !important;
+    margin: 0 !important;
+}
+
+.pagination-custom .pagination a,
+.pagination-custom .pagination span {
     border: 1px solid #dee2e6 !important;
     border-radius: 4px !important;
-    margin: 0 2px !important;
     color: #6c757d !important;
     background-color: white !important;
-    padding: 6px 12px !important;
-    font-size: 0.875rem !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    text-decoration: none !important;
+    display: inline-block !important;
     transition: all 0.2s ease !important;
-    min-width: 36px !important;
-    text-align: center !important;
-    text-decoration: none !important;
 }
 
-.pagination-custom .page-item.active .page-link {
-    background-color: #007bff !important;
-    border-color: #007bff !important;
-    color: white !important;
-    box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3) !important;
-}
-
-.pagination-custom .page-item .page-link:hover {
-    background-color: #e9ecef !important;
-    border-color: #dee2e6 !important;
-    color: #495057 !important;
-    text-decoration: none !important;
-}
-
-.pagination-custom .page-item.disabled .page-link {
-    background-color: #f8f9fa !important;
-    border-color: #dee2e6 !important;
-    color: #6c757d !important;
-    opacity: 0.6 !important;
-}
-
-/* Estilos específicos para los botones Previous y Next */
-.pagination-custom .page-item:first-child .page-link,
-.pagination-custom .page-item:last-child .page-link {
+/* Botones Previous y Next */
+.pagination-custom .pagination li:first-child a,
+.pagination-custom .pagination li:first-child span,
+.pagination-custom .pagination li:last-child a,
+.pagination-custom .pagination li:last-child span {
     background: linear-gradient(135deg, #6c757d, #495057) !important;
     border-color: #495057 !important;
     color: white !important;
     font-weight: 500 !important;
-    padding: 6px 16px !important;
+    padding: 8px 16px !important;
 }
 
-.pagination-custom .page-item:first-child .page-link:hover,
-.pagination-custom .page-item:last-child .page-link:hover {
-    background: linear-gradient(135deg, #5a6268, #3d4348) !important;
-    border-color: #3d4348 !important;
-    color: white !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
-}
-
-.pagination-custom .page-item:first-child .page-link:active,
-.pagination-custom .page-item:last-child .page-link:active {
-    transform: translateY(0) !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Iconos para los botones Previous y Next */
-.pagination-custom .page-item:first-child .page-link::before {
+.pagination-custom .pagination li:first-child a::before {
     content: "← " !important;
     font-weight: bold !important;
 }
 
-.pagination-custom .page-item:last-child .page-link::after {
+.pagination-custom .pagination li:last-child a::after {
     content: " →" !important;
     font-weight: bold !important;
+}
+
+/* Estados hover */
+.pagination-custom .pagination a:hover {
+    background-color: #e9ecef !important;
+    border-color: #adb5bd !important;
+    color: #495057 !important;
+}
+
+.pagination-custom .pagination li:first-child a:hover,
+.pagination-custom .pagination li:last-child a:hover {
+    background: linear-gradient(135deg, #5a6268, #3d4348) !important;
+    border-color: #3d4348 !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
 }
     
     /* Formularios */
