@@ -722,78 +722,65 @@
     }
     
 /* Paginación - Estilos corregidos para Tailwind */
-/* Paginación - Mostrar solo los botones */
-.pagination-custom nav[role="navigation"] {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100% !important;
-}
-    
-/* Ocultar todo el contenido excepto los botones */
-.pagination-custom nav[role="navigation"] > * {
+/* FORZAR MOSTRAR BOTONES - ELIMINAR TODO LO DEMÁS */
+.pagination-custom * {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
-.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 {
+.pagination-custom nav[role="navigation"],
+.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1,
+.pagination-custom nav[role="navigation"] .relative.z-0,
+.pagination-custom nav[role="navigation"] a[rel="prev"],
+.pagination-custom nav[role="navigation"] a[rel="next"], 
+.pagination-custom nav[role="navigation"] span[aria-current="page"] {
     display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 9999 !important;
+}
+
+/* Contenedor principal */
+.pagination-custom nav[role="navigation"] {
     justify-content: center !important;
     align-items: center !important;
-    gap: 12px !important;
     width: 100% !important;
+    height: auto !important;
+    padding: 20px 0 !important;
+}
+
+/* Contenedor de botones */
+.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 {
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 15px !important;
+    width: auto !important;
 }
 
 .pagination-custom nav[role="navigation"] .relative.z-0 {
-    display: flex !important;
-    gap: 12px !important;
-    align-items: center !important;
-    justify-content: center !important;
+    gap: 15px !important;
 }
 
-/* Mostrar SOLO los 3 botones principales */
+/* ESTILOS DE BOTONES */
 .pagination-custom nav[role="navigation"] a[rel="prev"],
 .pagination-custom nav[role="navigation"] a[rel="next"],
 .pagination-custom nav[role="navigation"] span[aria-current="page"] {
-    display: inline-flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-/* Ocultar TODOS los demás elementos */
-.pagination-custom nav[role="navigation"] * {
-    display: none !important;
-}
-
-/* Mostrar específicamente los 3 botones que necesitamos */
-.pagination-custom nav[role="navigation"] a[rel="prev"],
-.pagination-custom nav[role="navigation"] a[rel="next"],
-.pagination-custom nav[role="navigation"] span[aria-current="page"],
-.pagination-custom nav[role="navigation"] .relative.z-0,
-.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-/* Estilos de los botones */
-.pagination-custom nav[role="navigation"] a[rel="prev"],
-.pagination-custom nav[role="navigation"] a[rel="next"],
-.pagination-custom nav[role="navigation"] span[aria-current="page"] {
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 12px 24px !important;
+    padding: 12px 25px !important;
     border: 2px solid #4f46e5 !important;
     border-radius: 8px !important;
-    text-decoration: none !important;
     font-size: 16px !important;
     font-weight: 600 !important;
+    text-decoration: none !important;
+    min-width: 100px !important;
+    height: 45px !important;
+    align-items: center !important;
+    justify-content: center !important;
     transition: all 0.3s ease !important;
-    min-width: 60px !important;
-    height: 48px !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 
-/* Botones Anterior y Siguiente */
+/* Botones Anterior/Siguiente */
 .pagination-custom nav[role="navigation"] a[rel="prev"],
 .pagination-custom nav[role="navigation"] a[rel="next"] {
     background: transparent !important;
@@ -806,11 +793,12 @@
     color: white !important;
 }
 
-/* Hover effects */
+/* Hover */
 .pagination-custom nav[role="navigation"] a[rel="prev"]:hover,
 .pagination-custom nav[role="navigation"] a[rel="next"]:hover {
     background: #4f46e5 !important;
     color: white !important;
+    transform: translateY(-2px) !important;
 }
     
     /* Formularios */
