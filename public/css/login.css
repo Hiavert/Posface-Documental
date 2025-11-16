@@ -125,27 +125,32 @@ h2::after {
   min-height: 80px; /* Espacio reservado para mensajes de error */
 }
 
-.input-container i {
+.icon-wrapper {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 18px;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
   z-index: 2;
 }
 
-.input-container i:first-child {
-  left: 15px;
+.input-icon-left {
+  left: 0;
+  padding-left: 15px;
   color: #6c757d;
+  font-size: 18px;
 }
 
-.input-container i.toggle-icon {
-  right: 15px;
-  cursor: pointer;
+.input-icon-right {
+  right: 0;
+  padding-right: 15px;
   color: #6c757d;
+  font-size: 18px;
+  cursor: pointer;
   transition: color 0.2s;
 }
 
-.input-container i.toggle-icon:hover {
+.input-icon-right:hover {
   color: #1a5a8d;
 }
 
@@ -158,6 +163,8 @@ h2::after {
   transition: all 0.3s;
   background: #f9f9f9;
   height: 50px;
+  position: relative;
+  z-index: 1;
 }
 
 .input-container input:focus {
@@ -259,7 +266,7 @@ h2::after {
 }
 
 /* Mejorar contraste de los iconos */
-.input-container i.toggle-icon:focus {
+.input-icon-right:focus {
   outline: 2px solid #1a5a8d;
   border-radius: 50%;
 }
@@ -332,6 +339,10 @@ h2::after {
   
   .welcome-text {
     font-size: 15px;
+  }
+  
+  .input-icon-left, .input-icon-right {
+    font-size: 16px;
   }
 }
 
