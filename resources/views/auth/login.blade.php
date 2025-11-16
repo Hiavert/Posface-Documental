@@ -37,18 +37,26 @@
                     <!-- Campo de email -->
                     <div class="input-container" id="email-container">
                         <label for="email" class="sr-only">Correo electrónico</label>
-                        <i class="bi bi-person" aria-hidden="true"></i>
+                        <div class="icon-wrapper">
+                            <i class="bi bi-person input-icon-left" aria-hidden="true"></i>
+                        </div>
                         <input type="email" name="email" id="email" placeholder="usuario@correo.com" required maxlength="50" aria-describedby="email-error" />
-                        <i class="bi bi-x-circle toggle-icon email-clear" id="email-clear" title="Limpiar campo" aria-hidden="true"></i>
+                        <div class="icon-wrapper">
+                            <i class="bi bi-x-circle input-icon-right email-clear" id="email-clear" title="Limpiar campo" aria-hidden="true"></i>
+                        </div>
                         <div class="error-message" id="email-error" role="alert" aria-live="polite"></div>
                     </div>
 
                     <!-- Campo de contraseña -->
                     <div class="input-container" id="password-container">
                         <label for="password" class="sr-only">Contraseña</label>
-                        <i class="bi bi-lock" aria-hidden="true"></i>
+                        <div class="icon-wrapper">
+                            <i class="bi bi-lock input-icon-left" aria-hidden="true"></i>
+                        </div>
                         <input type="password" name="password" id="password" placeholder="Contraseña" required maxlength="20" aria-describedby="password-error" />
-                        <i class="bi bi-eye toggle-icon" id="toggle-password" title="Mostrar contraseña" aria-hidden="true"></i>
+                        <div class="icon-wrapper">
+                            <i class="bi bi-eye input-icon-right" id="toggle-password" title="Mostrar contraseña" aria-hidden="true"></i>
+                        </div>
                         <div class="error-message" id="password-error" role="alert" aria-live="polite"></div>
                     </div>
 
