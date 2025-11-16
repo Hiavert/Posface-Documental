@@ -12,7 +12,7 @@
         <!-- Panel Izquierdo -->
         <div class="left-panel">
             <div class="logo-container">
-                <img src="{{ asset('Imagen/Posface_logo.jpeg') }}" alt="Logo POSFACE - Formamos profesionales con valores y visión gerencial" class="logo-img" />
+                <img src="{{ asset('Imagen/Posface_logo.jpeg') }}" alt="Logo POSFACE" class="logo-img" />
             </div>
             <p class="mission-text">Formamos profesionales con valores y visión gerencial para el desarrollo económico del país.</p>
         </div>
@@ -20,15 +20,15 @@
         <!-- Panel Derecho -->
         <div class="right-panel">
             <div class="login-container">
-                <h1 class="welcome-text">Bienvenido al sistema de gestión académica</h1>
+                <p class="welcome-text">Bienvenido al sistema de gestión académica</p>
                 <h2>Iniciar sesión</h2>
 
                 <!-- Mensajes de error/success -->
-                <div class="alert alert-danger" id="error-alert" style="display: none;" role="alert" aria-live="polite">
+                <div class="alert alert-danger" id="error-alert" style="display: none;">
                     <ul id="error-list"></ul>
                 </div>
                 
-                <div class="alert alert-success" id="success-alert" style="display: none;" role="alert" aria-live="polite">
+                <div class="alert alert-success" id="success-alert" style="display: none;">
                     ¡Inicio de sesión exitoso! Redirigiendo...
                 </div>
 
@@ -36,20 +36,18 @@
                     @csrf
                     <!-- Campo de email -->
                     <div class="input-container" id="email-container">
-                        <label for="email" class="sr-only">Correo electrónico</label>
-                        <i class="bi bi-person input-icon-left" aria-hidden="true"></i>
-                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required maxlength="50" aria-describedby="email-error" />
-                        <i class="bi bi-x-circle input-icon-right email-clear" id="email-clear" title="Limpiar campo" aria-hidden="true"></i>
-                        <div class="error-message" id="email-error" role="alert" aria-live="polite"></div>
+                        <i class="bi bi-person"></i>
+                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required />
+                        <i class="bi bi-x-circle toggle-icon email-clear" id="email-clear" title="Limpiar campo"></i>
+                        <div class="error-message" id="email-error"></div>
                     </div>
 
                     <!-- Campo de contraseña -->
                     <div class="input-container" id="password-container">
-                        <label for="password" class="sr-only">Contraseña</label>
-                        <i class="bi bi-lock input-icon-left" aria-hidden="true"></i>
-                        <input type="password" name="password" id="password" placeholder="Contraseña" required maxlength="20" aria-describedby="password-error" />
-                        <i class="bi bi-eye input-icon-right" id="toggle-password" title="Mostrar contraseña" aria-hidden="true"></i>
-                        <div class="error-message" id="password-error" role="alert" aria-live="polite"></div>
+                        <i class="bi bi-lock"></i>
+                        <input type="password" name="password" id="password" placeholder="Contraseña" required />
+                        <i class="bi bi-eye toggle-icon" id="toggle-password" title="Mostrar contraseña"></i>
+                        <div class="error-message" id="password-error"></div>
                     </div>
 
                     <button type="submit" class="btn">Entrar</button>
@@ -77,56 +75,9 @@
             const successAlert = document.getElementById('success-alert');
             const form = document.getElementById('loginForm');
             
-            // Función para verificar caracteres repetidos y bloquear la entrada
-            function preventRepeatingCharacters(input, maxRepeats) {
-                const value = input.value;
-                
-                if (value.length > 0) {
-                    let count = 1;
-                    for (let i = 1; i < value.length; i++) {
-                        if (value[i] === value[i-1]) {
-                            count++;
-                            if (count > maxRepeats) {
-                                // Eliminar el último carácter ingresado
-                                input.value = value.substring(0, value.length - 1);
-                                return true; // Se bloqueó un carácter
-                            }
-                        } else {
-                            count = 1;
-                        }
-                    }
-                }
-                return false; // No se bloqueó ningún carácter
-            }
-            
             // Validación en tiempo real
-            emailInput.addEventListener('input', function() {
-                if (preventRepeatingCharacters(emailInput, 3)) {
-                    // Mostrar mensaje de error temporal
-                    const errorElement = document.getElementById('email-error');
-                    showError(emailInput, errorElement, 'No se permiten más de 3 caracteres iguales consecutivos');
-                    setTimeout(() => {
-                        errorElement.style.display = 'none';
-                        emailInput.parentElement.classList.remove('error');
-                    }, 2000);
-                } else {
-                    validateEmail();
-                }
-            });
-            
-            passwordInput.addEventListener('input', function() {
-                if (preventRepeatingCharacters(passwordInput, 3)) {
-                    // Mostrar mensaje de error temporal
-                    const errorElement = document.getElementById('password-error');
-                    showError(passwordInput, errorElement, 'No se permiten más de 3 caracteres iguales consecutivos');
-                    setTimeout(() => {
-                        errorElement.style.display = 'none';
-                        passwordInput.parentElement.classList.remove('error');
-                    }, 2000);
-                } else {
-                    validatePassword();
-                }
-            });
+            emailInput.addEventListener('input', validateEmail);
+            passwordInput.addEventListener('input', validatePassword);
             
             // Toggle mostrar/ocultar contraseña
             togglePassword.addEventListener('click', function() {
@@ -134,11 +85,6 @@
                 passwordInput.setAttribute('type', type);
                 this.classList.toggle('bi-eye');
                 this.classList.toggle('bi-eye-slash');
-                
-                // Actualizar el texto del tooltip para accesibilidad
-                const isVisible = type === 'text';
-                this.setAttribute('title', isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña');
-                this.setAttribute('aria-label', isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña');
             });
             
             // Limpiar campo email
@@ -158,41 +104,17 @@
                 if (emailValid && passwordValid) {
                     errorAlert.style.display = 'none';
                     successAlert.style.display = 'block';
-                    
-                    // Simulamos el envío al servidor
-                    setTimeout(() => {
-                        // Si la contraseña es incorrecta, mostramos error y recargamos
-                        if (passwordInput.value !== 'contraseñaCorrecta') { // Esto es solo un ejemplo
-                            errorList.innerHTML = '<li>Contraseña incorrecta</li>';
-                            errorAlert.style.display = 'block';
-                            successAlert.style.display = 'none';
-                            
-                            // Recargar la página después de 2 segundos
-                            setTimeout(() => {
-                                location.reload();
-                            }, 2000);
-                        } else {
-                            // Si es correcta, enviamos el formulario
-                            form.submit();
-                        }
-                    }, 1500);
+                    setTimeout(() => form.submit(), 1500);
                 } else {
                     errorList.innerHTML = '';
                     if (!emailValid) errorList.innerHTML += '<li>Correo electrónico inválido</li>';
                     if (!passwordValid) errorList.innerHTML += '<li>Contraseña inválida</li>';
                     errorAlert.style.display = 'block';
                     successAlert.style.display = 'none';
-                    
-                    // Enfocar el primer campo con error para accesibilidad
-                    if (!emailValid) {
-                        emailInput.focus();
-                    } else if (!passwordValid) {
-                        passwordInput.focus();
-                    }
                 }
             });
             
-            // Validar email
+            // Validar email (ahora acepta cualquier dominio válido)
             function validateEmail() {
                 const email = emailInput.value.trim();
                 const errorElement = document.getElementById('email-error');
@@ -203,11 +125,6 @@
                 
                 if (email === '') {
                     showError(emailInput, errorElement, 'El correo electrónico es obligatorio');
-                    return false;
-                }
-                
-                if (email.length > 50) {
-                    showError(emailInput, errorElement, 'El correo no puede tener más de 50 caracteres');
                     return false;
                 }
                 
@@ -232,8 +149,8 @@
                     return false;
                 }
                 
-                if (password.length > 20) {
-                    showError(passwordInput, errorElement, 'La contraseña no puede tener más de 20 caracteres');
+                if (password.length < 8) {
+                    showError(passwordInput, errorElement, 'La contraseña debe tener al menos 8 caracteres');
                     return false;
                 }
                 
@@ -245,27 +162,11 @@
                 input.parentElement.classList.add('error');
                 errorElement.textContent = message;
                 errorElement.style.display = 'block';
-                input.setAttribute('aria-invalid', 'true');
             }
             
             function showSuccess(input) {
                 input.parentElement.classList.add('success');
-                input.setAttribute('aria-invalid', 'false');
             }
-            
-            // Manejo de teclado para accesibilidad
-            emailInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    emailClear.click();
-                }
-            });
-            
-            passwordInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    passwordInput.value = '';
-                    validatePassword();
-                }
-            });
         });
     </script>
 </body>
