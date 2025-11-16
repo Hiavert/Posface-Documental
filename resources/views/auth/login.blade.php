@@ -37,26 +37,18 @@
                     <!-- Campo de email -->
                     <div class="input-container" id="email-container">
                         <label for="email" class="sr-only">Correo electrónico</label>
-                        <div class="icon-wrapper">
-                            <i class="bi bi-person input-icon-left" aria-hidden="true"></i>
-                        </div>
+                        <i class="bi bi-person input-icon-left" aria-hidden="true"></i>
                         <input type="email" name="email" id="email" placeholder="usuario@correo.com" required maxlength="50" aria-describedby="email-error" />
-                        <div class="icon-wrapper">
-                            <i class="bi bi-x-circle input-icon-right email-clear" id="email-clear" title="Limpiar campo" aria-hidden="true"></i>
-                        </div>
+                        <i class="bi bi-x-circle input-icon-right email-clear" id="email-clear" title="Limpiar campo" aria-hidden="true"></i>
                         <div class="error-message" id="email-error" role="alert" aria-live="polite"></div>
                     </div>
 
                     <!-- Campo de contraseña -->
                     <div class="input-container" id="password-container">
                         <label for="password" class="sr-only">Contraseña</label>
-                        <div class="icon-wrapper">
-                            <i class="bi bi-lock input-icon-left" aria-hidden="true"></i>
-                        </div>
+                        <i class="bi bi-lock input-icon-left" aria-hidden="true"></i>
                         <input type="password" name="password" id="password" placeholder="Contraseña" required maxlength="20" aria-describedby="password-error" />
-                        <div class="icon-wrapper">
-                            <i class="bi bi-eye input-icon-right" id="toggle-password" title="Mostrar contraseña" aria-hidden="true"></i>
-                        </div>
+                        <i class="bi bi-eye input-icon-right" id="toggle-password" title="Mostrar contraseña" aria-hidden="true"></i>
                         <div class="error-message" id="password-error" role="alert" aria-live="polite"></div>
                     </div>
 
