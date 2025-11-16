@@ -729,7 +729,7 @@
     align-items: center !important;
     width: 100% !important;
 }
-
+    
 /* Ocultar todo el contenido excepto los botones */
 .pagination-custom nav[role="navigation"] > * {
     display: none !important;
