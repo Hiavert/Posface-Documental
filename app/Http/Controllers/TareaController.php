@@ -180,12 +180,6 @@ class TareaController extends Controller
 
             DB::commit();
 
-            // Notificar al usuario asignado
-            $usuario = User::find($request->fk_id_usuario_asignado);
-            if ($usuario) {
-                $usuario->notify(new \App\Notifications\TareaAsignadaNotification($tarea));
-            }
-
             // Registrar en bitácora
             $this->registrarBitacora('crear_tarea', 'Tarea', $tarea->id_tarea, [], $tarea->toArray());
 
@@ -385,12 +379,6 @@ class TareaController extends Controller
         $tarea->fk_id_usuario_asignado = $request->nuevo_responsable;
         $tarea->save();
 
-        // Notificar al nuevo responsable
-        $usuario = User::find($request->nuevo_responsable);
-        if ($usuario) {
-            $usuario->notify(new \App\Notifications\TareaAsignadaNotification($tarea));
-        }
-
         // Registrar en bitácora
         $this->registrarBitacora('delegar_tarea', 'Tarea', $tarea->id_tarea, $datos_antes, $tarea->toArray());
 
@@ -513,5 +501,12 @@ class TareaController extends Controller
                 'message' => 'Error al eliminar el documento: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    // Método auxiliar para registrar en bitácora (si existe en tu controlador base)
+    protected function registrarBitacora($accion, $tabla, $registroId, $datosAntes = [], $datosDespues = [])
+    {
+        // Implementación del registro en bitácora según tu sistema
+        // Este método puede variar dependiendo de tu implementación específica
     }
 }
