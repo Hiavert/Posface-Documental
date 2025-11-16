@@ -722,8 +722,15 @@
     }
     
 /* Paginación - Estilos corregidos para Tailwind */
-/* Paginación - Estilo exacto como en la imagen */
-.pagination-custom nav[role="navigation"] .flex-1 {
+/* Paginación - Solo botones */
+.pagination-custom nav[role="navigation"] {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.pagination-custom nav[role="navigation"] > div:first-child,
+.pagination-custom nav[role="navigation"] > div:last-child {
     display: none !important;
 }
 
@@ -740,17 +747,20 @@
     align-items: center !important;
 }
 
-/* Ocultar todos los números de página excepto el activo */
+/* Mostrar solo los botones Anterior, página activa y Siguiente */
+.pagination-custom nav[role="navigation"] a[rel="prev"],
+.pagination-custom nav[role="navigation"] a[rel="next"],
+.pagination-custom nav[role="navigation"] span[aria-current="page"] {
+    display: inline-flex !important;
+}
+
+/* Ocultar todo lo demás */
 .pagination-custom nav[role="navigation"] a:not([rel="prev"]):not([rel="next"]),
 .pagination-custom nav[role="navigation"] span:not([aria-current="page"]):not([aria-disabled="true"]) {
     display: none !important;
 }
 
-/* Mostrar solo la página activa */
-.pagination-custom nav[role="navigation"] span[aria-current="page"] {
-    display: inline-flex !important;
-}
-
+/* Estilos de los botones */
 .pagination-custom nav[role="navigation"] a,
 .pagination-custom nav[role="navigation"] span {
     display: inline-flex !important;
@@ -768,35 +778,24 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 
-/* Botones Anterior y Siguiente - Estilo de contorno */
+/* Botones Anterior y Siguiente */
 .pagination-custom nav[role="navigation"] a[rel="prev"],
 .pagination-custom nav[role="navigation"] a[rel="next"] {
     background: transparent !important;
     border: 2px solid #4f46e5 !important;
     color: #4f46e5 !important;
-    padding: 12px 24px !important;
 }
 
-/* Remover flechas de Previous y Next */
-.pagination-custom nav[role="navigation"] a[rel="prev"]::before {
-    content: "" !important;
-}
-
-.pagination-custom nav[role="navigation"] a[rel="next"]::after {
-    content: "" !important;
-}
-
-/* Hover para Previous y Next */
+/* Hover para botones */
 .pagination-custom nav[role="navigation"] a[rel="prev"]:hover,
 .pagination-custom nav[role="navigation"] a[rel="next"]:hover {
     background: #4f46e5 !important;
-    border-color: #4f46e5 !important;
     color: white !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
 }
 
-/* Página activa - Estilo sólido */
+/* Página activa */
 .pagination-custom nav[role="navigation"] span[aria-current="page"] {
     background: #4f46e5 !important;
     border-color: #4f46e5 !important;
@@ -811,54 +810,15 @@
     border-color: #cbd5e1 !important;
     color: #94a3b8 !important;
     cursor: not-allowed !important;
-    box-shadow: none !important;
 }
 
-/* Remover estilos de Tailwind por defecto */
+/* Remover estilos de Tailwind */
 .pagination-custom nav[role="navigation"] .shadow-sm {
     box-shadow: none !important;
 }
 
 .pagination-custom nav[role="navigation"] .rounded-md {
     border-radius: 8px !important;
-}
-
-.pagination-custom nav[role="navigation"] .rtl\\:flex-row-reverse {
-    flex-direction: row !important;
-}
-
-/* Ocultar texto de resultados */
-.pagination-custom nav[role="navigation"] .flex.justify-between.items-center,
-.pagination-custom nav[role="navigation"] .text-sm.text-gray-700,
-.pagination-custom nav[role="navigation"] .leading-5,
-.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > div:first-child,
-.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > div:last-child,
-.pagination-custom nav[role="navigation"] > div:first-child {
-    display: none !important;
-}
-
-/* Asegurar que solo se muestre el contenedor de botones */
-.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > .relative.z-0 {
-    display: flex !important;
-}
-
-.pagination-custom nav[role="navigation"] .sm\\:flex-1 {
-    display: flex !important;
-    justify-content: center !important;
-}
-
-.pagination-custom nav[role="navigation"] .sm\\:flex-1 .relative.z-0 {
-    display: flex !important;
-    margin: 0 auto !important;
-}
-
-/* Estilos específicos para el texto de los botones */
-.pagination-custom nav[role="navigation"] a[rel="prev"] {
-    content: "Anterior" !important;
-}
-
-.pagination-custom nav[role="navigation"] a[rel="next"] {
-    content: "Siguiente" !important;
 }
     
     /* Formularios */
