@@ -822,28 +822,6 @@
 
 .pagination-custom nav[role="navigation"] .rtl\\:flex-row-reverse {
     flex-direction: row !important;
-}   
-/* OCULTAR EL TEXTO "Showing X to Y of Z results" */
-.pagination-custom nav[role="navigation"] .flex-1 .text-sm {
-    display: none !important;
-}
-
-.pagination-custom nav[role="navigation"] .flex.justify-between.items-center .text-sm.text-gray-700 {
-    display: none !important;
-}
-
-.pagination-custom nav[role="navigation"] .leading-5 {
-    display: none !important;
-}
-
-/* Ocultar cualquier elemento que contenga texto de resultados */
-.pagination-custom nav[role="navigation"] .flex.justify-between.items-center > div:first-child {
-    display: none !important;
-}
-
-/* Regla más específica para ocultar el texto de resultados */
-.pagination-custom nav[role="navigation"] .flex.justify-between.items-center .text-sm {
-    display: none !important;
 }
     
     /* Formularios */
