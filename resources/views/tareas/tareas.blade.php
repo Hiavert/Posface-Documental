@@ -722,15 +722,16 @@
     }
     
 /* Paginación - Estilos corregidos para Tailwind */
-/* Paginación - Solo botones */
+/* Paginación - Mostrar solo los botones */
 .pagination-custom nav[role="navigation"] {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
+    width: 100% !important;
 }
 
-.pagination-custom nav[role="navigation"] > div:first-child,
-.pagination-custom nav[role="navigation"] > div:last-child {
+/* Ocultar todo el contenido excepto los botones */
+.pagination-custom nav[role="navigation"] > * {
     display: none !important;
 }
 
@@ -739,31 +740,45 @@
     justify-content: center !important;
     align-items: center !important;
     gap: 12px !important;
+    width: 100% !important;
 }
 
 .pagination-custom nav[role="navigation"] .relative.z-0 {
     display: flex !important;
     gap: 12px !important;
     align-items: center !important;
+    justify-content: center !important;
 }
 
-/* Mostrar solo los botones Anterior, página activa y Siguiente */
+/* Mostrar SOLO los 3 botones principales */
 .pagination-custom nav[role="navigation"] a[rel="prev"],
 .pagination-custom nav[role="navigation"] a[rel="next"],
 .pagination-custom nav[role="navigation"] span[aria-current="page"] {
     display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-/* Ocultar todo lo demás */
-.pagination-custom nav[role="navigation"] a:not([rel="prev"]):not([rel="next"]),
-.pagination-custom nav[role="navigation"] span:not([aria-current="page"]):not([aria-disabled="true"]) {
+/* Ocultar TODOS los demás elementos */
+.pagination-custom nav[role="navigation"] * {
     display: none !important;
 }
 
+/* Mostrar específicamente los 3 botones que necesitamos */
+.pagination-custom nav[role="navigation"] a[rel="prev"],
+.pagination-custom nav[role="navigation"] a[rel="next"],
+.pagination-custom nav[role="navigation"] span[aria-current="page"],
+.pagination-custom nav[role="navigation"] .relative.z-0,
+.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /* Estilos de los botones */
-.pagination-custom nav[role="navigation"] a,
-.pagination-custom nav[role="navigation"] span {
-    display: inline-flex !important;
+.pagination-custom nav[role="navigation"] a[rel="prev"],
+.pagination-custom nav[role="navigation"] a[rel="next"],
+.pagination-custom nav[role="navigation"] span[aria-current="page"] {
     align-items: center !important;
     justify-content: center !important;
     padding: 12px 24px !important;
@@ -782,43 +797,20 @@
 .pagination-custom nav[role="navigation"] a[rel="prev"],
 .pagination-custom nav[role="navigation"] a[rel="next"] {
     background: transparent !important;
-    border: 2px solid #4f46e5 !important;
     color: #4f46e5 !important;
-}
-
-/* Hover para botones */
-.pagination-custom nav[role="navigation"] a[rel="prev"]:hover,
-.pagination-custom nav[role="navigation"] a[rel="next"]:hover {
-    background: #4f46e5 !important;
-    color: white !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
 }
 
 /* Página activa */
 .pagination-custom nav[role="navigation"] span[aria-current="page"] {
     background: #4f46e5 !important;
-    border-color: #4f46e5 !important;
     color: white !important;
-    font-weight: 700 !important;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
 }
 
-/* Botones deshabilitados */
-.pagination-custom nav[role="navigation"] span[aria-disabled="true"] {
-    background: #f8fafc !important;
-    border-color: #cbd5e1 !important;
-    color: #94a3b8 !important;
-    cursor: not-allowed !important;
-}
-
-/* Remover estilos de Tailwind */
-.pagination-custom nav[role="navigation"] .shadow-sm {
-    box-shadow: none !important;
-}
-
-.pagination-custom nav[role="navigation"] .rounded-md {
-    border-radius: 8px !important;
+/* Hover effects */
+.pagination-custom nav[role="navigation"] a[rel="prev"]:hover,
+.pagination-custom nav[role="navigation"] a[rel="next"]:hover {
+    background: #4f46e5 !important;
+    color: white !important;
 }
     
     /* Formularios */
