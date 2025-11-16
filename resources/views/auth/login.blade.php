@@ -12,7 +12,7 @@
         <!-- Panel Izquierdo -->
         <div class="left-panel">
             <div class="logo-container">
-                <img src="{{ asset('Imagen/Posface_logo.jpeg') }}" alt="Logo POSFACE" class="logo-img" />
+                <img src="{{ asset('Imagen/Posface_logo.jpeg') }}" alt="Logo POSFACE - Formamos profesionales con valores y visión gerencial" class="logo-img" />
             </div>
             <p class="mission-text">Formamos profesionales con valores y visión gerencial para el desarrollo económico del país.</p>
         </div>
@@ -20,15 +20,15 @@
         <!-- Panel Derecho -->
         <div class="right-panel">
             <div class="login-container">
-                <p class="welcome-text">Bienvenido al sistema de gestión académica</p>
+                <h1 class="welcome-text">Bienvenido al sistema de gestión académica</h1>
                 <h2>Iniciar sesión</h2>
 
                 <!-- Mensajes de error/success -->
-                <div class="alert alert-danger" id="error-alert" style="display: none;">
+                <div class="alert alert-danger" id="error-alert" style="display: none;" role="alert" aria-live="polite">
                     <ul id="error-list"></ul>
                 </div>
                 
-                <div class="alert alert-success" id="success-alert" style="display: none;">
+                <div class="alert alert-success" id="success-alert" style="display: none;" role="alert" aria-live="polite">
                     ¡Inicio de sesión exitoso! Redirigiendo...
                 </div>
 
@@ -36,18 +36,20 @@
                     @csrf
                     <!-- Campo de email -->
                     <div class="input-container" id="email-container">
-                        <i class="bi bi-person"></i>
-                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required maxlength="50" />
-                        <i class="bi bi-x-circle toggle-icon email-clear" id="email-clear" title="Limpiar campo"></i>
-                        <div class="error-message" id="email-error"></div>
+                        <label for="email" class="sr-only">Correo electrónico</label>
+                        <i class="bi bi-person" aria-hidden="true"></i>
+                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required maxlength="50" aria-describedby="email-error" />
+                        <i class="bi bi-x-circle toggle-icon email-clear" id="email-clear" title="Limpiar campo" aria-hidden="true"></i>
+                        <div class="error-message" id="email-error" role="alert" aria-live="polite"></div>
                     </div>
 
                     <!-- Campo de contraseña -->
                     <div class="input-container" id="password-container">
-                        <i class="bi bi-lock"></i>
-                        <input type="password" name="password" id="password" placeholder="Contraseña" required maxlength="20" />
-                        <i class="bi bi-eye toggle-icon" id="toggle-password" title="Mostrar contraseña"></i>
-                        <div class="error-message" id="password-error"></div>
+                        <label for="password" class="sr-only">Contraseña</label>
+                        <i class="bi bi-lock" aria-hidden="true"></i>
+                        <input type="password" name="password" id="password" placeholder="Contraseña" required maxlength="20" aria-describedby="password-error" />
+                        <i class="bi bi-eye toggle-icon" id="toggle-password" title="Mostrar contraseña" aria-hidden="true"></i>
+                        <div class="error-message" id="password-error" role="alert" aria-live="polite"></div>
                     </div>
 
                     <button type="submit" class="btn">Entrar</button>
@@ -132,6 +134,11 @@
                 passwordInput.setAttribute('type', type);
                 this.classList.toggle('bi-eye');
                 this.classList.toggle('bi-eye-slash');
+                
+                // Actualizar el texto del tooltip para accesibilidad
+                const isVisible = type === 'text';
+                this.setAttribute('title', isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña');
+                this.setAttribute('aria-label', isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña');
             });
             
             // Limpiar campo email
@@ -175,6 +182,13 @@
                     if (!passwordValid) errorList.innerHTML += '<li>Contraseña inválida</li>';
                     errorAlert.style.display = 'block';
                     successAlert.style.display = 'none';
+                    
+                    // Enfocar el primer campo con error para accesibilidad
+                    if (!emailValid) {
+                        emailInput.focus();
+                    } else if (!passwordValid) {
+                        passwordInput.focus();
+                    }
                 }
             });
             
@@ -231,11 +245,27 @@
                 input.parentElement.classList.add('error');
                 errorElement.textContent = message;
                 errorElement.style.display = 'block';
+                input.setAttribute('aria-invalid', 'true');
             }
             
             function showSuccess(input) {
                 input.parentElement.classList.add('success');
+                input.setAttribute('aria-invalid', 'false');
             }
+            
+            // Manejo de teclado para accesibilidad
+            emailInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    emailClear.click();
+                }
+            });
+            
+            passwordInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    passwordInput.value = '';
+                    validatePassword();
+                }
+            });
         });
     </script>
 </body>
