@@ -121,6 +121,7 @@ h2::after {
 .input-container {
   position: relative;
   margin-bottom: 25px;
+  min-height: 80px; /* Espacio reservado para mensajes de error */
 }
 
 .input-container i {
@@ -180,6 +181,15 @@ h2::after {
   margin-top: 8px;
   display: none;
   padding-left: 5px;
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  padding: 5px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  z-index: 10;
 }
 
 .btn {
@@ -258,6 +268,10 @@ h2::after {
     font-size: 24px;
     margin-bottom: 25px;
   }
+  
+  .input-container {
+    min-height: 70px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -282,5 +296,9 @@ h2::after {
   .btn {
     height: 46px;
     font-size: 15px;
+  }
+  
+  .input-container {
+    min-height: 65px;
   }
 }
