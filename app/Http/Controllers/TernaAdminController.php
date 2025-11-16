@@ -139,6 +139,9 @@ class TernaAdminController extends Controller
             $asistente->notify(new NuevoProcesoTernaNotification($pagoTerna));
         }
         
+        // Registrar en bitácora
+        $this->registrarBitacora('crear_proceso_terna', 'PagoTerna', $pagoTerna->id, [], $pagoTerna->toArray());
+        
         return redirect()->route('terna.admin.index')->with('success', 'Proceso creado y enviado al asistente');
     }
 
@@ -261,7 +264,14 @@ class TernaAdminController extends Controller
         ]);
 
         $pagoTerna = PagoTerna::findOrFail($id);
+
+        // Guardar datos antes de la actualización
+        $datos_antes = $pagoTerna->toArray();
+
         $pagoTerna->update($request->all());
+
+        // Registrar en bitácora
+        $this->registrarBitacora('editar_proceso_terna', 'PagoTerna', $pagoTerna->id, $datos_antes, $pagoTerna->toArray());
 
         return redirect()->route('terna.admin.index')->with('success', 'Proceso actualizado correctamente');
     }
@@ -270,6 +280,9 @@ class TernaAdminController extends Controller
     {
         $pagoTerna = PagoTerna::findOrFail($id);
         
+        // Guardar datos antes de eliminar
+        $datos_antes = $pagoTerna->toArray();
+
         // Eliminar documentos asociados
         foreach ($pagoTerna->documentos as $documento) {
             if ($documento->tipo_archivo === 'archivo') {
@@ -280,16 +293,26 @@ class TernaAdminController extends Controller
         
         $pagoTerna->delete();
         
+        // Registrar en bitácora
+        $this->registrarBitacora('eliminar_proceso_terna', 'PagoTerna', $id, $datos_antes, []);
+
         return redirect()->route('terna.admin.index')->with('success', 'Proceso eliminado correctamente');
     }
 
     public function marcarPagado($id)
     {
         $pagoTerna = PagoTerna::findOrFail($id);
+
+        // Guardar datos antes de marcar como pagado
+        $datos_antes = $pagoTerna->toArray();
+
         $pagoTerna->update([
             'estado' => 'pagado',
             'fecha_pago' => now()
         ]);
+
+        // Registrar en bitácora
+        $this->registrarBitacora('marcar_pagado_terna', 'PagoTerna', $pagoTerna->id, $datos_antes, $pagoTerna->toArray());
 
         return back()->with('success', 'Pago marcado como realizado');
     }
@@ -320,6 +343,9 @@ class TernaAdminController extends Controller
         }
 
         $integrante->save();
+
+        // Registrar en bitácora
+        $this->registrarBitacora('crear_integrante_terna', 'IntegranteTerna', $integrante->id, [], $integrante->toArray());
 
         return response()->json($integrante);
     }

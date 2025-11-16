@@ -96,6 +96,9 @@ class AcuseController extends Controller
                 throw new \Exception('No tienes permiso para reenviar este acuse');
             }
             
+            // Guardar datos antes del reenvío
+            $datos_antes = $acuse->toArray();
+            
             // Actualizar el acuse existente en lugar de crear uno nuevo
             $acuse->fk_id_usuario_remitente = $user->id_usuario;
             $acuse->fk_id_usuario_destinatario = $request->nuevo_destinatario;
@@ -122,6 +125,9 @@ class AcuseController extends Controller
             ]);
             
             DB::commit();
+
+            // Registrar en bitácora
+            $this->registrarBitacora('reenviar_acuse', 'Acuse', $acuse->id_acuse, $datos_antes, $acuse->toArray());
             
             return redirect()->route('acuses.index')
                 ->with('success', 'Acuse reenviado correctamente');
@@ -141,6 +147,9 @@ class AcuseController extends Controller
         if (!file_exists($rutaCompleta)) {
             abort(404, 'El archivo solicitado no existe');
         }
+
+        // Registrar en bitácora
+        $this->registrarBitacora('descargar_adjunto_acuse', 'AcuseAdjunto', $adjunto->id, [], []);
         
         return response()->download($rutaCompleta, $adjunto->nombre_archivo);
     }    
@@ -231,6 +240,10 @@ class AcuseController extends Controller
             }
 
             DB::commit();
+
+            // Registrar en bitácora
+            $this->registrarBitacora('crear_acuse', 'Acuse', $acuse->id_acuse, [], $acuse->toArray());
+
             return redirect()->route('acuses.index')->with('success', 'Acuse enviado correctamente');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -310,6 +323,9 @@ class AcuseController extends Controller
                 abort(403, 'No autorizado');
             }
             
+            // Guardar datos antes de eliminar
+            $datos_antes = $acuse->toArray();
+            
             // 1. Eliminar adjuntos (archivos físicos y registros)
             foreach ($acuse->adjuntos as $adjunto) {
                 // Eliminar archivo físico
@@ -334,6 +350,9 @@ class AcuseController extends Controller
             $acuse->delete();
             
             DB::commit();
+
+            // Registrar en bitácora
+            $this->registrarBitacora('eliminar_acuse', 'Acuse', $id, $datos_antes, []);
             
             return redirect()->route('acuses.index')
                 ->with('success', 'Acuse eliminado correctamente');
@@ -355,9 +374,15 @@ class AcuseController extends Controller
             abort(403, 'No autorizado');
         }
 
+        // Guardar datos antes de actualizar
+        $datos_antes = $acuse->toArray();
+
         $acuse->estado = 'recibido';
         $acuse->fecha_recepcion = now();
         $acuse->save();
+
+        // Registrar en bitácora
+        $this->registrarBitacora('aceptar_acuse', 'Acuse', $acuse->id_acuse, $datos_antes, $acuse->toArray());
 
         return redirect()->route('acuses.index')->with('success', 'Acuse marcado como recibido');
     }

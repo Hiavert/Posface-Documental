@@ -48,6 +48,9 @@ class BackupController extends Controller
 
             file_put_contents($filePath, $sqlDump);
 
+            // Registrar en bitácora
+            $this->registrarBitacora('crear_backup', 'Backup', null, [], ['filename' => $filename]);
+
             return response()->json(['success' => true, 'message' => 'Backup creado correctamente', 'filename' => $filename]);
 
         } catch (\Exception $e) {
@@ -63,6 +66,9 @@ class BackupController extends Controller
             return redirect()->route('backup.index')->with('error', 'Archivo no encontrado');
         }
 
+        // Registrar en bitácora
+        $this->registrarBitacora('descargar_backup', 'Backup', null, [], ['filename' => $filename]);
+
         return Response::download($filePath, $filename, [
             'Content-Type' => 'application/sql',
         ]);
@@ -75,6 +81,9 @@ class BackupController extends Controller
         if (!file_exists($filePath)) {
             return response()->json(['success' => false, 'message' => 'Archivo no encontrado']);
         }
+
+        // Registrar en bitácora
+        $this->registrarBitacora('eliminar_backup', 'Backup', null, [], ['filename' => $filename]);
 
         unlink($filePath);
         return response()->json(['success' => true, 'message' => 'Backup eliminado: ' . $filename]);

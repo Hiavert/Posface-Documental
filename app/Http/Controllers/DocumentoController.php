@@ -62,7 +62,7 @@ class DocumentoController extends Controller
         // Guardar archivo
         $archivoPath = $request->file('archivo')->store('documentos', 'public');
 
-        Documento::create([
+        $documento = Documento::create([
             'tipo' => $request->tipo,
             'numero' => $request->numero,
             'remitente' => $request->remitente,
@@ -73,6 +73,9 @@ class DocumentoController extends Controller
             'fecha_documento' => $request->fecha_documento,
             'user_id' => Auth::id(),
         ]);
+
+        // Registrar en bitácora
+        $this->registrarBitacora('crear_documento', 'Documento', $documento->id, [], $documento->toArray());
 
         return redirect()->route('documentos.gestor')->with('success', 'Documento guardado correctamente.');
     }
@@ -113,6 +116,9 @@ class DocumentoController extends Controller
             }
         }
 
+        // Registrar en bitácora
+        $this->registrarBitacora('descargar_documento', 'Documento', $documento->id, [], []);
+
         return Storage::disk('public')->download($documento->archivo_path);
     }
 
@@ -136,6 +142,9 @@ class DocumentoController extends Controller
             'archivo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
+        // Guardar datos antes de la actualización
+        $datos_antes = $documento->toArray();
+
         $data = $request->only([
             'tipo', 'numero', 'remitente', 'destinatario', 
             'asunto', 'descripcion', 'fecha_documento'
@@ -151,6 +160,9 @@ class DocumentoController extends Controller
 
         $documento->update($data);
 
+        // Registrar en bitácora
+        $this->registrarBitacora('editar_documento', 'Documento', $documento->id, $datos_antes, $documento->toArray());
+
         return redirect()->route('documentos.gestor')->with('success', 'Documento actualizado correctamente.');
     }
 
@@ -158,6 +170,9 @@ class DocumentoController extends Controller
     public function destroy(Documento $documento)
     {
         try {
+            // Guardar datos antes de eliminar
+            $datos_antes = $documento->toArray();
+
             // Eliminar archivo físico
             Storage::disk('public')->delete($documento->archivo_path);
             
@@ -167,6 +182,9 @@ class DocumentoController extends Controller
             // Eliminar documento
             $documento->delete();
             
+            // Registrar en bitácora
+            $this->registrarBitacora('eliminar_documento', 'Documento', $documento->id, $datos_antes, []);
+
             return redirect()->route('documentos.gestor')->with('success', 'Documento eliminado correctamente.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error al eliminar documento: ' . $e->getMessage());

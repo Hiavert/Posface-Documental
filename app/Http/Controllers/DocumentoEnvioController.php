@@ -44,6 +44,9 @@ class DocumentoEnvioController extends Controller
             }
         }
 
+        // Registrar en bitácora
+        $this->registrarBitacora('enviar_documento', 'DocumentoEnvio', $documento->id, [], ['destinatarios' => $request->destinatarios]);
+
         return redirect()->route('documentos.gestor')->with('success', 'Documento reenviado correctamente.');
     }
 
@@ -68,6 +71,9 @@ class DocumentoEnvioController extends Controller
                 'leido' => true,
                 'fecha_leido' => now()
             ]);
+
+            // Registrar en bitácora
+            $this->registrarBitacora('marcar_leido_documento', 'DocumentoEnvio', $envio->id, [], $envio->toArray());
         }
         
         return response()->json(['success' => true]);

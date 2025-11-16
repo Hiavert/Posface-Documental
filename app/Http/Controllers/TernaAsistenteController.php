@@ -57,6 +57,9 @@ class TernaAsistenteController extends Controller
 
         $pagoTerna = PagoTerna::findOrFail($id);
         
+        // Guardar datos antes de completar el proceso
+        $datos_antes = $pagoTerna->toArray();
+        
         $this->subirDocumentos($pagoTerna, $request);
 
         $pagoTerna->update([
@@ -68,6 +71,9 @@ class TernaAsistenteController extends Controller
         if ($admin) {
             $admin->notify(new ProcesoCompletadoNotification($pagoTerna));
         }
+        
+        // Registrar en bitácora
+        $this->registrarBitacora('completar_proceso_terna', 'PagoTerna', $pagoTerna->id, $datos_antes, $pagoTerna->toArray());
         
         return redirect()->route('terna.asistente.index')->with('success', 'Proceso completado y enviado a finanzas');
     }

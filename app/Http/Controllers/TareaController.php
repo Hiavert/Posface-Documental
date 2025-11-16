@@ -186,6 +186,9 @@ class TareaController extends Controller
                 $usuario->notify(new \App\Notifications\TareaAsignadaNotification($tarea));
             }
 
+            // Registrar en bitácora
+            $this->registrarBitacora('crear_tarea', 'Tarea', $tarea->id_tarea, [], $tarea->toArray());
+
             return redirect()->route('tareas.index')->with('success', 'Tarea creada correctamente.');
 
         } catch (\Exception $e) {
@@ -259,6 +262,9 @@ class TareaController extends Controller
 
         $tarea = Tarea::findOrFail($id);
 
+        // Guardar datos antes de la actualización
+        $datos_antes = $tarea->toArray();
+
         DB::beginTransaction();
         try {
             $tarea->update([
@@ -270,6 +276,9 @@ class TareaController extends Controller
             ]);
 
             DB::commit();
+
+            // Registrar en bitácora
+            $this->registrarBitacora('editar_tarea', 'Tarea', $tarea->id_tarea, $datos_antes, $tarea->toArray());
 
             return redirect()->route('tareas.index')->with('success', 'Tarea actualizada correctamente.');
 
@@ -299,6 +308,9 @@ class TareaController extends Controller
         try {
             $tarea = Tarea::findOrFail($id);
 
+            // Guardar datos antes de eliminar
+            $datos_antes = $tarea->toArray();
+
             foreach ($tarea->documentos as $documento) {
                 if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
                     Storage::disk('public')->delete($documento->ruta_archivo);
@@ -309,6 +321,9 @@ class TareaController extends Controller
             $tarea->delete();
 
             DB::commit();
+
+            // Registrar en bitácora
+            $this->registrarBitacora('eliminar_tarea', 'Tarea', $id, $datos_antes, []);
 
             return redirect()->route('tareas.index')->with('success', 'Tarea eliminada correctamente.');
 
@@ -335,8 +350,14 @@ class TareaController extends Controller
             return back()->withErrors($validator);
         }
 
+        // Guardar datos antes del cambio
+        $datos_antes = $tarea->toArray();
+
         $tarea->estado = $request->estado;
         $tarea->save();
+
+        // Registrar en bitácora
+        $this->registrarBitacora('cambiar_estado_tarea', 'Tarea', $tarea->id_tarea, $datos_antes, $tarea->toArray());
 
         return back()->with('success', 'Estado de la tarea actualizado correctamente.');
     }
@@ -358,6 +379,9 @@ class TareaController extends Controller
             return back()->withErrors($validator);
         }
 
+        // Guardar datos antes de la delegación
+        $datos_antes = $tarea->toArray();
+
         $tarea->fk_id_usuario_asignado = $request->nuevo_responsable;
         $tarea->save();
 
@@ -366,6 +390,9 @@ class TareaController extends Controller
         if ($usuario) {
             $usuario->notify(new \App\Notifications\TareaAsignadaNotification($tarea));
         }
+
+        // Registrar en bitácora
+        $this->registrarBitacora('delegar_tarea', 'Tarea', $tarea->id_tarea, $datos_antes, $tarea->toArray());
 
         return back()->with('success', 'Tarea delegada correctamente.');
     }
@@ -422,6 +449,9 @@ class TareaController extends Controller
 
             DB::commit();
 
+            // Registrar en bitácora
+            $this->registrarBitacora('subir_documento_tarea', 'Tarea', $request->id_tarea, [], ['documento_id' => $documento->id_documento]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Documento cargado correctamente.'
@@ -457,6 +487,9 @@ class TareaController extends Controller
         try {
             $documento = DocumentoAdministrativo::findOrFail($id);
 
+            // Guardar datos antes de eliminar
+            $datos_antes = $documento->toArray();
+
             if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
                 Storage::disk('public')->delete($documento->ruta_archivo);
             }
@@ -464,6 +497,9 @@ class TareaController extends Controller
             $documento->delete();
 
             DB::commit();
+
+            // Registrar en bitácora
+            $this->registrarBitacora('eliminar_documento_tarea', 'DocumentoAdministrativo', $id, $datos_antes, []);
 
             return response()->json([
                 'success' => true,
