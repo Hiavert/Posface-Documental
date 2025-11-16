@@ -54,7 +54,7 @@ body {
 .mission-text {
   font-size: 16px;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.95);
   margin-top: 20px;
   max-width: 350px;
 }
@@ -75,9 +75,10 @@ body {
 }
 
 .welcome-text {
-  color: #6c757d;
-  font-size: 14px;
-  margin-bottom: 5px;
+  color: #1a5a8d;
+  font-size: 18px;
+  margin-bottom: 10px;
+  font-weight: 600;
 }
 
 h2 {
@@ -176,7 +177,7 @@ h2::after {
 }
 
 .error-message {
-  color: #e53935;
+  color: #b71c1c;
   font-size: 13px;
   margin-top: 8px;
   display: none;
@@ -190,6 +191,7 @@ h2::after {
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   z-index: 10;
+  font-weight: 500;
 }
 
 .btn {
@@ -208,9 +210,11 @@ h2::after {
   box-shadow: 0 4px 6px rgba(11, 46, 89, 0.15);
 }
 
-.btn:hover {
+.btn:hover, .btn:focus {
   background: linear-gradient(to right, #0b2e59, #1a5a8d);
   box-shadow: 0 5px 12px rgba(11, 46, 89, 0.25);
+  outline: 2px solid #1a5a8d;
+  outline-offset: 2px;
 }
 
 .forgot-password {
@@ -226,9 +230,10 @@ h2::after {
   transition: all 0.2s;
 }
 
-.forgot-password a:hover {
+.forgot-password a:hover, .forgot-password a:focus {
   text-decoration: underline;
   color: #0b2e59;
+  outline: 1px dotted #1a5a8d;
 }
 
 .footer-text {
@@ -238,6 +243,25 @@ h2::after {
   margin-top: 30px;
   padding-top: 15px;
   border-top: 1px solid #eee;
+}
+
+/* Estilos para accesibilidad */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Mejorar contraste de los iconos */
+.input-container i.toggle-icon:focus {
+  outline: 2px solid #1a5a8d;
+  border-radius: 50%;
 }
 
 /* Responsive */
@@ -272,6 +296,10 @@ h2::after {
   .input-container {
     min-height: 70px;
   }
+  
+  .welcome-text {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -300,5 +328,34 @@ h2::after {
   
   .input-container {
     min-height: 65px;
+  }
+  
+  .welcome-text {
+    font-size: 15px;
+  }
+}
+
+/* Mejoras de alto contraste para usuarios con preferencias */
+@media (prefers-contrast: high) {
+  .input-container input {
+    border-width: 3px;
+  }
+  
+  .btn {
+    border: 2px solid #000;
+  }
+  
+  .error-message {
+    font-weight: bold;
+    border: 1px solid #b71c1c;
+  }
+}
+
+/* Mejoras para reducir movimiento para usuarios sensibles */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
