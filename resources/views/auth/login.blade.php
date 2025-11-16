@@ -37,7 +37,7 @@
                     <!-- Campo de email -->
                     <div class="input-container" id="email-container">
                         <i class="bi bi-person"></i>
-                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required />
+                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required maxlength="50" />
                         <i class="bi bi-x-circle toggle-icon email-clear" id="email-clear" title="Limpiar campo"></i>
                         <div class="error-message" id="email-error"></div>
                     </div>
@@ -45,7 +45,7 @@
                     <!-- Campo de contraseña -->
                     <div class="input-container" id="password-container">
                         <i class="bi bi-lock"></i>
-                        <input type="password" name="password" id="password" placeholder="Contraseña" required />
+                        <input type="password" name="password" id="password" placeholder="Contraseña" required maxlength="20" />
                         <i class="bi bi-eye toggle-icon" id="toggle-password" title="Mostrar contraseña"></i>
                         <div class="error-message" id="password-error"></div>
                     </div>
@@ -74,6 +74,24 @@
             const errorList = document.getElementById('error-list');
             const successAlert = document.getElementById('success-alert');
             const form = document.getElementById('loginForm');
+            
+            // Función para verificar caracteres repetidos
+            function hasRepeatingCharacters(text, maxRepeats) {
+                if (text.length === 0) return false;
+                
+                let count = 1;
+                for (let i = 1; i < text.length; i++) {
+                    if (text[i] === text[i-1]) {
+                        count++;
+                        if (count > maxRepeats) {
+                            return true;
+                        }
+                    } else {
+                        count = 1;
+                    }
+                }
+                return false;
+            }
             
             // Validación en tiempo real
             emailInput.addEventListener('input', validateEmail);
@@ -104,7 +122,24 @@
                 if (emailValid && passwordValid) {
                     errorAlert.style.display = 'none';
                     successAlert.style.display = 'block';
-                    setTimeout(() => form.submit(), 1500);
+                    
+                    // Simulamos el envío al servidor
+                    setTimeout(() => {
+                        // Si la contraseña es incorrecta, mostramos error y recargamos
+                        if (passwordInput.value !== 'contraseñaCorrecta') { // Esto es solo un ejemplo
+                            errorList.innerHTML = '<li>Contraseña incorrecta</li>';
+                            errorAlert.style.display = 'block';
+                            successAlert.style.display = 'none';
+                            
+                            // Recargar la página después de 2 segundos
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            // Si es correcta, enviamos el formulario
+                            form.submit();
+                        }
+                    }, 1500);
                 } else {
                     errorList.innerHTML = '';
                     if (!emailValid) errorList.innerHTML += '<li>Correo electrónico inválido</li>';
@@ -114,7 +149,7 @@
                 }
             });
             
-            // Validar email (ahora acepta cualquier dominio válido)
+            // Validar email
             function validateEmail() {
                 const email = emailInput.value.trim();
                 const errorElement = document.getElementById('email-error');
@@ -128,8 +163,18 @@
                     return false;
                 }
                 
+                if (email.length > 50) {
+                    showError(emailInput, errorElement, 'El correo no puede tener más de 50 caracteres');
+                    return false;
+                }
+                
                 if (!emailRegex.test(email)) {
                     showError(emailInput, errorElement, 'Debe ser un correo válido');
+                    return false;
+                }
+                
+                if (hasRepeatingCharacters(email, 3)) {
+                    showError(emailInput, errorElement, 'No se permiten más de 3 caracteres iguales consecutivos');
                     return false;
                 }
                 
@@ -149,8 +194,13 @@
                     return false;
                 }
                 
-                if (password.length < 8) {
-                    showError(passwordInput, errorElement, 'La contraseña debe tener al menos 8 caracteres');
+                if (password.length > 20) {
+                    showError(passwordInput, errorElement, 'La contraseña no puede tener más de 20 caracteres');
+                    return false;
+                }
+                
+                if (hasRepeatingCharacters(password, 3)) {
+                    showError(passwordInput, errorElement, 'No se permiten más de 3 caracteres iguales consecutivos');
                     return false;
                 }
                 
