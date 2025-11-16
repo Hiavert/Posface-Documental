@@ -75,27 +75,56 @@
             const successAlert = document.getElementById('success-alert');
             const form = document.getElementById('loginForm');
             
-            // Función para verificar caracteres repetidos
-            function hasRepeatingCharacters(text, maxRepeats) {
-                if (text.length === 0) return false;
+            // Función para verificar caracteres repetidos y bloquear la entrada
+            function preventRepeatingCharacters(input, maxRepeats) {
+                const value = input.value;
                 
-                let count = 1;
-                for (let i = 1; i < text.length; i++) {
-                    if (text[i] === text[i-1]) {
-                        count++;
-                        if (count > maxRepeats) {
-                            return true;
+                if (value.length > 0) {
+                    let count = 1;
+                    for (let i = 1; i < value.length; i++) {
+                        if (value[i] === value[i-1]) {
+                            count++;
+                            if (count > maxRepeats) {
+                                // Eliminar el último carácter ingresado
+                                input.value = value.substring(0, value.length - 1);
+                                return true; // Se bloqueó un carácter
+                            }
+                        } else {
+                            count = 1;
                         }
-                    } else {
-                        count = 1;
                     }
                 }
-                return false;
+                return false; // No se bloqueó ningún carácter
             }
             
             // Validación en tiempo real
-            emailInput.addEventListener('input', validateEmail);
-            passwordInput.addEventListener('input', validatePassword);
+            emailInput.addEventListener('input', function() {
+                if (preventRepeatingCharacters(emailInput, 3)) {
+                    // Mostrar mensaje de error temporal
+                    const errorElement = document.getElementById('email-error');
+                    showError(emailInput, errorElement, 'No se permiten más de 3 caracteres iguales consecutivos');
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                        emailInput.parentElement.classList.remove('error');
+                    }, 2000);
+                } else {
+                    validateEmail();
+                }
+            });
+            
+            passwordInput.addEventListener('input', function() {
+                if (preventRepeatingCharacters(passwordInput, 3)) {
+                    // Mostrar mensaje de error temporal
+                    const errorElement = document.getElementById('password-error');
+                    showError(passwordInput, errorElement, 'No se permiten más de 3 caracteres iguales consecutivos');
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                        passwordInput.parentElement.classList.remove('error');
+                    }, 2000);
+                } else {
+                    validatePassword();
+                }
+            });
             
             // Toggle mostrar/ocultar contraseña
             togglePassword.addEventListener('click', function() {
@@ -173,11 +202,6 @@
                     return false;
                 }
                 
-                if (hasRepeatingCharacters(email, 3)) {
-                    showError(emailInput, errorElement, 'No se permiten más de 3 caracteres iguales consecutivos');
-                    return false;
-                }
-                
                 showSuccess(emailInput);
                 return true;
             }
@@ -196,11 +220,6 @@
                 
                 if (password.length > 20) {
                     showError(passwordInput, errorElement, 'La contraseña no puede tener más de 20 caracteres');
-                    return false;
-                }
-                
-                if (hasRepeatingCharacters(password, 3)) {
-                    showError(passwordInput, errorElement, 'No se permiten más de 3 caracteres iguales consecutivos');
                     return false;
                 }
                 
