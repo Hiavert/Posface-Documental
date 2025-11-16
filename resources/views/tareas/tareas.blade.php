@@ -722,7 +722,7 @@
     }
     
 /* Paginación - Estilos corregidos para Tailwind */
-/* Paginación - Solo botones como en la segunda imagen */
+/* Paginación - Estilo exacto como en la imagen */
 .pagination-custom nav[role="navigation"] .flex-1 {
     display: none !important;
 }
@@ -731,12 +731,12 @@
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    gap: 10px !important;
+    gap: 12px !important;
 }
 
 .pagination-custom nav[role="navigation"] .relative.z-0 {
     display: flex !important;
-    gap: 8px !important;
+    gap: 12px !important;
     align-items: center !important;
 }
 
@@ -756,38 +756,25 @@
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 10px 20px !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 6px !important;
+    padding: 12px 24px !important;
+    border: 2px solid #4f46e5 !important;
+    border-radius: 8px !important;
     text-decoration: none !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
     transition: all 0.3s ease !important;
-    min-width: 50px !important;
-    height: 40px !important;
+    min-width: 60px !important;
+    height: 48px !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 
-/* Botones normales - Estilo minimalista */
-.pagination-custom nav[role="navigation"] a {
-    background: white !important;
-    color: #64748b !important;
-    border-color: #e2e8f0 !important;
-}
-
-.pagination-custom nav[role="navigation"] a:hover {
-    background: #f8fafc !important;
-    border-color: #cbd5e1 !important;
-    color: #475569 !important;
-    transform: translateY(-1px) !important;
-}
-
-/* Botones Previous y Next - Estilo simple */
+/* Botones Anterior y Siguiente - Estilo de contorno */
 .pagination-custom nav[role="navigation"] a[rel="prev"],
 .pagination-custom nav[role="navigation"] a[rel="next"] {
-    background: white !important;
-    border: 1px solid #e2e8f0 !important;
-    color: #64748b !important;
-    padding: 10px 20px !important;
+    background: transparent !important;
+    border: 2px solid #4f46e5 !important;
+    color: #4f46e5 !important;
+    padding: 12px 24px !important;
 }
 
 /* Remover flechas de Previous y Next */
@@ -802,26 +789,29 @@
 /* Hover para Previous y Next */
 .pagination-custom nav[role="navigation"] a[rel="prev"]:hover,
 .pagination-custom nav[role="navigation"] a[rel="next"]:hover {
-    background: #f8fafc !important;
-    border-color: #cbd5e1 !important;
-    color: #475569 !important;
-    transform: translateY(-1px) !important;
+    background: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
 }
 
-/* Página activa - Estilo destacado pero simple */
+/* Página activa - Estilo sólido */
 .pagination-custom nav[role="navigation"] span[aria-current="page"] {
-    background: #3b82f6 !important;
-    border-color: #3b82f6 !important;
+    background: #4f46e5 !important;
+    border-color: #4f46e5 !important;
     color: white !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
 }
 
 /* Botones deshabilitados */
 .pagination-custom nav[role="navigation"] span[aria-disabled="true"] {
-    background: #f1f5f9 !important;
-    border-color: #e2e8f0 !important;
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
     color: #94a3b8 !important;
     cursor: not-allowed !important;
+    box-shadow: none !important;
 }
 
 /* Remover estilos de Tailwind por defecto */
@@ -830,46 +820,26 @@
 }
 
 .pagination-custom nav[role="navigation"] .rounded-md {
-    border-radius: 6px !important;
+    border-radius: 8px !important;
 }
 
 .pagination-custom nav[role="navigation"] .rtl\\:flex-row-reverse {
     flex-direction: row !important;
 }
 
-/* NUEVAS REGLAS ESPECÍFICAS PARA OCULTAR EL TEXTO DE RESULTADOS */
-.pagination-custom nav[role="navigation"] .flex.justify-between.items-center {
-    display: none !important;
-}
-
-.pagination-custom nav[role="navigation"] .text-sm.text-gray-700 {
-    display: none !important;
-}
-
-.pagination-custom nav[role="navigation"] .leading-5 {
-    display: none !important;
-}
-
+/* Ocultar texto de resultados */
+.pagination-custom nav[role="navigation"] .flex.justify-between.items-center,
+.pagination-custom nav[role="navigation"] .text-sm.text-gray-700,
+.pagination-custom nav[role="navigation"] .leading-5,
 .pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > div:first-child,
-.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > div:last-child {
-    display: none !important;
-}
-
-.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > .relative.z-0 {
-    display: flex !important;
-}
-
-/* Ocultar cualquier elemento que pueda contener el texto */
-.pagination-custom nav[role="navigation"] div:contains("Showing"),
-.pagination-custom nav[role="navigation"] div:contains("results"),
-.pagination-custom nav[role="navigation"] span:contains("Showing"),
-.pagination-custom nav[role="navigation"] span:contains("results") {
-    display: none !important;
-}
-
-/* Regla más agresiva para ocultar el texto */
+.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > div:last-child,
 .pagination-custom nav[role="navigation"] > div:first-child {
     display: none !important;
+}
+
+/* Asegurar que solo se muestre el contenedor de botones */
+.pagination-custom nav[role="navigation"] .hidden.sm\\:flex-1 > .relative.z-0 {
+    display: flex !important;
 }
 
 .pagination-custom nav[role="navigation"] .sm\\:flex-1 {
@@ -877,10 +847,18 @@
     justify-content: center !important;
 }
 
-/* Asegurar que solo se muestre el contenedor de botones */
 .pagination-custom nav[role="navigation"] .sm\\:flex-1 .relative.z-0 {
     display: flex !important;
     margin: 0 auto !important;
+}
+
+/* Estilos específicos para el texto de los botones */
+.pagination-custom nav[role="navigation"] a[rel="prev"] {
+    content: "Anterior" !important;
+}
+
+.pagination-custom nav[role="navigation"] a[rel="next"] {
+    content: "Siguiente" !important;
 }
     
     /* Formularios */
