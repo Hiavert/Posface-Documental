@@ -19,14 +19,17 @@ class BackupController extends Controller
     {
         try {
             $filename = 'backup-' . date('Y-m-d-His') . '.sql';
-            $backupDir = storage_path('app/backups');
+            
+            // Usar el disco 'local' que en Railway apunta al storage temporal
+            $disk = Storage::disk('local');
+            $backupDir = 'backups';
 
-            // Crear carpeta si no existe
-            if (!is_dir($backupDir)) {
-                mkdir($backupDir, 0775, true);
+            // Crear carpeta si no existe usando Storage
+            if (!$disk->exists($backupDir)) {
+                $disk->makeDirectory($backupDir);
             }
 
-            $filePath = $backupDir . DIRECTORY_SEPARATOR . $filename;
+            $filePath = $backupDir . '/' . $filename;
 
             // Dump de todas las tablas
             $tables = DB::select('SHOW TABLES');
@@ -34,82 +37,151 @@ class BackupController extends Controller
 
             foreach ($tables as $tableObj) {
                 $table = array_values((array)$tableObj)[0];
+                
+                // Obtener estructura de la tabla
                 $createTable = DB::select("SHOW CREATE TABLE `$table`")[0]->{'Create Table'};
                 $sqlDump .= $createTable . ";\n\n";
 
+                // Obtener datos de la tabla
                 $rows = DB::table($table)->get();
-                foreach ($rows as $row) {
-                    $columns = implode('`,`', array_keys((array)$row));
-                    $values  = implode("','", array_map(fn($v) => addslashes($v), (array)$row));
-                    $sqlDump .= "INSERT INTO `$table` (`$columns`) VALUES ('$values');\n";
+                if ($rows->count() > 0) {
+                    foreach ($rows as $row) {
+                        $rowArray = (array)$row;
+                        $columns = implode('`,`', array_keys($rowArray));
+                        $values = implode("','", array_map(function($v) {
+                            return str_replace("'", "''", $v);
+                        }, $rowArray));
+                        $sqlDump .= "INSERT INTO `$table` (`$columns`) VALUES ('$values');\n";
+                    }
+                    $sqlDump .= "\n";
                 }
-                $sqlDump .= "\n\n";
             }
 
-            file_put_contents($filePath, $sqlDump);
+            // Guardar usando Storage
+            $disk->put($filePath, $sqlDump);
 
             // Registrar en bitácora
             $this->registrarBitacora('crear_backup', 'Backup', null, [], ['filename' => $filename]);
 
-            return response()->json(['success' => true, 'message' => 'Backup creado correctamente', 'filename' => $filename]);
+            return response()->json([
+                'success' => true, 
+                'message' => 'Backup creado correctamente', 
+                'filename' => $filename
+            ]);
 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error al crear backup: ' . $e->getMessage()]);
+            \Log::error('Error al crear backup: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error al crear backup: ' . $e->getMessage()
+            ], 500);
         }
     }
 
     public function downloadBackup($filename)
     {
-        $filePath = storage_path('app/backups/' . $filename);
+        try {
+            $disk = Storage::disk('local');
+            $filePath = 'backups/' . $filename;
 
-        if (!file_exists($filePath)) {
-            return redirect()->route('backup.index')->with('error', 'Archivo no encontrado');
+            if (!$disk->exists($filePath)) {
+                return redirect()->route('backup.index')
+                    ->with('error', 'Archivo de backup no encontrado: ' . $filename);
+            }
+
+            // Registrar en bitácora
+            $this->registrarBitacora('descargar_backup', 'Backup', null, [], ['filename' => $filename]);
+
+            // Descargar usando Storage
+            return $disk->download($filePath, $filename, [
+                'Content-Type' => 'application/sql',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error al descargar backup: ' . $e->getMessage());
+            return redirect()->route('backup.index')
+                ->with('error', 'Error al descargar el archivo: ' . $e->getMessage());
         }
-
-        // Registrar en bitácora
-        $this->registrarBitacora('descargar_backup', 'Backup', null, [], ['filename' => $filename]);
-
-        return Response::download($filePath, $filename, [
-            'Content-Type' => 'application/sql',
-        ]);
     }
 
     public function deleteBackup($filename)
     {
-        $filePath = storage_path('app/backups/' . $filename);
+        try {
+            $disk = Storage::disk('local');
+            $filePath = 'backups/' . $filename;
 
-        if (!file_exists($filePath)) {
-            return response()->json(['success' => false, 'message' => 'Archivo no encontrado']);
+            if (!$disk->exists($filePath)) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Archivo no encontrado: ' . $filename
+                ], 404);
+            }
+
+            // Eliminar archivo
+            $disk->delete($filePath);
+
+            // Registrar en bitácora
+            $this->registrarBitacora('eliminar_backup', 'Backup', null, [], ['filename' => $filename]);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Backup eliminado correctamente: ' . $filename
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error al eliminar backup: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error al eliminar backup: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Registrar en bitácora
-        $this->registrarBitacora('eliminar_backup', 'Backup', null, [], ['filename' => $filename]);
-
-        unlink($filePath);
-        return response()->json(['success' => true, 'message' => 'Backup eliminado: ' . $filename]);
     }
 
     private function getBackupFiles()
     {
         $files = [];
-        $path = storage_path('app/backups');
+        $disk = Storage::disk('local');
+        $backupDir = 'backups';
 
-        if (is_dir($path)) {
-            $fileList = scandir($path);
-            foreach ($fileList as $file) {
-                if ($file !== '.' && $file !== '..') {
-                    $filePath = $path . DIRECTORY_SEPARATOR . $file;
-                    $files[] = [
-                        'name' => $file,
-                        'size' => filesize($filePath),
-                        'modified' => filemtime($filePath),
-                    ];
+        try {
+            if ($disk->exists($backupDir)) {
+                $fileList = $disk->files($backupDir);
+                
+                foreach ($fileList as $file) {
+                    // Solo archivos .sql
+                    if (pathinfo($file, PATHINFO_EXTENSION) === 'sql') {
+                        $files[] = [
+                            'name' => basename($file),
+                            'size' => $disk->size($file),
+                            'modified' => $disk->lastModified($file),
+                        ];
+                    }
                 }
-            }
 
-            usort($files, fn($a, $b) => $b['modified'] - $a['modified']);
+                // Ordenar por fecha de modificación (más reciente primero)
+                usort($files, function($a, $b) {
+                    return $b['modified'] - $a['modified'];
+                });
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error al listar backups: ' . $e->getMessage());
         }
 
         return $files;
+    }
+
+    // Método auxiliar para registrar en bitácora
+    protected function registrarBitacora($accion, $tabla, $registroId, $datosAntes = [], $datosDespues = [])
+    {
+        // Implementación del registro en bitácora según tu sistema
+        // Este método puede variar dependiendo de tu implementación específica
+        try {
+            if (method_exists($this, 'bitacora')) {
+                $this->bitacora($accion, $tabla, $registroId, $datosAntes, $datosDespues);
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Error al registrar en bitácora: ' . $e->getMessage());
+        }
     }
 }
