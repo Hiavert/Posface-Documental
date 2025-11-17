@@ -6,15 +6,13 @@
     <title>Iniciar sesión - POSFACE</title>
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
     <div class="container">
         <!-- Panel Izquierdo -->
         <div class="left-panel">
             <div class="logo-container">
-                <img src="{{ asset('Imagen/Posface_logo.jpeg') }}" alt="Logo POSFACE - Universidad Nacional Autónoma de Honduras" class="logo-img" />
+                <img src="{{ asset('Imagen/Posface_logo.jpeg') }}" alt="Logo POSFACE" class="logo-img" />
             </div>
             <p class="mission-text">Formamos profesionales con valores y visión gerencial para el desarrollo económico del país.</p>
         </div>
@@ -26,60 +24,43 @@
                 <h2>Iniciar sesión</h2>
 
                 <!-- Mensajes de error/success -->
-                <div class="alert alert-danger" id="error-alert" style="display: none;" role="alert" aria-live="assertive">
+                <div class="alert alert-danger" id="error-alert" style="display: none;">
                     <ul id="error-list"></ul>
                 </div>
                 
-                <div class="alert alert-success" id="success-alert" style="display: none;" role="alert" aria-live="polite">
-                    <i class="bi bi-check-circle-fill mr-2" aria-hidden="true"></i> ¡Inicio de sesión exitoso! Redirigiendo...
+                <div class="alert alert-success" id="success-alert" style="display: none;">
+                    <i class="bi bi-check-circle-fill"></i> ¡Inicio de sesión exitoso! Redirigiendo...
                 </div>
 
-                <form id="loginForm" method="POST" action="{{ route('login') }}" novalidate>
+                <form id="loginForm" method="POST" action="{{ route('login') }}">
                     @csrf
                     <!-- Campo de email -->
                     <div class="input-container" id="email-container">
-                        <i class="bi bi-envelope input-icon-left" aria-hidden="true"></i>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            id="email" 
-                            placeholder="usuario@correo.com" 
-                            required 
-                            aria-describedby="email-error"
-                            aria-invalid="false"
-                        />
-                        <i class="bi bi-x-circle input-icon-right email-clear" id="email-clear" title="Limpiar campo" role="button" tabindex="0" aria-label="Limpiar campo de correo electrónico"></i>
-                        <div class="error-message" id="email-error" role="alert"></div>
+                        <i class="bi bi-envelope-fill input-icon-left"></i>
+                        <input type="email" name="email" id="email" placeholder="usuario@correo.com" required />
+                        <i class="bi bi-x-circle input-icon-right" id="email-clear" title="Limpiar campo"></i>
+                        <div class="error-message" id="email-error"></div>
                     </div>
 
                     <!-- Campo de contraseña -->
                     <div class="input-container" id="password-container">
-                        <i class="bi bi-lock input-icon-left" aria-hidden="true"></i>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            id="password" 
-                            placeholder="Contraseña" 
-                            required 
-                            aria-describedby="password-error"
-                            aria-invalid="false"
-                        />
-                        <i class="bi bi-eye input-icon-right" id="toggle-password" title="Mostrar contraseña" role="button" tabindex="0" aria-label="Mostrar u ocultar contraseña"></i>
-                        <div class="error-message" id="password-error" role="alert"></div>
+                        <i class="bi bi-lock-fill input-icon-left"></i>
+                        <input type="password" name="password" id="password" placeholder="Contraseña" required />
+                        <i class="bi bi-eye input-icon-right" id="toggle-password" title="Mostrar contraseña"></i>
+                        <div class="error-message" id="password-error"></div>
+                        <div class="password-strength" id="password-strength"></div>
                     </div>
 
-                    <button type="submit" class="btn" id="submit-btn" aria-label="Iniciar sesión en el sistema">
-                        <span id="btn-text">Entrar al sistema</span>
+                    <button type="submit" class="btn" id="submit-btn">
+                        <span id="btn-text">Entrar</span>
                         <span id="btn-loading" style="display: none;">
-                            <i class="bi bi-arrow-repeat spinning" aria-hidden="true"></i> Procesando...
+                            <i class="bi bi-arrow-repeat spinning"></i> Procesando...
                         </span>
                     </button>
                 </form>
 
                 <p class="forgot-password">
-                    <a href="{{ route('password.request') }}" aria-label="Recuperar contraseña olvidada">
-                        ¿Olvidaste tu contraseña?
-                    </a>
+                    <a href="{{ route('password.request') }}">¿Olvidaste tu contraseña?</a>
                 </p>
             </div>
             
@@ -102,77 +83,49 @@
             const submitBtn = document.getElementById('submit-btn');
             const btnText = document.getElementById('btn-text');
             const btnLoading = document.getElementById('btn-loading');
-            
-            // Estado de validación
-            let isEmailValid = false;
-            let isPasswordValid = false;
+            const passwordStrength = document.getElementById('password-strength');
             
             // Validación en tiempo real
             emailInput.addEventListener('input', validateEmail);
             passwordInput.addEventListener('input', validatePassword);
-            emailInput.addEventListener('blur', validateEmail);
-            passwordInput.addEventListener('blur', validatePassword);
             
             // Toggle mostrar/ocultar contraseña
-            togglePassword.addEventListener('click', togglePasswordVisibility);
-            togglePassword.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    togglePasswordVisibility();
-                }
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.classList.toggle('bi-eye');
+                this.classList.toggle('bi-eye-slash');
+                
+                // Actualizar título
+                const isVisible = type === 'text';
+                this.setAttribute('title', isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña');
             });
             
             // Limpiar campo email
-            emailClear.addEventListener('click', clearEmailField);
-            emailClear.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    clearEmailField();
-                }
+            emailClear.addEventListener('click', function() {
+                emailInput.value = '';
+                validateEmail();
+                emailInput.focus();
             });
             
             // Validación al enviar
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                validateEmail();
-                validatePassword();
+                const emailValid = validateEmail();
+                const passwordValid = validatePassword();
                 
-                if (isEmailValid && isPasswordValid) {
-                    // Mostrar estado de carga
+                if (emailValid && passwordValid) {
                     showLoadingState();
-                    
-                    // Ocultar errores previos
                     errorAlert.style.display = 'none';
                     successAlert.style.display = 'block';
-                    
-                    // Simular envío (en producción esto se enviaría inmediatamente)
-                    setTimeout(() => {
-                        form.submit();
-                    }, 1500);
+                    setTimeout(() => form.submit(), 1500);
                 } else {
                     showValidationErrors();
                 }
             });
             
-            function togglePasswordVisibility() {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                togglePassword.classList.toggle('bi-eye');
-                togglePassword.classList.toggle('bi-eye-slash');
-                
-                // Actualizar aria-label
-                const isVisible = type === 'text';
-                togglePassword.setAttribute('aria-label', isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña');
-                togglePassword.setAttribute('title', isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña');
-            }
-            
-            function clearEmailField() {
-                emailInput.value = '';
-                validateEmail();
-                emailInput.focus();
-            }
-            
+            // Validar email
             function validateEmail() {
                 const email = emailInput.value.trim();
                 const errorElement = document.getElementById('email-error');
@@ -182,97 +135,179 @@
                 
                 if (email === '') {
                     showError(emailInput, errorElement, 'El correo electrónico es obligatorio');
-                    isEmailValid = false;
                     return false;
                 }
                 
                 if (!emailRegex.test(email)) {
-                    showError(emailInput, errorElement, 'Por favor, introduce un correo electrónico válido');
-                    isEmailValid = false;
+                    showError(emailInput, errorElement, 'Debe ser un correo electrónico válido');
+                    return false;
+                }
+                
+                // Validar caracteres repetidos (más de 3 veces consecutivas)
+                if (hasRepeatedCharacters(email, 3)) {
+                    showError(emailInput, errorElement, 'El correo contiene caracteres repetidos de forma sospechosa');
                     return false;
                 }
                 
                 showSuccess(emailInput);
-                isEmailValid = true;
                 return true;
             }
             
+            // Validar contraseña
             function validatePassword() {
                 const password = passwordInput.value;
                 const errorElement = document.getElementById('password-error');
                 
                 resetInputState(passwordInput, errorElement);
+                passwordStrength.style.display = 'none';
                 
                 if (password === '') {
                     showError(passwordInput, errorElement, 'La contraseña es obligatoria');
-                    isPasswordValid = false;
                     return false;
                 }
                 
+                // Validaciones de seguridad
+                const errors = [];
+                const strength = checkPasswordStrength(password);
+                
                 if (password.length < 8) {
-                    showError(passwordInput, errorElement, 'La contraseña debe tener al menos 8 caracteres');
-                    isPasswordValid = false;
+                    errors.push('Al menos 8 caracteres');
+                }
+                
+                if (!/(?=.*[a-z])/.test(password)) {
+                    errors.push('Una letra minúscula');
+                }
+                
+                if (!/(?=.*[A-Z])/.test(password)) {
+                    errors.push('Una letra mayúscula');
+                }
+                
+                if (!/(?=.*\d)/.test(password)) {
+                    errors.push('Un número');
+                }
+                
+                if (!/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password)) {
+                    errors.push('Un carácter especial');
+                }
+                
+                // Validar caracteres repetidos (más de 3 veces consecutivas)
+                if (hasRepeatedCharacters(password, 3)) {
+                    errors.push('No más de 3 caracteres idénticos consecutivos');
+                }
+                
+                // Validar secuencias simples
+                if (hasSimpleSequence(password)) {
+                    errors.push('Evite secuencias simples (123, abc, etc.)');
+                }
+                
+                if (errors.length > 0) {
+                    showError(passwordInput, errorElement, 'Requisitos: ' + errors.join(', '));
+                    updatePasswordStrength(strength);
                     return false;
                 }
                 
                 showSuccess(passwordInput);
-                isPasswordValid = true;
+                updatePasswordStrength(strength);
                 return true;
+            }
+            
+            // Verificar si hay caracteres repetidos
+            function hasRepeatedCharacters(text, maxRepeat) {
+                const regex = new RegExp(`(.)\\1{${maxRepeat},}`, 'g');
+                return regex.test(text);
+            }
+            
+            // Verificar secuencias simples
+            function hasSimpleSequence(password) {
+                const sequences = [
+                    '123', '234', '345', '456', '567', '678', '789',
+                    'abc', 'bcd', 'cde', 'def', 'efg', 'fgh', 'ghi', 'hij', 'ijk', 'jkl', 'klm', 'lmn', 'mno', 'nop', 'opq', 'pqr', 'qrs', 'rst', 'stu', 'tuv', 'uvw', 'vwx', 'wxy', 'xyz',
+                    'qwe', 'wer', 'ert', 'rty', 'tyu', 'yui', 'uio', 'iop', 'asd', 'sdf', 'dfg', 'fgh', 'ghj', 'hjk', 'jkl', 'zxc', 'xcv', 'cvb', 'vbn', 'bnm'
+                ];
+                
+                const lowerPassword = password.toLowerCase();
+                return sequences.some(seq => lowerPassword.includes(seq));
+            }
+            
+            // Verificar fortaleza de la contraseña
+            function checkPasswordStrength(password) {
+                let score = 0;
+                
+                // Longitud
+                if (password.length >= 8) score += 1;
+                if (password.length >= 12) score += 1;
+                
+                // Variedad de caracteres
+                if (/[a-z]/.test(password)) score += 1;
+                if (/[A-Z]/.test(password)) score += 1;
+                if (/[0-9]/.test(password)) score += 1;
+                if (/[^a-zA-Z0-9]/.test(password)) score += 1;
+                
+                // Penalizar caracteres repetidos
+                if (hasRepeatedCharacters(password, 2)) score -= 1;
+                if (hasRepeatedCharacters(password, 3)) score -= 2;
+                
+                // Penalizar secuencias simples
+                if (hasSimpleSequence(password)) score -= 1;
+                
+                return Math.max(0, score);
+            }
+            
+            // Actualizar indicador de fortaleza
+            function updatePasswordStrength(strength) {
+                passwordStrength.style.display = 'block';
+                passwordStrength.className = 'password-strength';
+                
+                if (strength <= 3) {
+                    passwordStrength.classList.add('strength-weak');
+                    passwordStrength.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Contraseña débil';
+                } else if (strength <= 5) {
+                    passwordStrength.classList.add('strength-medium');
+                    passwordStrength.innerHTML = '<i class="bi bi-check-circle"></i> Contraseña media';
+                } else {
+                    passwordStrength.classList.add('strength-strong');
+                    passwordStrength.innerHTML = '<i class="bi bi-shield-check"></i> Contraseña fuerte';
+                }
             }
             
             function resetInputState(input, errorElement) {
                 input.parentElement.classList.remove('error', 'success');
                 errorElement.style.display = 'none';
-                input.setAttribute('aria-invalid', 'false');
             }
             
             function showError(input, errorElement, message) {
                 input.parentElement.classList.add('error');
-                input.parentElement.classList.remove('success');
                 errorElement.textContent = message;
                 errorElement.style.display = 'block';
-                input.setAttribute('aria-invalid', 'true');
             }
             
             function showSuccess(input) {
                 input.parentElement.classList.add('success');
-                input.parentElement.classList.remove('error');
-                input.setAttribute('aria-invalid', 'false');
             }
             
             function showLoadingState() {
                 btnText.style.display = 'none';
                 btnLoading.style.display = 'inline';
                 submitBtn.disabled = true;
-                submitBtn.style.opacity = '0.8';
-                submitBtn.style.cursor = 'not-allowed';
             }
             
             function showValidationErrors() {
                 errorList.innerHTML = '';
                 
-                if (!isEmailValid) {
-                    errorList.innerHTML += '<li><i class="bi bi-exclamation-circle" aria-hidden="true"></i> Correo electrónico inválido</li>';
+                const emailError = document.getElementById('email-error');
+                const passwordError = document.getElementById('password-error');
+                
+                if (emailError.style.display === 'block') {
+                    errorList.innerHTML += '<li><i class="bi bi-x-circle"></i> ' + emailError.textContent + '</li>';
                 }
                 
-                if (!isPasswordValid) {
-                    errorList.innerHTML += '<li><i class="bi bi-exclamation-circle" aria-hidden="true"></i> Contraseña inválida</li>';
+                if (passwordError.style.display === 'block') {
+                    errorList.innerHTML += '<li><i class="bi bi-x-circle"></i> ' + passwordError.textContent + '</li>';
                 }
                 
                 errorAlert.style.display = 'block';
                 successAlert.style.display = 'none';
-                
-                // Enfocar el primer campo con error
-                if (!isEmailValid) {
-                    emailInput.focus();
-                } else if (!isPasswordValid) {
-                    passwordInput.focus();
-                }
             }
-            
-            // Mejora: Validar campos al cargar la página si ya tienen valor
-            if (emailInput.value) validateEmail();
-            if (passwordInput.value) validatePassword();
         });
     </script>
 
@@ -287,11 +322,7 @@
         }
         
         .bi {
-            vertical-align: middle;
-        }
-        
-        .mr-2 {
-            margin-right: 0.5rem;
+            vertical-align: -0.125em;
         }
     </style>
 </body>
