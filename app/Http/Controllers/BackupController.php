@@ -20,22 +20,16 @@ class BackupController extends Controller
         try {
             $filename = 'backup-' . date('Y-m-d-His') . '.sql';
             
-            // Usar el disco 'public' que es el default en tu configuración
-            $disk = Storage::disk('public');
+            // Usar el disco 'local' que en Railway apunta al storage temporal
+            $disk = Storage::disk('local');
             $backupDir = 'backups';
-
-            \Log::info("Iniciando creación de backup: " . $filename);
-            \Log::info("Disco: public");
-            \Log::info("Directorio: " . $backupDir);
 
             // Crear carpeta si no existe usando Storage
             if (!$disk->exists($backupDir)) {
-                \Log::info("Creando directorio: " . $backupDir);
                 $disk->makeDirectory($backupDir);
             }
 
             $filePath = $backupDir . '/' . $filename;
-            \Log::info("Ruta completa: " . $filePath);
 
             // Dump de todas las tablas
             $tables = DB::select('SHOW TABLES');
@@ -66,15 +60,7 @@ class BackupController extends Controller
             // Guardar usando Storage
             $disk->put($filePath, $sqlDump);
 
-            // Verificar que el archivo se creó
-            if (!$disk->exists($filePath)) {
-                throw new \Exception("El archivo no se creó correctamente");
-            }
-
-            $fileSize = $disk->size($filePath);
-            \Log::info("Backup creado exitosamente: " . $filename . " (" . $fileSize . " bytes)");
-
-            // Registrar en bitácora
+            // Registrar en bitácora - usando la firma correcta del método padre
             $this->registrarBitacora('crear_backup', 'Backup', null, [], ['filename' => $filename]);
 
             return response()->json([
@@ -95,32 +81,21 @@ class BackupController extends Controller
     public function downloadBackup($filename)
     {
         try {
-            // Usar el disco 'public' que es donde se están guardando los archivos
-            $disk = Storage::disk('public');
+            $disk = Storage::disk('local');
             $filePath = 'backups/' . $filename;
 
-            \Log::info("Intentando descargar backup: " . $filePath);
-            \Log::info("Archivos en backups: " . json_encode($disk->files('backups')));
-
             if (!$disk->exists($filePath)) {
-                \Log::error("Archivo no encontrado: " . $filePath);
                 return redirect()->route('backup.index')
                     ->with('error', 'Archivo de backup no encontrado: ' . $filename);
             }
 
-            \Log::info("Archivo encontrado, procediendo a descargar: " . $filePath);
-
-            // Registrar en bitácora
+            // Registrar en bitácora - usando la firma correcta del método padre
             $this->registrarBitacora('descargar_backup', 'Backup', null, [], ['filename' => $filename]);
 
-            // Para Railway, necesitamos usar la respuesta de descarga de Laravel
-            $fileContent = $disk->get($filePath);
-            $fileSize = $disk->size($filePath);
-
-            return Response::make($fileContent, 200, [
+            // Descargar usando Storage
+            return $disk->download($filePath, $filename, [
                 'Content-Type' => 'application/sql',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-                'Content-Length' => $fileSize,
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
             ]);
 
         } catch (\Exception $e) {
@@ -133,7 +108,7 @@ class BackupController extends Controller
     public function deleteBackup($filename)
     {
         try {
-            $disk = Storage::disk('public');
+            $disk = Storage::disk('local');
             $filePath = 'backups/' . $filename;
 
             if (!$disk->exists($filePath)) {
@@ -146,7 +121,7 @@ class BackupController extends Controller
             // Eliminar archivo
             $disk->delete($filePath);
 
-            // Registrar en bitácora
+            // Registrar en bitácora - usando la firma correcta del método padre
             $this->registrarBitacora('eliminar_backup', 'Backup', null, [], ['filename' => $filename]);
 
             return response()->json([
@@ -166,7 +141,7 @@ class BackupController extends Controller
     private function getBackupFiles()
     {
         $files = [];
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
         $backupDir = 'backups';
 
         try {
@@ -209,34 +184,6 @@ class BackupController extends Controller
             }
         } catch (\Exception $e) {
             \Log::warning('Error al registrar en bitácora: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Método de diagnóstico para verificar la configuración de storage
-     */
-    private function diagnosticarStorage()
-    {
-        try {
-            $disks = ['local', 'public'];
-            $results = [];
-
-            foreach ($disks as $diskName) {
-                $disk = Storage::disk($diskName);
-                $results[$diskName] = [
-                    'root' => $disk->getAdapter()->getPathPrefix(),
-                    'writable' => is_writable($disk->getAdapter()->getPathPrefix()),
-                    'backups_exists' => $disk->exists('backups'),
-                    'backups_files' => $disk->exists('backups') ? $disk->files('backups') : [],
-                ];
-            }
-
-            \Log::info('Diagnóstico de Storage:', $results);
-            return $results;
-
-        } catch (\Exception $e) {
-            \Log::error('Error en diagnóstico de storage: ' . $e->getMessage());
-            return ['error' => $e->getMessage()];
         }
     }
 }
