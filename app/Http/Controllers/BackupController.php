@@ -60,7 +60,7 @@ class BackupController extends Controller
             // Guardar usando Storage
             $disk->put($filePath, $sqlDump);
 
-            // Registrar en bitácora
+            // Registrar en bitácora - usando la firma correcta del método padre
             $this->registrarBitacora('crear_backup', 'Backup', null, [], ['filename' => $filename]);
 
             return response()->json([
@@ -89,7 +89,7 @@ class BackupController extends Controller
                     ->with('error', 'Archivo de backup no encontrado: ' . $filename);
             }
 
-            // Registrar en bitácora
+            // Registrar en bitácora - usando la firma correcta del método padre
             $this->registrarBitacora('descargar_backup', 'Backup', null, [], ['filename' => $filename]);
 
             // Descargar usando Storage
@@ -121,7 +121,7 @@ class BackupController extends Controller
             // Eliminar archivo
             $disk->delete($filePath);
 
-            // Registrar en bitácora
+            // Registrar en bitácora - usando la firma correcta del método padre
             $this->registrarBitacora('eliminar_backup', 'Backup', null, [], ['filename' => $filename]);
 
             return response()->json([
@@ -171,14 +171,16 @@ class BackupController extends Controller
         return $files;
     }
 
-    // Método auxiliar para registrar en bitácora
-    protected function registrarBitacora($accion, $tabla, $registroId, $datosAntes = [], $datosDespues = [])
+    /**
+     * Método auxiliar para registrar en bitácora
+     * Compatible con la firma del método en el Controller padre
+     */
+    protected function registrarBitacora($accion, $modulo, $registro_id = null, $datos_antes = null, $datos_despues = null)
     {
-        // Implementación del registro en bitácora según tu sistema
-        // Este método puede variar dependiendo de tu implementación específica
         try {
-            if (method_exists($this, 'bitacora')) {
-                $this->bitacora($accion, $tabla, $registroId, $datosAntes, $datosDespues);
+            // Llamar al método del padre si existe
+            if (method_exists(get_parent_class(), 'registrarBitacora')) {
+                parent::registrarBitacora($accion, $modulo, $registro_id, $datos_antes, $datos_despues);
             }
         } catch (\Exception $e) {
             \Log::warning('Error al registrar en bitácora: ' . $e->getMessage());
