@@ -116,8 +116,11 @@ class DocumentoController extends Controller
             }
         }
 
-        // Registrar en bitácora
-        $this->registrarBitacora('descargar_documento', 'Documento', $documento->id, [], []);
+        // Registrar en bitácora - CORREGIDO
+        $this->registrarBitacora('descargar_documento', 'Documento', $documento->id, [], [
+            'documento' => $documento->asunto,
+            'archivo' => $documento->archivo_path
+        ]);
 
         return Storage::disk('public')->download($documento->archivo_path);
     }
