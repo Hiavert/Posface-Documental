@@ -85,6 +85,8 @@ Route::middleware('auth')->group(function () {
         Route::middleware('granular.permission:TareasDocumentales,ver')->group(function () {
             Route::get('/', [TareaController::class, 'index'])->name('tareas.index');
             Route::get('/{id}', [TareaController::class, 'show'])->name('tareas.show');
+            // NUEVA RUTA PARA DESCARGAR DOCUMENTOS DE TAREAS
+            Route::get('/descargar-documento/{id}', [TareaController::class, 'descargarDocumento'])->name('tareas.descargar-documento');
         });
 
         Route::middleware('granular.permission:TareasDocumentales,agregar')->group(function () {
@@ -158,6 +160,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [TernaAdminController::class, 'destroy'])->name('terna.admin.destroy');
         Route::post('/{id}/marcar-pagado', [TernaAdminController::class, 'marcarPagado'])->name('terna.admin.marcar-pagado');
         Route::post('integrantes', [TernaAdminController::class, 'storeIntegrante'])->name('terna.integrantes.store');
+        // NUEVA RUTA PARA DESCARGAR DOCUMENTOS DE TERNA ADMIN
+        Route::get('/descargar-documento/{id}', [TernaAdminController::class, 'descargarDocumento'])->name('terna.admin.descargar-documento');
     });
 
     // Rutas para asistente de terna
@@ -165,6 +169,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [TernaAsistenteController::class, 'index'])->name('terna.asistente.index');
         Route::get('/{id}', [TernaAsistenteController::class, 'show'])->name('terna.asistente.show');
         Route::post('/{id}/completar', [TernaAsistenteController::class, 'completarProceso'])->name('terna.asistente.completar');
+        // NUEVA RUTA PARA DESCARGAR DOCUMENTOS DE TERNA ASISTENTE
+        Route::get('/descargar-documento/{id}', [TernaAsistenteController::class, 'descargarDocumento'])->name('terna.asistente.descargar-documento');
     });
 
     // Módulo de Acuses
