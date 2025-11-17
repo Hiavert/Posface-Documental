@@ -186,18 +186,9 @@
                     errors.push('Un número');
                 }
                 
-                if (!/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password)) {
-                    errors.push('Un carácter especial');
-                }
-                
                 // Validar caracteres repetidos (más de 3 veces consecutivas)
                 if (hasRepeatedCharacters(password, 3)) {
                     errors.push('No más de 3 caracteres idénticos consecutivos');
-                }
-                
-                // Validar secuencias simples
-                if (hasSimpleSequence(password)) {
-                    errors.push('Evite secuencias simples (123, abc, etc.)');
                 }
                 
                 if (errors.length > 0) {
@@ -217,18 +208,6 @@
                 return regex.test(text);
             }
             
-            // Verificar secuencias simples
-            function hasSimpleSequence(password) {
-                const sequences = [
-                    '123', '234', '345', '456', '567', '678', '789',
-                    'abc', 'bcd', 'cde', 'def', 'efg', 'fgh', 'ghi', 'hij', 'ijk', 'jkl', 'klm', 'lmn', 'mno', 'nop', 'opq', 'pqr', 'qrs', 'rst', 'stu', 'tuv', 'uvw', 'vwx', 'wxy', 'xyz',
-                    'qwe', 'wer', 'ert', 'rty', 'tyu', 'yui', 'uio', 'iop', 'asd', 'sdf', 'dfg', 'fgh', 'ghj', 'hjk', 'jkl', 'zxc', 'xcv', 'cvb', 'vbn', 'bnm'
-                ];
-                
-                const lowerPassword = password.toLowerCase();
-                return sequences.some(seq => lowerPassword.includes(seq));
-            }
-            
             // Verificar fortaleza de la contraseña
             function checkPasswordStrength(password) {
                 let score = 0;
@@ -241,14 +220,10 @@
                 if (/[a-z]/.test(password)) score += 1;
                 if (/[A-Z]/.test(password)) score += 1;
                 if (/[0-9]/.test(password)) score += 1;
-                if (/[^a-zA-Z0-9]/.test(password)) score += 1;
                 
                 // Penalizar caracteres repetidos
                 if (hasRepeatedCharacters(password, 2)) score -= 1;
                 if (hasRepeatedCharacters(password, 3)) score -= 2;
-                
-                // Penalizar secuencias simples
-                if (hasSimpleSequence(password)) score -= 1;
                 
                 return Math.max(0, score);
             }
@@ -258,10 +233,10 @@
                 passwordStrength.style.display = 'block';
                 passwordStrength.className = 'password-strength';
                 
-                if (strength <= 3) {
+                if (strength <= 2) {
                     passwordStrength.classList.add('strength-weak');
                     passwordStrength.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Contraseña débil';
-                } else if (strength <= 5) {
+                } else if (strength <= 4) {
                     passwordStrength.classList.add('strength-medium');
                     passwordStrength.innerHTML = '<i class="bi bi-check-circle"></i> Contraseña media';
                 } else {
