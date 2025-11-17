@@ -349,4 +349,31 @@ class TernaAdminController extends Controller
 
         return response()->json($integrante);
     }
+
+    // MÉTODO NUEVO AGREGADO PARA DESCARGAR DOCUMENTOS
+    public function descargarDocumento($id)
+    {
+        $documento = DocumentoTerna::findOrFail($id);
+        $pagoTerna = $documento->pagoTerna;
+        
+        // Verificar permisos
+        if ($pagoTerna->id_administrador != auth()->id() && 
+            $pagoTerna->id_asistente != auth()->id() && 
+            !auth()->user()->tieneRol('SuperAdmin')) {
+            abort(403, 'No tienes permiso para descargar este documento.');
+        }
+
+        // Registrar en bitácora
+        $this->registrarBitacora('descargar_documento_terna', 'PagoTerna', $pagoTerna->id, [], [
+            'documento_tipo' => $documento->tipo,
+            'documento_id' => $documento->id,
+            'tipo_archivo' => $documento->tipo_archivo
+        ]);
+
+        if ($documento->tipo_archivo === 'archivo') {
+            return Storage::disk('documentos_terna')->download($documento->ruta_archivo);
+        } else {
+            return redirect($documento->ruta_archivo);
+        }
+    }
 }
