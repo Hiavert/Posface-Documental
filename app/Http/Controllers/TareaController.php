@@ -514,4 +514,36 @@ class TareaController extends Controller
             ], 500);
         }
     }
+
+    // MÉTODO NUEVO AGREGADO PARA DESCARGAR DOCUMENTOS
+    public function descargarDocumento($id)
+    {
+        if (!auth()->user()->puedeVer('TareasDocumentales')) {
+            abort(403, 'No tienes permisos para descargar documentos.');
+        }
+
+        $documento = DocumentoAdministrativo::findOrFail($id);
+        
+        // Verificar que el usuario tenga acceso a la tarea relacionada
+        $tieneAcceso = DB::table('tarea_documento')
+            ->join('tareas', 'tarea_documento.fk_id_tarea', '=', 'tareas.id_tarea')
+            ->where('tarea_documento.fk_id_documento', $id)
+            ->where(function($query) {
+                $query->where('tareas.fk_id_usuario_asignado', auth()->id())
+                      ->orWhere('tareas.fk_id_usuario_creador', auth()->id());
+            })
+            ->exists();
+
+        if (!$tieneAcceso && !auth()->user()->tieneRol('SuperAdmin')) {
+            abort(403, 'No tienes permiso para descargar este documento.');
+        }
+
+        // Registrar en bitácora
+        $this->registrarBitacora('descargar_documento_tarea', 'Tarea', $documento->id_documento, [], [
+            'documento' => $documento->nombre_documento,
+            'tarea_id' => $documento->tareas->first()->id_tarea ?? 'N/A'
+        ]);
+
+        return Storage::disk('public')->download($documento->ruta_archivo);
+    }
 }
